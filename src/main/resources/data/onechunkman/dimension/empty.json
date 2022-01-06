@@ -1,0 +1,27 @@
+{
+  "type" : "minecraft:overworld",
+  "generator" : {
+    "type": "minecraft:flat",
+    "settings": {
+      "layers" : [
+        {
+          "height" : 1,
+          "block" : "minecraft:stone"
+        },
+        {
+          "height" : 127,
+          "block" : "minecraft:bedrock"
+        }
+      ],
+      "biome" : "minecraft:plain",
+      "structures" : {
+        "stronghold" : {
+          "distance": 1,
+          "count": 0,
+          "spread": 1
+        },
+        "structures" : {}
+      }
+    }
+  }
+}

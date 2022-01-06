@@ -3,11 +3,15 @@ package xyz.immortius.onechunkman.common.world;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
+import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.*;
-import net.minecraft.world.level.biome.BiomeManager;
-import net.minecraft.world.level.biome.Climate;
+import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -16,11 +20,15 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
 import xyz.immortius.onechunkman.OneChunkMan;
 
+import javax.annotation.Nullable;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -160,5 +168,54 @@ public class OneChunkGenerator extends ChunkGenerator {
         allowedChunks.add(chunkPos);
     }
 
+
+    @Override
+    public Optional<ResourceKey<Codec<? extends ChunkGenerator>>> getTypeNameForDataFixer() {
+        return parent.getTypeNameForDataFixer();
+    }
+
+    @Override
+    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> p_196743_, Executor p_196744_, Blender p_196745_, StructureFeatureManager p_196746_, ChunkAccess p_196747_) {
+        return parent.createBiomes(p_196743_, p_196744_, p_196745_, p_196746_, p_196747_);
+    }
+
+    @Override
+    public Biome getNoiseBiome(int p_187755_, int p_187756_, int p_187757_) {
+        return parent.getNoiseBiome(p_187755_, p_187756_, p_187757_);
+    }
+
+    @Override
+    @Nullable
+    public BlockPos findNearestMapFeature(ServerLevel p_62162_, StructureFeature<?> p_62163_, BlockPos p_62164_, int p_62165_, boolean p_62166_) {
+        return parent.findNearestMapFeature(p_62162_, p_62163_, p_62164_, p_62165_, p_62166_);
+    }
+
+    public StructureSettings getSettings() {
+        return parent.getSettings();
+    }
+
+    public int getSpawnHeight(LevelHeightAccessor p_156157_) {
+        return parent.getSpawnHeight(p_156157_);
+    }
+
+    public BiomeSource getBiomeSource() {
+        return parent.getBiomeSource();
+    }
+
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome p_156158_, StructureFeatureManager p_156159_, MobCategory p_156160_, BlockPos p_156161_) {
+        return parent.getMobsAt(p_156158_, p_156159_, p_156160_, p_156161_);
+    }
+
+    public int getFirstFreeHeight(int p_156175_, int p_156176_, Heightmap.Types p_156177_, LevelHeightAccessor p_156178_) {
+        return parent.getFirstFreeHeight(p_156175_, p_156176_, p_156177_, p_156178_);
+    }
+
+    public int getFirstOccupiedHeight(int p_156180_, int p_156181_, Heightmap.Types p_156182_, LevelHeightAccessor p_156183_) {
+        return parent.getFirstOccupiedHeight(p_156180_, p_156181_, p_156182_, p_156183_);
+    }
+
+    public boolean hasStronghold(ChunkPos p_62173_) {
+        return parent.hasStronghold(p_62173_);
+    }
 
 }
