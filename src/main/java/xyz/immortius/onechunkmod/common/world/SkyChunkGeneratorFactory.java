@@ -9,16 +9,19 @@ import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.common.world.ForgeWorldPreset;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Factory for generating a SkyChunk world
  */
 public class SkyChunkGeneratorFactory implements ForgeWorldPreset.IBasicChunkGeneratorFactory {
+    private static final Logger LOGGER = LogManager.getLogger();
 
     @Override
     public ChunkGenerator createChunkGenerator(RegistryAccess registryAccess, long seed) {
         NoiseGeneratorSettings noiseSettings = registryAccess.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).get(NoiseGeneratorSettings.OVERWORLD);
-        return new SkyChunkPrimeGenerator(new NoiseBasedChunkGenerator(registryAccess.registryOrThrow(Registry.NOISE_REGISTRY), MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(registryAccess.registryOrThrow(Registry.BIOME_REGISTRY)), seed, () -> noiseSettings));
+        return new SkyChunkPrimeGenerator(new NoiseBasedChunkGenerator(registryAccess.registryOrThrow(Registry.NOISE_REGISTRY), MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(registryAccess.registryOrThrow(Registry.BIOME_REGISTRY)), seed, () -> noiseSettings), false);
     }
 
     @Override

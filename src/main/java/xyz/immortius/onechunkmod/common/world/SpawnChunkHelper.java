@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -14,6 +15,7 @@ import net.minecraftforge.common.util.ITeleporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.immortius.onechunkmod.OneChunkMod;
+import xyz.immortius.onechunkmod.common.blockEntities.BedrockChestBlockEntity;
 
 import java.util.List;
 import java.util.Objects;
@@ -53,6 +55,15 @@ public final class SpawnChunkHelper {
         if (sourceLevel != null) {
             copyBlocks(sourceLevel, targetLevel, chunkPos);
             copyEntities(sourceLevel, targetLevel, chunkPos);
+            createNextSpawner(targetLevel, chunkPos);
+        }
+    }
+
+    private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
+        BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), targetLevel.getMinBuildHeight() + 4, chunkPos.getMiddleBlockZ());
+        targetLevel.setBlock(blockPos, OneChunkMod.BEDROCK_CHEST_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+        if (targetLevel.getBlockEntity(blockPos) instanceof BedrockChestBlockEntity chestEntity) {
+            chestEntity.setItem(0, new ItemStack(OneChunkMod.SPAWN_CHUNK_BLOCK_ITEM.get(), 1));
         }
     }
 

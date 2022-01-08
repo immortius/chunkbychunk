@@ -19,8 +19,6 @@ import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -31,11 +29,11 @@ import java.util.concurrent.Executor;
  */
 public class SkyChunkPrimeGenerator extends ChunkGenerator {
 
-    public static final Codec<SkyChunkPrimeGenerator> CODEC = RecordCodecBuilder.create((encoded) -> {
-        return encoded.group(ChunkGenerator.CODEC.stable().fieldOf("parent").forGetter((decoded) -> {
-            return decoded.parent;
-        })).apply(encoded, encoded.stable(SkyChunkPrimeGenerator::new));
-    });
+    public static final Codec<SkyChunkPrimeGenerator> CODEC = RecordCodecBuilder.create((encoded) ->
+        encoded.group(ChunkGenerator.CODEC.fieldOf("parent").forGetter((decoded) -> decoded.parent),
+                Codec.BOOL.fieldOf("sealed").forGetter((decoded) -> decoded.generateSealedWorld))
+                .apply(encoded, encoded.stable(SkyChunkPrimeGenerator::new))
+    );
 
     /**
      * Hack for communicating the prime generator to the copy generator - this lets the copy generator pick up the overworld's settings
@@ -44,10 +42,12 @@ public class SkyChunkPrimeGenerator extends ChunkGenerator {
     static SkyChunkPrimeGenerator primeGenerator;
 
     private final ChunkGenerator parent;
+    private final boolean generateSealedWorld;
 
-    public SkyChunkPrimeGenerator(ChunkGenerator parent) {
+    public SkyChunkPrimeGenerator(ChunkGenerator parent, boolean generateSealedWorld) {
         super(parent.getBiomeSource(), parent.getSettings());
         this.parent = parent;
+        this.generateSealedWorld = generateSealedWorld;
         primeGenerator = this;
     }
 
@@ -62,7 +62,7 @@ public class SkyChunkPrimeGenerator extends ChunkGenerator {
 
     @Override
     public ChunkGenerator withSeed(long p_62156_) {
-        return new SkyChunkPrimeGenerator(parent.withSeed(p_62156_));
+        return new SkyChunkPrimeGenerator(parent.withSeed(p_62156_), generateSealedWorld);
     }
 
     @Override

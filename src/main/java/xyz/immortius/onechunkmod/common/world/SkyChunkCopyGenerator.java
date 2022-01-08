@@ -20,8 +20,6 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.feature.StructureFeature;
 import net.minecraft.world.level.levelgen.flat.FlatLevelGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import javax.annotation.Nullable;
 import java.util.concurrent.CompletableFuture;
@@ -42,6 +40,11 @@ public class SkyChunkCopyGenerator extends ChunkGenerator {
         } else {
             this.parent = new FlatLevelSource(new FlatLevelGeneratorSettings(getParentStructureSettings(), RegistryAccess.builtin().registryOrThrow(Registry.BIOME_REGISTRY)));
         }
+    }
+
+    public SkyChunkCopyGenerator(ChunkGenerator parent) {
+        super(parent.getBiomeSource(), parent.getSettings());
+        this.parent = parent;
     }
 
     private static BiomeSource getParentBiomeSource() {
@@ -71,7 +74,7 @@ public class SkyChunkCopyGenerator extends ChunkGenerator {
 
     @Override
     public ChunkGenerator withSeed(long p_62156_) {
-        return new SkyChunkPrimeGenerator(parent.withSeed(p_62156_));
+        return new SkyChunkCopyGenerator(parent);
     }
 
     @Override
