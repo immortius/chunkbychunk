@@ -1,35 +1,51 @@
 package xyz.immortius.onechunkmod.common.world;
 
+import com.mojang.serialization.Lifecycle;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
+import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.common.world.ForgeWorldPreset;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import xyz.immortius.onechunkmod.OneChunkMod;
 
 /**
- * Factory for generating a SkyChunk world
+ * Factory for generating a SkyChunk world. Will add an extra dimension for generating the true world to copy into the
+ * overworld.
  */
 public class SkyChunkGeneratorFactory implements ForgeWorldPreset.IBasicChunkGeneratorFactory {
-    private static final Logger LOGGER = LogManager.getLogger();
+
+    private static final ResourceKey<LevelStem> SKY_CHUNK_GENERATION_LEVEL_STEM = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, new ResourceLocation(OneChunkMod.MOD_ID, "skychunkgeneration"));
+
+    private final boolean generateSealedWorld;
+
+    public SkyChunkGeneratorFactory(boolean generateSealedWorld) {
+        this.generateSealedWorld = generateSealedWorld;
+    }
 
     @Override
     public ChunkGenerator createChunkGenerator(RegistryAccess registryAccess, long seed) {
         NoiseGeneratorSettings noiseSettings = registryAccess.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).get(NoiseGeneratorSettings.OVERWORLD);
-        return new SkyChunkPrimeGenerator(new NoiseBasedChunkGenerator(registryAccess.registryOrThrow(Registry.NOISE_REGISTRY), MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(registryAccess.registryOrThrow(Registry.BIOME_REGISTRY)), seed, () -> noiseSettings), false);
+        return new SkyChunkGenerator(new NoiseBasedChunkGenerator(registryAccess.registryOrThrow(Registry.NOISE_REGISTRY), MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(registryAccess.registryOrThrow(Registry.BIOME_REGISTRY)), seed, () -> noiseSettings), generateSealedWorld);
     }
 
     @Override
     public WorldGenSettings createSettings(RegistryAccess dynamicRegistries, long seed, boolean generateStructures, boolean bonusChest, String generatorSettings) {
         Registry<DimensionType> dimensionTypeRegistry = dynamicRegistries.registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
-        return new WorldGenSettings(seed, generateStructures, bonusChest,
-                WorldGenSettings.withOverworld(dimensionTypeRegistry,
-                        DimensionType.defaultDimensions(dynamicRegistries, seed),
-                        createChunkGenerator(dynamicRegistries, seed, generatorSettings)));
+        MappedRegistry<LevelStem> levelStems = WorldGenSettings.withOverworld(dimensionTypeRegistry,
+                DimensionType.defaultDimensions(dynamicRegistries, seed),
+                createChunkGenerator(dynamicRegistries, seed, generatorSettings));
+
+        if (levelStems.get(LevelStem.OVERWORLD).generator() instanceof SkyChunkGenerator primeGenerator) {
+            levelStems.register(SKY_CHUNK_GENERATION_LEVEL_STEM, new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), primeGenerator.getParent()), Lifecycle.stable());
+        }
+        return new WorldGenSettings(seed, generateStructures, bonusChest, levelStems);
     }
 }

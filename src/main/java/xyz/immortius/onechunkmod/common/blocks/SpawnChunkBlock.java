@@ -1,7 +1,9 @@
 package xyz.immortius.onechunkmod.common.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -58,6 +60,7 @@ public class SpawnChunkBlock extends Block {
             ChunkPos chunkPos = new ChunkPos(pos);
             if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, chunkPos)) {
                 serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                level.playSound(null, pos, OneChunkMod.SPAWN_CHUNK_SOUND_EVENT.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
                 SpawnChunkHelper.spawnChunk(serverLevel, chunkPos);
                 return InteractionResult.SUCCESS;
             }

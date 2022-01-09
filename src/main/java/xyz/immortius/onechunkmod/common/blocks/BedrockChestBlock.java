@@ -1,6 +1,8 @@
 package xyz.immortius.onechunkmod.common.blocks;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,6 +17,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 import xyz.immortius.onechunkmod.common.blockEntities.BedrockChestBlockEntity;
 
+/**
+ * A Bedrock Chest is a chest made of Bedrock that can only be opened if the chunk above it is cleared - with
+ * a little leeway, and ignoring some types of block.
+ */
 public class BedrockChestBlock extends BaseEntityBlock {
     private static final int MAXIMUM_BLOCKS_ALLOWED = 15;
 
@@ -22,6 +28,7 @@ public class BedrockChestBlock extends BaseEntityBlock {
         super(properties);
     }
 
+    @Override
     public RenderShape getRenderShape(BlockState p_49232_) {
         return RenderShape.MODEL;
     }
@@ -32,6 +39,7 @@ public class BedrockChestBlock extends BaseEntityBlock {
         return new BedrockChestBlockEntity(pos, state);
     }
 
+    @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
@@ -40,10 +48,11 @@ public class BedrockChestBlock extends BaseEntityBlock {
         } else {
             BlockEntity blockentity = level.getBlockEntity(pos);
             if (blockentity instanceof BedrockChestBlockEntity bedrockChestBlockEntity) {
-                if (canOpen(state, level, pos, bedrockChestBlockEntity)) {
+                int blockCount = getBlockCount(level, new ChunkPos(pos), pos.getY());
+                if (blockCount <= MAXIMUM_BLOCKS_ALLOWED) {
                     player.openMenu(bedrockChestBlockEntity);
                 } else {
-                    player.displayClientMessage(new TranslatableComponent("ui.onechunkmod.bedrockchest.sealedmessage"), true);
+                    player.displayClientMessage(new TranslatableComponent("ui.onechunkmod.bedrockchest.sealedmessage", new TextComponent(Integer.toString(blockCount - MAXIMUM_BLOCKS_ALLOWED)).withStyle(ChatFormatting.RED)), true);
                 }
 
                 return InteractionResult.CONSUME;
@@ -53,17 +62,11 @@ public class BedrockChestBlock extends BaseEntityBlock {
         }
     }
 
-    private static boolean canOpen(BlockState blockState, Level level, BlockPos pos, BedrockChestBlockEntity entity) {
-        int blockCount = getBlockCount(level, new ChunkPos(pos), pos.getY());
-        return blockCount < MAXIMUM_BLOCKS_ALLOWED;
-    }
-
-
     private static int getBlockCount(Level level, ChunkPos chunkPos, int aboveY) {
         LevelChunk chunk = level.getChunk(chunkPos.x, chunkPos.z);
         int count = 0;
         for (int x = chunkPos.getMinBlockX(); x < chunkPos.getMaxBlockX(); x++) {
-            for (int y = aboveY + 1; y < level.getMaxBuildHeight() - 1; y++) {
+            for (int y = aboveY + 1; y <= level.getMaxBuildHeight(); y++) {
                 for (int z = chunkPos.getMinBlockZ(); z < chunkPos.getMaxBlockZ(); z++) {
                     Block block = chunk.getBlockState(new BlockPos(x, y, z)).getBlock();
                     if (!(block instanceof AirBlock) &&

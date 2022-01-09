@@ -1,7 +1,8 @@
 {
   "generator.onechunkmod.onechunkskyworld": "One Chunk",
+  "generator.onechunkmod.onechunksealedworld": "Sealed World",
   "block.onechunkmod.chunkspawner" : "Chunk Spawner",
   "block.onechunkmod.bedrockchest" : "Bedrock Chest",
-  "ui.onechunkmod.bedrockchest.sealedmessage" : "The weight of the chunk seals this chest",
+  "ui.onechunkmod.bedrockchest.sealedmessage" : "The weight of the chunk seals this chest. %1$s blocks remain.",
   "container.bedrockchest" : "Bedrock Chest"
 }

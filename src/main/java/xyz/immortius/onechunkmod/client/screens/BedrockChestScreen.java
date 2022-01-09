@@ -9,6 +9,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import xyz.immortius.onechunkmod.client.menus.BedrockChestMenu;
 
+/**
+ * Screen for the Bedrock Chest
+ */
 public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu> {
     private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation("onechunkmod:textures/gui/container/bedrockchest.png");
 
@@ -17,18 +20,20 @@ public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu
         ++this.imageHeight;
     }
 
-    public void render(PoseStack p_99249_, int p_99250_, int p_99251_, float p_99252_) {
-        this.renderBackground(p_99249_);
-        super.render(p_99249_, p_99250_, p_99251_, p_99252_);
-        this.renderTooltip(p_99249_, p_99250_, p_99251_);
+    @Override
+    public void render(PoseStack stack, int p_99250_, int p_99251_, float p_99252_) {
+        this.renderBackground(stack);
+        super.render(stack, p_99250_, p_99251_, p_99252_);
+        this.renderTooltip(stack, p_99250_, p_99251_);
     }
 
-    protected void renderBg(PoseStack p_99244_, float p_99245_, int p_99246_, int p_99247_) {
+    @Override
+    protected void renderBg(PoseStack stack, float p_99245_, int p_99246_, int p_99247_) {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
         int i = (this.width - this.imageWidth) / 2;
         int j = (this.height - this.imageHeight) / 2;
-        this.blit(p_99244_, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(stack, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 }

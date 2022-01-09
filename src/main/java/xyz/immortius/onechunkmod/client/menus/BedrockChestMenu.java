@@ -11,18 +11,20 @@ import net.minecraft.world.item.ItemStack;
 import xyz.immortius.onechunkmod.OneChunkMod;
 import xyz.immortius.onechunkmod.common.blockEntities.BedrockChestBlockEntity;
 
+/**
+ * Menu for the bedrock chest. It has a single item slot.
+ */
 public class BedrockChestMenu extends AbstractContainerMenu {
-    private static final int CONTAINER_SIZE = BedrockChestBlockEntity.CONTAINER_SIZE;
     private final Container container;
 
     public BedrockChestMenu(int menuId, Inventory inventory) {
-        this(menuId, inventory, new SimpleContainer(CONTAINER_SIZE));
+        this(menuId, inventory, new SimpleContainer(BedrockChestBlockEntity.CONTAINER_SIZE));
     }
 
     public BedrockChestMenu(int menuId, Inventory inventory, Container container) {
         super(OneChunkMod.BEDROCK_CHEST_MENU.get(), menuId);
         this.container = container;
-        checkContainerSize(container, CONTAINER_SIZE);
+        checkContainerSize(container, BedrockChestBlockEntity.CONTAINER_SIZE);
         container.startOpen(inventory.player);
 
         for(int k = 0; k < BedrockChestBlockEntity.ROWS; ++k) {
@@ -49,6 +51,7 @@ public class BedrockChestMenu extends AbstractContainerMenu {
         return this.container.stillValid(player);
     }
 
+    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.slots.get(index);
@@ -73,6 +76,7 @@ public class BedrockChestMenu extends AbstractContainerMenu {
         return itemstack;
     }
 
+    @Override
     public void removed(Player player) {
         super.removed(player);
         this.container.stopOpen(player);

@@ -14,6 +14,9 @@ import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.onechunkmod.OneChunkMod;
 import xyz.immortius.onechunkmod.client.menus.BedrockChestMenu;
 
+/**
+ * Entity for the Bedrock Chest Block. It is a chest with a single item slot.
+ */
 public class BedrockChestBlockEntity extends RandomizableContainerBlockEntity {
 
     public static final int COLUMNS = 1;
@@ -52,19 +55,19 @@ public class BedrockChestBlockEntity extends RandomizableContainerBlockEntity {
     }
 
     @Override
-    protected void saveAdditional(CompoundTag p_187459_) {
-        super.saveAdditional(p_187459_);
-        if (!this.trySaveLootTable(p_187459_)) {
-            ContainerHelper.saveAllItems(p_187459_, this.items);
+    protected void saveAdditional(CompoundTag tag) {
+        super.saveAdditional(tag);
+        if (!this.trySaveLootTable(tag)) {
+            ContainerHelper.saveAllItems(tag, this.items);
         }
-
     }
 
-    public void load(CompoundTag p_155055_) {
-        super.load(p_155055_);
+    @Override
+    public void load(CompoundTag tag) {
+        super.load(tag);
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
-        if (!this.tryLoadLootTable(p_155055_)) {
-            ContainerHelper.loadAllItems(p_155055_, this.items);
+        if (!this.tryLoadLootTable(tag)) {
+            ContainerHelper.loadAllItems(tag, this.items);
         }
 
     }
