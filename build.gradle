@@ -15,7 +15,7 @@ apply plugin: 'maven-publish'
 
 version = '1.0.0'
 group = 'xyz.immortius' // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = 'onechunkmod'
+archivesBaseName = 'chunkbychunk'
 
 // Mojang ships Java 17 to end users in 1.18+, so your mod should target Java 17.
 java.toolchain.languageVersion = JavaLanguageVersion.of(17)
@@ -56,7 +56,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                onechunkmod {
+                chunkbychunk {
                     source sourceSets.main
                 }
             }
@@ -78,7 +78,7 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             mods {
-                onechunkmod {
+                chunkbychunk {
                     source sourceSets.main
                 }
             }
@@ -100,10 +100,10 @@ minecraft {
             property 'forge.logging.console.level', 'debug'
 
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
-            args '--mod', 'onechunkmod', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
+            args '--mod', 'chunkbychunk', '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
 
             mods {
-                onechunkmod {
+                chunkbychunk {
                     source sourceSets.main
                 }
             }
@@ -128,7 +128,7 @@ dependencies {
     // Specify the version of Minecraft to use. If this is any group other than 'net.minecraft', it is assumed
     // that the dep is a ForgeGradle 'patcher' dependency, and its patches will be applied.
     // The userdev artifact is a special name and will get all sorts of transformations applied to it.
-    minecraft 'net.minecraftforge:forge:1.18.1-39.0.10'
+    minecraft 'net.minecraftforge:forge:1.18.1-39.0.17'
 
     // Real mod deobf dependency examples - these get remapped to your current mappings
     // compileOnly fg.deobf("mezz.jei:jei-${mc_version}:${jei_version}:api") // Adds JEI API as a compile dependency
@@ -147,7 +147,7 @@ dependencies {
 jar {
     manifest {
         attributes([
-                "Specification-Title"     : "onechunkmod",
+                "Specification-Title"     : "chunkbychunk",
                 "Specification-Vendor"    : "immortius",
                 "Specification-Version"   : "1", // We are version 1 of ourselves
                 "Implementation-Title"    : project.name,

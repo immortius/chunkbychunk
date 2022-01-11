@@ -1,0 +1,5 @@
+{
+  "chunk_spawn_sound": {
+    "sounds" : [ "chunkbychunk:radar1" ]
+  }
+}

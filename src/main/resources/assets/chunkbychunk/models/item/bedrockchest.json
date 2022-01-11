@@ -1,0 +1,12 @@
+ {
+   "parent" : "block/cube",
+   "textures" : {
+     "up" : "chunkbychunk:block/bedrockchest-top",
+     "down" : "chunkbychunk:block/bedrockchest-side",
+     "north" : "chunkbychunk:block/bedrockchest-side",
+     "east" : "chunkbychunk:block/bedrockchest-side",
+     "south" : "chunkbychunk:block/bedrockchest-side",
+     "west" : "chunkbychunk:block/bedrockchest-side",
+     "particle": "minecraft:block/bedrock"
+   }
+}
