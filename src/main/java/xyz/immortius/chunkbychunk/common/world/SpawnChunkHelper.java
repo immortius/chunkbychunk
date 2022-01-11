@@ -4,12 +4,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.ai.util.RandomPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.levelgen.feature.stateproviders.RandomizedIntStateProvider;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -34,7 +32,6 @@ import java.util.function.Function;
 public final class SpawnChunkHelper {
 
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final EntityTeleport ENTITY_TELEPORT = new EntityTeleport();
     private static final Random random = new Random();
 
     private SpawnChunkHelper() {
@@ -62,19 +59,29 @@ public final class SpawnChunkHelper {
     /**
      * Spawns a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
      * @param targetLevel The level to spawn the chunk in
-     * @param chunkPos The position of the chunk to spawn
+     * @param chunkPos The position to spawn the chunk (both source and target)
      */
     public static void spawnChunk(ServerLevel targetLevel, ChunkPos chunkPos) {
+        spawnChunk(targetLevel, chunkPos, chunkPos);
+    }
+
+    /**
+     * Spawns a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
+     * @param targetLevel The level to spawn the chunk in
+     * @param sourceChunkPos The position of the chunk in the source dimension to pull from
+     * @param targetChunkPos The position of the chunk in the target dimension to spawn
+     */
+    public static void spawnChunk(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
         if (!isValidForChunkSpawn(targetLevel)) {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
             return;
         }
         ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkMod.SKY_CHUNK_GENERATION_LEVEL);
         if (sourceLevel != null) {
-            copyBlocks(sourceLevel, targetLevel, chunkPos);
-            copyEntities(sourceLevel, targetLevel, chunkPos);
+            copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
+            copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
             if (ChunkByChunkConfig.spawnNewChunkChest.get()) {
-                createNextSpawner(targetLevel, chunkPos);
+                createNextSpawner(targetLevel, targetChunkPos);
             }
         }
     }
@@ -84,19 +91,23 @@ public final class SpawnChunkHelper {
      * shouldn't be overwritten.
      * Block entities will also be copied.
      * @param from The level to copy from
+     * @param sourceChunkPos the chunk position to copy from
      * @param to The level to copy to
-     * @param chunkPos The position of the chunk to copy
+     * @param targetChunkPos The position of the chunk to copy to
      */
-    private static void copyBlocks(ServerLevel from, ServerLevel to, ChunkPos chunkPos) {
+    private static void copyBlocks(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
+        int xOffset = targetChunkPos.getMinBlockX() - sourceChunkPos.getMinBlockX();
+        int zOffset = targetChunkPos.getMinBlockZ() - sourceChunkPos.getMinBlockZ();
         for (int y = to.getMinBuildHeight(); y < to.getMaxBuildHeight(); y++) {
-            for (int z = chunkPos.getMinBlockZ(); z <= chunkPos.getMaxBlockZ(); z++) {
-                for (int x = chunkPos.getMinBlockX(); x <= chunkPos.getMaxBlockX(); x++) {
-                    BlockPos pos = new BlockPos(x, y, z);
-                    Block existingBlock = to.getBlockState(pos).getBlock();
+            for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
+                for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
+                    BlockPos sourceBlockPos = new BlockPos(x, y, z);
+                    BlockPos targetBlockPos = new BlockPos(x + xOffset, y, z + zOffset);
+                    Block existingBlock = to.getBlockState(targetBlockPos).getBlock();
                     if (existingBlock instanceof LeavesBlock || existingBlock instanceof AirBlock || existingBlock instanceof LiquidBlock || existingBlock == Blocks.BEDROCK || existingBlock == Blocks.COBBLESTONE) {
-                        to.setBlock(pos, from.getBlockState(pos), Block.UPDATE_ALL);
-                        BlockEntity fromBlockEntity = from.getBlockEntity(pos);
-                        BlockEntity toBlockEntity = to.getBlockEntity(pos);
+                        to.setBlock(targetBlockPos, from.getBlockState(sourceBlockPos), Block.UPDATE_ALL);
+                        BlockEntity fromBlockEntity = from.getBlockEntity(sourceBlockPos);
+                        BlockEntity toBlockEntity = to.getBlockEntity(targetBlockPos);
                         if (fromBlockEntity != null && toBlockEntity != null) {
                             toBlockEntity.load(fromBlockEntity.saveWithFullMetadata());
                         }
@@ -109,13 +120,14 @@ public final class SpawnChunkHelper {
     /**
      * Teleports all entities in a chunk from one level to another. Entities must have been loaded already.
      * @param from The level to teleport entities from
+     * @param sourceChunkPos The position of the chunk to teleport entities from
      * @param to The level to teleport entities to
-     * @param chunkPos The chunk to teleport entities between
+     * @param targetChunkPos The chunk to teleport entities to
      */
-    private static void copyEntities(ServerLevel from, ServerLevel to, ChunkPos chunkPos) {
-        List<Entity> entities = from.getEntities((Entity) null, new AABB(chunkPos.getMinBlockX(), from.getMinBuildHeight(), chunkPos.getMinBlockZ(), chunkPos.getMaxBlockX(), from.getMaxBuildHeight(), chunkPos.getMaxBlockZ()), (x) -> true);
+    private static void copyEntities(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
+        List<Entity> entities = from.getEntities((Entity) null, new AABB(sourceChunkPos.getMinBlockX(), from.getMinBuildHeight(), sourceChunkPos.getMinBlockZ(), sourceChunkPos.getMaxBlockX(), from.getMaxBuildHeight(), sourceChunkPos.getMaxBlockZ()), (x) -> true);
         for (Entity e : entities) {
-            e.changeDimension(to, ENTITY_TELEPORT);
+            e.changeDimension(to, new EntityTeleport(new Vec3((targetChunkPos.x - sourceChunkPos.x) * 16, 0, (targetChunkPos.z - sourceChunkPos.z) * 16)));
         }
     }
 
@@ -125,7 +137,6 @@ public final class SpawnChunkHelper {
      * @param chunkPos The position of the chunk
      */
     private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
-
         int minPos = ChunkByChunkConfig.minChestSpawnDepth();
         int maxPos = ChunkByChunkConfig.maxChestSpawnDepth();
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {
@@ -141,7 +152,8 @@ public final class SpawnChunkHelper {
         BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
         targetLevel.setBlock(blockPos, ChunkByChunkMod.BEDROCK_CHEST_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
         if (targetLevel.getBlockEntity(blockPos) instanceof BedrockChestBlockEntity chestEntity) {
-            chestEntity.setItem(0, new ItemStack(ChunkByChunkMod.SPAWN_CHUNK_BLOCK_ITEM.get(), 1));
+            ItemStack chunkSpawners = new ItemStack((ChunkByChunkConfig.giveUnstableChunkSpawners.get()) ? ChunkByChunkMod.UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM.get() : ChunkByChunkMod.SPAWN_CHUNK_BLOCK_ITEM.get(), ChunkByChunkConfig.numChunkSpawners.get());
+            chestEntity.setItem(0, chunkSpawners);
         }
     }
 
@@ -149,10 +161,17 @@ public final class SpawnChunkHelper {
      * A generic teleporter that copies entities from one dimension to another, maintaining position.
      */
     private static class EntityTeleport implements ITeleporter {
+
+        private final Vec3 portalOffset;
+
+        public EntityTeleport(Vec3 portalOffset) {
+            this.portalOffset = portalOffset;
+        }
+
         @Override
-        public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo)
-        {
-            return new PortalInfo(entity.position(), Vec3.ZERO, entity.xRotO, entity.yRotO);
+        public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo) {
+            Vec3 finalPos = entity.position().add(portalOffset);
+            return new PortalInfo(finalPos, Vec3.ZERO, entity.xRotO, entity.yRotO);
         }
 
         @Override

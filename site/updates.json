@@ -1,6 +1,7 @@
 {
 	"homepage": "https://immortius.xyz/chunk-by-chunk",
     "1.18.1": {
+	  "1.1.0": "Added configuration and unstable chunk spawners",
       "1.0.0": "Initial Release"
     },
 	"promos" : {

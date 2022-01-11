@@ -1,0 +1,20 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    " r ",
+    "rSr",
+    " r "
+  ],
+  "key" : {
+    "r" : {
+      "item" : "minecraft:redstone"
+    },
+    "S" : {
+      "item" : "chunkbychunk:chunkspawner"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:unstablechunkspawner",
+    "count" : 1
+  }
+}

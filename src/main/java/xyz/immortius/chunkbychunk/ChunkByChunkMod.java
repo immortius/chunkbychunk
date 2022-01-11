@@ -1,7 +1,6 @@
 package xyz.immortius.chunkbychunk;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -36,13 +35,13 @@ import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.common.blocks.BedrockChestBlock;
 import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
+import xyz.immortius.chunkbychunk.common.blocks.UnstableSpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGeneratorFactory;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 
 import java.util.List;
-import java.util.Map;
 
 @Mod("chunkbychunk")
 public class ChunkByChunkMod {
@@ -71,8 +70,10 @@ public class ChunkByChunkMod {
     public static final RegistryObject<ForgeWorldPreset> ONE_CHUNK_WORLD = WORLD_PRESETS.register("onechunkskyworld", () -> new ForgeWorldPreset(new SkyChunkGeneratorFactory(false)));
     public static final RegistryObject<ForgeWorldPreset> SEALED_CHUNK_WORLD = WORLD_PRESETS.register("onechunksealedworld", () -> new ForgeWorldPreset(new SkyChunkGeneratorFactory(true)));
     public static final RegistryObject<Block> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
+    public static final RegistryObject<Block> UNSTABLE_SPAWN_CHUNK_BLOCK = BLOCKS.register("unstablechunkspawner", () -> new UnstableSpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
     public static final RegistryObject<Block> BEDROCK_CHEST_BLOCK = BLOCKS.register("bedrockchest", () -> new BedrockChestBlock(BlockBehaviour.Properties.of(Material.STONE).strength(-1, 3600000.0F).noDrops().isValidSpawn(((p_61031_, p_61032_, p_61033_, p_61034_) -> false))));
     public static final RegistryObject<Item> SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("chunkspawner", () -> new BlockItem(SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("unstablechunkspawner", () -> new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> BEDROCK_CHEST_ITEM = ITEMS.register("bedrockchest", () -> new BlockItem(BEDROCK_CHEST_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<BlockEntityType<?>> BEDROCK_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("bedrockchestentity", () -> BlockEntityType.Builder.of(BedrockChestBlockEntity::new, BEDROCK_CHEST_BLOCK.get()).build(null));
     public static final RegistryObject<MenuType<?>> BEDROCK_CHEST_MENU = CONTAINERS.register("bedrockchestmenu", () -> new MenuType<>(BedrockChestMenu::new));
@@ -119,8 +120,9 @@ public class ChunkByChunkMod {
     private void spawnInitialChunks(ServerLevel overworldLevel, ChunkPos centerChunkPos) {
         List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkConfig.initialChunks.get() - 1);
         for (int[] offset : chunkOffsets) {
-            ChunkPos pos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-            SpawnChunkHelper.spawnChunk(overworldLevel, pos);
+            ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
+            ChunkPos sourcePos = new ChunkPos(targetPos.x + ChunkByChunkConfig.chunkGenXOffset.get(), targetPos.z + ChunkByChunkConfig.chunkGenZOffset.get());
+            SpawnChunkHelper.spawnChunk(overworldLevel, sourcePos, targetPos);
         }
     }
 

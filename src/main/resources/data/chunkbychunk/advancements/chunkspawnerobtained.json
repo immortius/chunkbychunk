@@ -1,0 +1,15 @@
+{
+  "criteria" : {
+    "obtainspawnchunkblock" : {
+      "trigger" : "minecraft:inventory_changed",
+      "conditions" : {
+        "items" : [{
+          "items" : ["chunkbychunk:chunkspawner"]
+        }]
+      }
+    }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:chunkspawnerstablefromunstable","chunkbychunk:chunkspawnerunstablefromstable"]
+  }
+}
