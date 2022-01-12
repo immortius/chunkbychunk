@@ -32,8 +32,7 @@ public class SkyChunkGeneratorFactory implements ForgeWorldPreset.IBasicChunkGen
 
     @Override
     public ChunkGenerator createChunkGenerator(RegistryAccess registryAccess, long seed) {
-        NoiseGeneratorSettings noiseSettings = registryAccess.registryOrThrow(Registry.NOISE_GENERATOR_SETTINGS_REGISTRY).get(NoiseGeneratorSettings.OVERWORLD);
-        return new SkyChunkGenerator(new NoiseBasedChunkGenerator(registryAccess.registryOrThrow(Registry.NOISE_REGISTRY), MultiNoiseBiomeSource.Preset.OVERWORLD.biomeSource(registryAccess.registryOrThrow(Registry.BIOME_REGISTRY)), seed, () -> noiseSettings), generateSealedWorld);
+        return new SkyChunkGenerator(WorldGenSettings.makeDefaultOverworld(registryAccess, seed), generateSealedWorld);
     }
 
     @Override
