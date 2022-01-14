@@ -1,0 +1,23 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "xyx",
+    "ycy",
+    "xyx"
+  ],
+  "key" : {
+    "x" : {
+      "item" : "minecraft:redstone_block"
+    },
+    "y" : {
+      "item" : "minecraft:oxidized_copper"
+    },
+    "c" : {
+      "item" : "minecraft:diamond_block"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:unstablechunkspawner",
+    "count" : 1
+  }
+}
