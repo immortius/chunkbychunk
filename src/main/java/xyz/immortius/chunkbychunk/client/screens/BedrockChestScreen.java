@@ -7,14 +7,14 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
-import xyz.immortius.chunkbychunk.client.menus.BedrockChestMenu;
+import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
  * Screen for the Bedrock Chest
  */
 public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu> {
-    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkMod.MOD_ID + ":textures/gui/container/bedrockchest.png");
+    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/bedrockchest.png");
 
     public BedrockChestScreen(BedrockChestMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);

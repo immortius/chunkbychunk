@@ -2,7 +2,6 @@ package xyz.immortius.chunkbychunk.common.world;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
@@ -11,17 +10,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.ITeleporter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
-import xyz.immortius.chunkbychunk.common.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
-import java.util.function.Function;
 
 /**
  * Helper class for spawning a chunk. Spawning is done by copying a chunk from SkyChunkGeneration level
@@ -39,7 +37,8 @@ public final class SpawnChunkHelper {
 
     /**
      * Checks whether a chunk is 'empty'. A chunk is empty of it doesn't have bedrock on its lowest level.
-     * @param level The level to check
+     *
+     * @param level    The level to check
      * @param chunkPos The chunk position to check
      * @return Whether the chunk is 'empty' and thus ready to be spawned into.
      */
@@ -58,8 +57,9 @@ public final class SpawnChunkHelper {
 
     /**
      * Spawns a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
+     *
      * @param targetLevel The level to spawn the chunk in
-     * @param chunkPos The position to spawn the chunk (both source and target)
+     * @param chunkPos    The position to spawn the chunk (both source and target)
      */
     public static void spawnChunk(ServerLevel targetLevel, ChunkPos chunkPos) {
         spawnChunk(targetLevel, chunkPos, chunkPos);
@@ -67,7 +67,8 @@ public final class SpawnChunkHelper {
 
     /**
      * Spawns a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
-     * @param targetLevel The level to spawn the chunk in
+     *
+     * @param targetLevel    The level to spawn the chunk in
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      * @param targetChunkPos The position of the chunk in the target dimension to spawn
      */
@@ -76,11 +77,11 @@ public final class SpawnChunkHelper {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
             return;
         }
-        ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkMod.SKY_CHUNK_GENERATION_LEVEL);
+        ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
         if (sourceLevel != null) {
             copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
             copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
-            if (ChunkByChunkConfig.spawnNewChunkChest.get()) {
+            if (ChunkByChunkSettings.spawnNewChunkChest()) {
                 createNextSpawner(targetLevel, targetChunkPos);
             }
         }
@@ -90,9 +91,10 @@ public final class SpawnChunkHelper {
      * Copies all blocks from one level to another, as long as there isn't an existing block that
      * shouldn't be overwritten.
      * Block entities will also be copied.
-     * @param from The level to copy from
+     *
+     * @param from           The level to copy from
      * @param sourceChunkPos the chunk position to copy from
-     * @param to The level to copy to
+     * @param to             The level to copy to
      * @param targetChunkPos The position of the chunk to copy to
      */
     private static void copyBlocks(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
@@ -119,26 +121,33 @@ public final class SpawnChunkHelper {
 
     /**
      * Teleports all entities in a chunk from one level to another. Entities must have been loaded already.
-     * @param from The level to teleport entities from
+     *
+     * @param from           The level to teleport entities from
      * @param sourceChunkPos The position of the chunk to teleport entities from
-     * @param to The level to teleport entities to
+     * @param to             The level to teleport entities to
      * @param targetChunkPos The chunk to teleport entities to
      */
     private static void copyEntities(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
         List<Entity> entities = from.getEntities((Entity) null, new AABB(sourceChunkPos.getMinBlockX(), from.getMinBuildHeight(), sourceChunkPos.getMinBlockZ(), sourceChunkPos.getMaxBlockX(), from.getMaxBuildHeight(), sourceChunkPos.getMaxBlockZ()), (x) -> true);
         for (Entity e : entities) {
-            e.changeDimension(to, new EntityTeleport(new Vec3((targetChunkPos.x - sourceChunkPos.x) * 16, 0, (targetChunkPos.z - sourceChunkPos.z) * 16)));
+            Vec3 pos = new Vec3(e.getX() + (targetChunkPos.x - sourceChunkPos.x) * 16, e.getY(), e.getZ() + (targetChunkPos.z - sourceChunkPos.z) * 16);
+
+            Entity movedEntity = CBCInteropMethods.changeDimension(e, to, new PortalInfo(pos, Vec3.ZERO, e.xRotO, e.yRotO));
+            if (movedEntity != null) {
+                movedEntity.setPos(pos);
+            }
         }
     }
 
     /**
      * Generates a Bedrock chest containing a chunk spawner at the bottom of a chunk
+     *
      * @param targetLevel The level of the chunk
-     * @param chunkPos The position of the chunk
+     * @param chunkPos    The position of the chunk
      */
     private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
-        int minPos = ChunkByChunkConfig.minChestSpawnDepth();
-        int maxPos = ChunkByChunkConfig.maxChestSpawnDepth();
+        int minPos = ChunkByChunkSettings.minChestSpawnDepth();
+        int maxPos = ChunkByChunkSettings.maxChestSpawnDepth();
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {
             maxPos--;
         }
@@ -150,40 +159,11 @@ public final class SpawnChunkHelper {
         }
 
         BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
-        targetLevel.setBlock(blockPos, ChunkByChunkMod.BEDROCK_CHEST_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+        targetLevel.setBlock(blockPos, ChunkByChunkConstants.bedrockChestBlock().defaultBlockState(), Block.UPDATE_ALL);
         if (targetLevel.getBlockEntity(blockPos) instanceof BedrockChestBlockEntity chestEntity) {
-            ItemStack chunkSpawners = new ItemStack((ChunkByChunkConfig.giveUnstableChunkSpawners.get()) ? ChunkByChunkMod.UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM.get() : ChunkByChunkMod.SPAWN_CHUNK_BLOCK_ITEM.get(), ChunkByChunkConfig.numChunkSpawners.get());
+            ItemStack chunkSpawners = new ItemStack((ChunkByChunkSettings.giveUnstableChunkSpawners()) ? ChunkByChunkConstants.unstableChunkSpawnBlockItem() : ChunkByChunkConstants.spawnChunkBlockItem(), ChunkByChunkSettings.numChunkSpawners());
             chestEntity.setItem(0, chunkSpawners);
         }
     }
 
-    /**
-     * A generic teleporter that copies entities from one dimension to another, maintaining position.
-     */
-    private static class EntityTeleport implements ITeleporter {
-
-        private final Vec3 portalOffset;
-
-        public EntityTeleport(Vec3 portalOffset) {
-            this.portalOffset = portalOffset;
-        }
-
-        @Override
-        public PortalInfo getPortalInfo(Entity entity, ServerLevel destWorld, Function<ServerLevel, PortalInfo> defaultPortalInfo) {
-            Vec3 finalPos = entity.position().add(portalOffset);
-            return new PortalInfo(finalPos, Vec3.ZERO, entity.xRotO, entity.yRotO);
-        }
-
-        @Override
-        public boolean isVanilla()
-        {
-            return false;
-        }
-
-        @Override
-        public boolean playTeleportSound(ServerPlayer player, ServerLevel sourceWorld, ServerLevel destWorld)
-        {
-            return false;
-        }
-    };
 }

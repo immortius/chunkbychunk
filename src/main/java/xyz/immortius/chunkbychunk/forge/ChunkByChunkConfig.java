@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.common.config;
+package xyz.immortius.chunkbychunk.forge;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 

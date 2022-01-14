@@ -1,6 +1,6 @@
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
-package xyz.immortius.chunkbychunk.common.blockEntities;
+package xyz.immortius.chunkbychunk.interop;
 
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

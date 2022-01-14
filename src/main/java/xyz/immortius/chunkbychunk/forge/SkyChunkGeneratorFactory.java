@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.common.world;
+package xyz.immortius.chunkbychunk.forge;
 
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.MappedRegistry;
@@ -6,15 +6,14 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.common.world.ForgeWorldPreset;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.forge.ChunkByChunkMod;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
  * Factory for generating a SkyChunk world. Will add an extra dimension for generating the true world to copy into the
@@ -22,7 +21,7 @@ import xyz.immortius.chunkbychunk.ChunkByChunkMod;
  */
 public class SkyChunkGeneratorFactory implements ForgeWorldPreset.IBasicChunkGeneratorFactory {
 
-    private static final ResourceKey<LevelStem> SKY_CHUNK_GENERATION_LEVEL_STEM = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, new ResourceLocation(ChunkByChunkMod.MOD_ID, "skychunkgeneration"));
+    private static final ResourceKey<LevelStem> SKY_CHUNK_GENERATION_LEVEL_STEM = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "skychunkgeneration"));
 
     private final boolean generateSealedWorld;
 

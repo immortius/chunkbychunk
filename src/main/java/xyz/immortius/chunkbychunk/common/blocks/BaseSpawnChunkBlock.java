@@ -13,8 +13,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60570_) {
         super.onPlace(state, level, pos, prevState, p_60570_);
         if (!level.isClientSide()) {
-            ServerLevel sourceLevel = Objects.requireNonNull(level.getServer()).getLevel(ChunkByChunkMod.SKY_CHUNK_GENERATION_LEVEL);
+            ServerLevel sourceLevel = Objects.requireNonNull(level.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
             if (sourceLevel != null) {
                 ChunkPos chunkPos = getSourceChunk(level, pos);
                 sourceLevel.setChunkForced(chunkPos.x, chunkPos.z, true);
@@ -45,7 +45,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60519_) {
         super.onRemove(state, level, pos, prevState, p_60519_);
         if (!level.isClientSide()) {
-            ServerLevel sourceLevel = Objects.requireNonNull(level.getServer()).getLevel(ChunkByChunkMod.SKY_CHUNK_GENERATION_LEVEL);
+            ServerLevel sourceLevel = Objects.requireNonNull(level.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
             if (sourceLevel != null) {
                 ChunkPos chunkPos = getSourceChunk(level, pos);
                 sourceLevel.setChunkForced(chunkPos.x, chunkPos.z, false);
@@ -63,7 +63,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
             ChunkPos sourceChunkPos = getSourceChunk(level, pos);
             if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
                 serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                level.playSound(null, pos, ChunkByChunkMod.SPAWN_CHUNK_SOUND_EVENT.get(), SoundSource.BLOCKS, 1.0f, 1.0f);
+                level.playSound(null, pos, ChunkByChunkConstants.spawnChunkSoundEffect(), SoundSource.BLOCKS, 1.0f, 1.0f);
                 SpawnChunkHelper.spawnChunk(serverLevel, sourceChunkPos, targetChunkPos);
                 return InteractionResult.SUCCESS;
             }

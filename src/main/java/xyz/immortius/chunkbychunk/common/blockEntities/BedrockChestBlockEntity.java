@@ -11,8 +11,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
-import xyz.immortius.chunkbychunk.client.menus.BedrockChestMenu;
+import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
  * Entity for the Bedrock Chest Block. It is a chest with a single item slot.
@@ -26,7 +26,7 @@ public class BedrockChestBlockEntity extends RandomizableContainerBlockEntity {
     private NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
 
     public BedrockChestBlockEntity(BlockPos pos, BlockState state) {
-        super(ChunkByChunkMod.BEDROCK_CHEST_BLOCK_ENTITY.get(), pos, state);
+        super(ChunkByChunkConstants.bedrockChestEntity(), pos, state);
     }
 
     @Override

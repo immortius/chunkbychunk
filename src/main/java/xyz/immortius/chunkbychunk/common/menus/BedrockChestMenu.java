@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.client.menus;
+package xyz.immortius.chunkbychunk.common.menus;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -8,8 +8,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ShulkerBoxSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import xyz.immortius.chunkbychunk.ChunkByChunkMod;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
  * Menu for the bedrock chest. It has a single item slot.
@@ -22,7 +22,7 @@ public class BedrockChestMenu extends AbstractContainerMenu {
     }
 
     public BedrockChestMenu(int menuId, Inventory inventory, Container container) {
-        super(ChunkByChunkMod.BEDROCK_CHEST_MENU.get(), menuId);
+        super(ChunkByChunkConstants.bedrockChestMenu(), menuId);
         this.container = container;
         checkContainerSize(container, BedrockChestBlockEntity.CONTAINER_SIZE);
         container.startOpen(inventory.player);

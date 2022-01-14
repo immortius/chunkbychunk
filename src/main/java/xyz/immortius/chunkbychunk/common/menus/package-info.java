@@ -1,9 +1,6 @@
-@ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
-package xyz.immortius.chunkbychunk.client.menus;
+package xyz.immortius.chunkbychunk.common.menus;
 
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;
-
-import javax.annotation.ParametersAreNonnullByDefault;

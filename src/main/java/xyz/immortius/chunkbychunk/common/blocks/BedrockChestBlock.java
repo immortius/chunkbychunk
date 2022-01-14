@@ -14,9 +14,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
-import xyz.immortius.chunkbychunk.common.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 /**
  * A Bedrock Chest is a chest made of Bedrock that can only be opened if the chunk above it is cleared - with
@@ -32,7 +31,6 @@ public class BedrockChestBlock extends BaseEntityBlock {
         return RenderShape.MODEL;
     }
 
-    @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new BedrockChestBlockEntity(pos, state);
@@ -48,10 +46,10 @@ public class BedrockChestBlock extends BaseEntityBlock {
             BlockEntity blockentity = level.getBlockEntity(pos);
             if (blockentity instanceof BedrockChestBlockEntity bedrockChestBlockEntity) {
                 int blockCount = getBlockCount(level, new ChunkPos(pos), pos.getY());
-                if (blockCount <= ChunkByChunkConfig.bedrockChestBlocksRemainingThreshold.get()) {
+                if (blockCount <= ChunkByChunkSettings.bedrockChestBlocksRemainingThreshold()) {
                     player.openMenu(bedrockChestBlockEntity);
                 } else {
-                    player.displayClientMessage(new TranslatableComponent("ui.chunkbychunk.bedrockchest.sealedmessage", new TextComponent(Integer.toString(blockCount - ChunkByChunkConfig.bedrockChestBlocksRemainingThreshold.get())).withStyle(ChatFormatting.RED)), true);
+                    player.displayClientMessage(new TranslatableComponent("ui.chunkbychunk.bedrockchest.sealedmessage", new TextComponent(Integer.toString(blockCount - ChunkByChunkSettings.bedrockChestBlocksRemainingThreshold())).withStyle(ChatFormatting.RED)), true);
                 }
 
                 return InteractionResult.CONSUME;
