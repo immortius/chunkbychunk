@@ -1,6 +1,7 @@
 {
   "generator.chunkbychunk.onechunkskyworld": "One Chunk",
   "generator.chunkbychunk.onechunksealedworld": "Sealed World",
+  "block.chunkbychunk.worldcore" : "World Core",
   "block.chunkbychunk.chunkspawner" : "Chunk Spawner",
   "block.chunkbychunk.unstablechunkspawner" : "Unstable Chunk Spawner",
   "block.chunkbychunk.bedrockchest" : "Bedrock Chest",
