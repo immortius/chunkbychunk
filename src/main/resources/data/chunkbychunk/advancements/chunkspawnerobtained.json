@@ -10,6 +10,6 @@
     }
   },
   "rewards" : {
-    "recipes" : ["chunkbychunk:chunkspawnerstablefromunstable","chunkbychunk:chunkspawnerunstablefromstable","chunkbychunk:unstablechunkspawner"]
+    "recipes" : ["chunkbychunk:chunkspawnerunstablefromstable","chunkbychunk:chunkspawnerstablefromunstable"]
   }
 }

@@ -1,0 +1,15 @@
+{
+  "criteria" : {
+    "obtainworldshard" : {
+      "trigger" : "minecraft:inventory_changed",
+      "conditions" : {
+        "items" : [{
+          "items" : ["chunkbychunk:worldshard"]
+        }]
+      }
+    }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:worldcrystal","chunkbychunk:disassemble_worldshard","chunkbychunk:worldfragment"]
+  }
+}

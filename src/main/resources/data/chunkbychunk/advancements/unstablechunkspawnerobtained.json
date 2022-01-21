@@ -1,6 +1,6 @@
 {
   "criteria" : {
-    "obtainspawnchunkblock" : {
+    "obtainedunstablechunkspawner" : {
       "trigger" : "minecraft:inventory_changed",
       "conditions" : {
         "items" : [{
@@ -10,6 +10,6 @@
     }
   },
   "rewards" : {
-    "recipes" : ["chunkbychunk:chunkspawnerstablefromunstable","chunkbychunk:chunkspawnerunstablefromstable","chunkbychunk:unstablechunkspawner"]
+    "recipes" : ["chunkbychunk:chunkspawnerstablefromunstable","chunkbychunk:unstablechunkspawner","chunkbychunk:chunkspawnerunstablefromstable"]
   }
 }

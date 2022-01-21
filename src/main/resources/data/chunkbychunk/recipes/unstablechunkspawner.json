@@ -13,7 +13,7 @@
       "item" : "minecraft:oxidized_copper"
     },
     "c" : {
-      "item" : "minecraft:diamond_block"
+      "item" : "chunkbychunk:worldcore"
     }
   },
   "result" : {

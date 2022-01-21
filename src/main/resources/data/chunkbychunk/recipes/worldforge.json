@@ -1,0 +1,20 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "sss",
+    "scs",
+    "sss"
+  ],
+  "key" : {
+    "s" : {
+      "tag": "minecraft:stone_crafting_materials"
+    },
+    "c" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:worldforge",
+    "count" : 1
+  }
+}

@@ -1,6 +1,7 @@
 {
   "replace" : false,
   "values" : [
-    "chunkbychunk:worldcore"
+    "chunkbychunk:worldcore",
+    "chunkbychunk:worldforge"
   ]
 }

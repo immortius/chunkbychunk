@@ -43,4 +43,19 @@ public class ChunkByChunkSettings {
         return ChunkByChunkConfig.chunkGenZOffset.get();
     }
 
+    public static int worldForgeProductionRate() {
+        return ChunkByChunkConfig.worldForgeProductionRate.get();
+    }
+
+    public static int worldForgeSoilFuelValue() {
+        return ChunkByChunkConfig.worldForgeSoilFuelValue.get();
+    }
+
+    public static int worldForgeStoneFuelValue() {
+        return ChunkByChunkConfig.worldForgeStoneFuelValue.get();
+    }
+
+    public static int worldForgeFuelPerFragment() {
+        return ChunkByChunkConfig.worldForgeFuelPerFragment.get();
+    }
 }

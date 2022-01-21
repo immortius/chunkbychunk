@@ -14,6 +14,10 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue bedrockChestBlocksRemainingThreshold;
     public static ForgeConfigSpec.IntValue chunkGenXOffset;
     public static ForgeConfigSpec.IntValue chunkGenZOffset;
+    public static ForgeConfigSpec.IntValue worldForgeProductionRate;
+    public static ForgeConfigSpec.IntValue worldForgeSoilFuelValue;
+    public static ForgeConfigSpec.IntValue worldForgeStoneFuelValue;
+    public static ForgeConfigSpec.IntValue worldForgeFuelPerFragment;
 
     static {
         ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
@@ -36,6 +40,12 @@ public class ChunkByChunkConfig {
         builder.push("BedrockChest");
         bedrockChestBlocksRemainingThreshold = builder.comment("The number of blocks within the chunk above the bedrock chest allowed to remain before it will open").defineInRange("bedrock_chest_unlock_at_blocks_remaining", 16, 0, Short.MAX_VALUE * 2);
         builder.pop();
+        builder.push("WorldForge");
+        worldForgeProductionRate = builder.comment("The rate at which the world forge processes consumed blocks, in fuel per tick").defineInRange("production_rate", 1, 1, 256);
+        worldForgeSoilFuelValue = builder.comment("The value of fuel provided by soils (dirt, sand, gravel, etc). 0 to disallow use as fuel").defineInRange("soil_fuel_value", 2, 0, 256);
+        worldForgeStoneFuelValue = builder.comment("The value of fuel provided by raw stones (cobblestone, deep slate cobblestone, etc). 0 to disallow use as fuel").defineInRange("stone_fuel_value", 4, 0, 256);
+        worldForgeFuelPerFragment = builder.comment("The cost in fuel to produce a single world fragment").defineInRange("fragment_fuel_cost", 64, 1, 256);
+        builder.pop();
     }
 
     public static int minChestSpawnDepth() {
@@ -45,4 +55,5 @@ public class ChunkByChunkConfig {
     public static int maxChestSpawnDepth() {
         return Math.max(minNewChunkChestSpawnDepth.get(), maxNewChunkChestSpawnDepth.get());
     }
+
 }

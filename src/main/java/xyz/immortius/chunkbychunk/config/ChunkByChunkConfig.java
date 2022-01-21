@@ -19,6 +19,9 @@ public class ChunkByChunkConfig {
     @Name("BedrockChest")
     private final BedrockChestConfig bedrockChest = new BedrockChestConfig();
 
+    @Name("WorldForge")
+    private final WorldForgeConfig worldForge = new WorldForgeConfig();
+
     public GenerationConfig getGeneration() {
         return generation;
     }
@@ -26,5 +29,7 @@ public class ChunkByChunkConfig {
     public BedrockChestConfig getBedrockChest() {
         return bedrockChest;
     }
+
+    public WorldForgeConfig getWorldForge() { return worldForge; }
 
 }

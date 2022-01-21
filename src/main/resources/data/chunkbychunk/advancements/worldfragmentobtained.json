@@ -1,0 +1,15 @@
+{
+  "criteria" : {
+    "obtainworldfragment" : {
+      "trigger" : "minecraft:inventory_changed",
+      "conditions" : {
+        "items" : [{
+          "items" : ["chunkbychunk:worldfragment"]
+        }]
+      }
+    }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:worldshard"]
+  }
+}

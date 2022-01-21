@@ -1,0 +1,15 @@
+{
+  "criteria" : {
+    "obtainworldcore" : {
+      "trigger" : "minecraft:inventory_changed",
+      "conditions" : {
+        "items" : [{
+          "items" : ["chunkbychunk:worldcore"]
+        }]
+      }
+    }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:unstablechunkspawner","chunkbychunk:disassemble_worldcore","chunkbychunk:worldcore","chunkbychunk:worldforge"]
+  }
+}

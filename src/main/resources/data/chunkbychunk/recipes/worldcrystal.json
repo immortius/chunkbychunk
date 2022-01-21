@@ -1,0 +1,17 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "ss ",
+    "ss ",
+    "   "
+  ],
+  "key" : {
+    "s" : {
+      "item" : "chunkbychunk:worldshard"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:worldcrystal",
+    "count" : 1
+  }
+}
