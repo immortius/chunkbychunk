@@ -11,6 +11,9 @@ import net.minecraft.world.entity.player.Inventory;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
+/**
+ * Screen for the World Forge - this is a single input/output style furnace with animated progress arrow
+ */
 public class WorldForgeScreen extends AbstractContainerScreen<WorldForgeMenu> {
     private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/worldforge.png");
 

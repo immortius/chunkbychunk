@@ -9,32 +9,29 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.ContainerHelper;
-import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.util.LazyOptional;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
+import xyz.immortius.chunkbychunk.interop.WorldForgeBlockEntityInteropBase;
 
 import java.util.Map;
 
-public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, StackedContentsCompatible {
-    private static final Logger LOGGER = LogManager.getLogger();
-
+/**
+ * World Forge Block Entity - this holds the input and output of the world forge,
+ * and handles dissolving the input to crystalise the output
+ */
+public class WorldForgeBlockEntity extends WorldForgeBlockEntityInteropBase {
     public static final int NUM_ITEM_SLOTS = 2;
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_RESULT = 1;
@@ -43,7 +40,6 @@ public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements W
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_GOAL = 1;
 
-    private static final int PRODUCTION_PER_TICK = ChunkByChunkSettings.worldForgeProductionRate();
     private static final int GROW_CRYSTAL_AT = 4;
     private static final Map<Item, Integer> FUEL;
     private static final Map<Item, Integer> CRYSTAL_COSTS;
@@ -142,12 +138,15 @@ public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements W
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
         ContainerHelper.loadAllItems(tag, this.items);
         this.progress = tag.getInt("Progress");
+        this.availableFuel = tag.getInt("AvailableFuel");
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag) {
         super.saveAdditional(tag);
         tag.putInt("Progress", this.progress);
+        tag.putInt("AvailableFuel", this.availableFuel);
+
         ContainerHelper.saveAllItems(tag, this.items);
     }
 
@@ -157,7 +156,7 @@ public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements W
 
         // Consume available fuel
         if (entity.availableFuel > 0) {
-            int consumeAmount = Math.min(entity.availableFuel, PRODUCTION_PER_TICK);
+            int consumeAmount = Math.min(entity.availableFuel, ChunkByChunkSettings.worldForgeProductionRate());
             entity.availableFuel -= consumeAmount;
             entity.progress += consumeAmount;
         }
@@ -239,7 +238,6 @@ public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements W
                 return false;
             }
         }
-
         return true;
     }
 
@@ -296,33 +294,4 @@ public class WorldForgeBlockEntity extends BaseContainerBlockEntity implements W
         }
     }
 
-    net.minecraftforge.common.util.LazyOptional<? extends net.minecraftforge.items.IItemHandler>[] handlers =
-            net.minecraftforge.items.wrapper.SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
-
-    @Override
-    public <T> net.minecraftforge.common.util.LazyOptional<T> getCapability(net.minecraftforge.common.capabilities.Capability<T> capability, @javax.annotation.Nullable Direction facing) {
-        if (!this.remove && facing != null && capability == net.minecraftforge.items.CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-            if (facing == Direction.UP)
-                return handlers[0].cast();
-            else if (facing == Direction.DOWN)
-                return handlers[1].cast();
-            else
-                return handlers[2].cast();
-        }
-        return super.getCapability(capability, facing);
-    }
-
-    @Override
-    public void invalidateCaps() {
-        super.invalidateCaps();
-        for (LazyOptional<? extends net.minecraftforge.items.IItemHandler> handler : handlers) {
-            handler.invalidate();
-        }
-    }
-
-    @Override
-    public void reviveCaps() {
-        super.reviveCaps();
-        this.handlers = net.minecraftforge.items.wrapper.SidedInvWrapper.create(this, Direction.UP, Direction.DOWN, Direction.NORTH);
-    }
 }

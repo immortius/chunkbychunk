@@ -33,8 +33,8 @@ public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
+        int i = this.leftPos;
+        int j = this.topPos;
         this.blit(stack, i, j, 0, 0, this.imageWidth, this.imageHeight);
     }
 }

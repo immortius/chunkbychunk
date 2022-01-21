@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.config.system;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,8 +22,11 @@ final class MetadataBuilder {
         List<FieldMetadata> fields = processFields(type);
         List<SectionMetadata> sections = new ArrayList<>();
         for (Field declaredField : type.getDeclaredFields()) {
+            if (Modifier.isStatic(declaredField.getModifiers())) {
+                continue;
+            }
             Class<?> fieldType = declaredField.getType();
-            if (Object.class.isAssignableFrom(fieldType)) {
+            if (Object.class.isAssignableFrom(fieldType) && !Enum.class.isAssignableFrom(fieldType)) {
                 sections.add(processSection(fieldType, declaredField));
             }
         }
@@ -44,9 +48,17 @@ final class MetadataBuilder {
                 fields.add(processIntField(declaredField));
             } else if (Boolean.TYPE.equals(fieldType)) {
                 fields.add(processBooleanField(declaredField));
+            } else if (Enum.class.isAssignableFrom(fieldType)) {
+                fields.add(processEnumField(declaredField));
             }
         }
         return fields;
+    }
+
+    private static FieldMetadata processEnumField(Field field) {
+        String name = getName(field);
+        String comment = getComment(field);
+        return new EnumFieldMetadata(field, name, comment);
     }
 
     private static FieldMetadata processBooleanField(Field field) {

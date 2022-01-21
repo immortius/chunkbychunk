@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -46,7 +47,7 @@ public class ConfigSystem {
      * @param object The config object to load into or create the file from
      */
     public void synchConfig(Path configFile, Object object) {
-        if (!Files.exists(configFile.getParent())) {
+        if (configFile.getParent() != null && !Files.exists(configFile.getParent())) {
             try {
                 Files.createDirectories(configFile.getParent());
             } catch (IOException e) {
@@ -57,13 +58,13 @@ public class ConfigSystem {
 
         if (Files.exists(configFile)) {
             try (BufferedReader reader = Files.newBufferedReader(configFile)) {
-                readInto(reader, ChunkByChunkConfig.get());
+                readInto(reader, object);
             } catch (IOException e) {
                 LOGGER.error("Failed to read server config at '{}'", configFile, e);
             }
         } else {
             try (BufferedWriter writer = Files.newBufferedWriter(configFile)) {
-                write(writer, ChunkByChunkConfig.get());
+                write(writer, object);
             } catch (IOException e) {
                 LOGGER.error("Failed to write server config at {}", configFile, e);
             }

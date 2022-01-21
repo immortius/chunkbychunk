@@ -44,6 +44,8 @@ public final class ChunkByChunkConstants {
         return ChunkByChunkMod.BEDROCK_CHEST_BLOCK.get();
     }
 
+    public static Block worldCoreBlock() { return ChunkByChunkMod.WORLD_CORE_BLOCK.get(); }
+
     public static Block worldForgeBlock() { return ChunkByChunkMod.WORLD_FORGE_BLOCK.get(); }
 
     // Block Items

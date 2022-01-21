@@ -10,6 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
+/**
+ * Menu for interacting with the world forge
+ */
 public class WorldForgeMenu extends AbstractContainerMenu {
     private static final int INVENTORY_ROWS = 3;
     private static final int INVENTORY_COLUMNS = 9;

@@ -62,7 +62,7 @@ class IntFieldMetadata extends FieldMetadata {
                 field.set(object, intValue);
             }
         } catch (IllegalAccessException e) {
-            throw new RuntimeException("Failed to set " + getName() + " to value " + value, e);
+            throw new ConfigException("Failed to set " + getName() + " to value " + value, e);
         } catch (NumberFormatException e) {
             LOGGER.warn("Invalid value {} for config field {}", value, getName());
         }

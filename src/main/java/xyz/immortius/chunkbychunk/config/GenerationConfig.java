@@ -9,7 +9,7 @@ import xyz.immortius.chunkbychunk.config.system.Name;
  */
 public class GenerationConfig {
     @Name("spawn_new_chunk_chest")
-    @Comment("Should chunks include a bedrock chest with a chunk spawner?")
+    @Comment("Should chunks include a bedrock chest?")
     private boolean spawnNewChunkChest = true;
 
     @Name("min_chest_spawn_depth")
@@ -22,14 +22,14 @@ public class GenerationConfig {
     @IntRange(min = -64, max = 128)
     private int maxChestSpawnDepth = -60;
 
-    @Name("num_chunk_spawners")
-    @Comment("The number of chunk spawners the chunk spawner chest provides")
-    @IntRange(min = 1, max = 64)
-    private int numChunkSpawners = 1;
+    @Name("chest_contents")
+    @Comment("The type of items the bedrock chest provides")
+    private BedrockChestContents chestContents = BedrockChestContents.WorldCore;
 
-    @Name("give_unstable_chunk_spawners")
-    @Comment("Should the chunk spawner chest give unstable chunk spawners instead of normal ones?")
-    private boolean giveUnstableChunkSpawners = false;
+    @Name("chest_quantity")
+    @Comment("The number of items the bedrock chest provides")
+    @IntRange(min = 1, max = 64)
+    private int chestQuantity = 2;
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially (up to 9).")
@@ -62,12 +62,12 @@ public class GenerationConfig {
         return spawnNewChunkChest;
     }
 
-    public int getNumChunkSpawners() {
-        return numChunkSpawners;
+    public int getChestQuantity() {
+        return chestQuantity;
     }
 
-    public boolean giveUnstableChunkSpawners() {
-        return giveUnstableChunkSpawners;
+    public BedrockChestContents getChestContents() {
+        return chestContents;
     }
 
     public int getMinChestSpawnDepth() {

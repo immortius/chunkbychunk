@@ -22,6 +22,9 @@ import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
+/**
+ * World Forge block is used to convert general soil and stone blocks into world crystals and cores.
+ */
 public class WorldForgeBlock extends BaseEntityBlock {
     public WorldForgeBlock(BlockBehaviour.Properties blockProperties) {
         super(blockProperties);
@@ -82,7 +85,6 @@ public class WorldForgeBlock extends BaseEntityBlock {
     }
 
     @Override
-    @javax.annotation.Nullable
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> entityType) {
         return level.isClientSide ? null : createTickerHelper(entityType, ChunkByChunkConstants.worldForgeEntity(), WorldForgeBlockEntity::serverTick);
     }

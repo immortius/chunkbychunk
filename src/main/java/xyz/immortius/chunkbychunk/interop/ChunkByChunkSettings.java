@@ -1,5 +1,6 @@
 package xyz.immortius.chunkbychunk.interop;
 
+import xyz.immortius.chunkbychunk.config.BedrockChestContents;
 import xyz.immortius.chunkbychunk.forge.ChunkByChunkConfig;
 
 /**
@@ -23,12 +24,12 @@ public class ChunkByChunkSettings {
         return ChunkByChunkConfig.initialChunks.get();
     }
 
-    public static int numChunkSpawners() {
-        return ChunkByChunkConfig.numChunkSpawners.get();
+    public static int chestQuantity() {
+        return ChunkByChunkConfig.chestQuantity.get();
     }
 
-    public static boolean giveUnstableChunkSpawners() {
-        return ChunkByChunkConfig.giveUnstableChunkSpawners.get();
+    public static BedrockChestContents chestContents() {
+        return (BedrockChestContents) ChunkByChunkConfig.chestContents.get();
     }
 
     public static int bedrockChestBlocksRemainingThreshold() {
