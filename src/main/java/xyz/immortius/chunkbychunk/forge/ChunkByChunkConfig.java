@@ -14,7 +14,7 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue maxNewChunkChestSpawnDepth;
     public static ForgeConfigSpec.IntValue initialChunks;
     public static ForgeConfigSpec.IntValue chestQuantity;
-    public static ForgeConfigSpec.EnumValue chestContents;
+    public static ForgeConfigSpec.EnumValue<BedrockChestContents> chestContents;
     public static ForgeConfigSpec.IntValue bedrockChestBlocksRemainingThreshold;
     public static ForgeConfigSpec.IntValue chunkGenXOffset;
     public static ForgeConfigSpec.IntValue chunkGenZOffset;

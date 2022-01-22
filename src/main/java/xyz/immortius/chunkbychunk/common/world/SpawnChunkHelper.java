@@ -52,7 +52,7 @@ public final class SpawnChunkHelper {
      * @return Whether the level is appropriate for spawning chunks - is it a SkyChunkGenerator level.
      */
     public static boolean isValidForChunkSpawn(ServerLevel level) {
-        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
+        return level != null && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
     }
 
     /**
@@ -100,8 +100,8 @@ public final class SpawnChunkHelper {
     private static void copyBlocks(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
         int xOffset = targetChunkPos.getMinBlockX() - sourceChunkPos.getMinBlockX();
         int zOffset = targetChunkPos.getMinBlockZ() - sourceChunkPos.getMinBlockZ();
-        for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
-            for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
+        for (int z = targetChunkPos.getMinBlockZ(); z <= targetChunkPos.getMaxBlockZ(); z++) {
+            for (int x = targetChunkPos.getMinBlockX(); x <= targetChunkPos.getMaxBlockX(); x++) {
                 to.setBlock(new BlockPos(x, to.getMinBuildHeight(), z), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
             }
         }
