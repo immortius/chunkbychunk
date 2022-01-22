@@ -45,7 +45,7 @@ class EnumFieldMetadata extends FieldMetadata{
     public String serializeValue(Object object) {
         try {
             Enum<?> value = (Enum<?>) field.get(object);
-            return value.name();
+            return "\"" + value.name() + "\"";
         } catch (IllegalAccessException e) {
             throw new ConfigException("Failed to retrieve " + getName() + " from object " + object, e);
         }
@@ -53,14 +53,18 @@ class EnumFieldMetadata extends FieldMetadata{
 
     @Override
     public void deserializeValue(Object object, String value) {
-        Enum<?> enumValue = lowercaseValueMap.get(value);
+        String processedValue = value;
+        if (value.startsWith("\"") && value.endsWith("\"")) {
+            processedValue = value.substring(1, value.length() -1);
+        }
+        Enum<?> enumValue = lowercaseValueMap.get(processedValue);
         if (enumValue == null) {
-            LOGGER.warn("Invalid value {} for config field {}", value, getName());
+            LOGGER.warn("Invalid value {} for config field {}", processedValue, getName());
         } else {
             try {
                 field.set(object, enumValue);
             } catch (IllegalAccessException e) {
-                throw new ConfigException("Failed to set " + getName() + " to value " + value, e);
+                throw new ConfigException("Failed to set " + getName() + " to value " + processedValue, e);
             }
         }
     }

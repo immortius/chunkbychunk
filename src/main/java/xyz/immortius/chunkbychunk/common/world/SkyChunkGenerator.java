@@ -105,6 +105,7 @@ public class SkyChunkGenerator extends ChunkGenerator {
                             chunkAccess.setBlockState(new BlockPos(x, y, z), Blocks.BEDROCK.defaultBlockState(), false);
                             y--;
                         }
+                        chunkAccess.setBlockState(new BlockPos(x, y, z), Blocks.VOID_AIR.defaultBlockState(), false);
                     }
                 }
             });

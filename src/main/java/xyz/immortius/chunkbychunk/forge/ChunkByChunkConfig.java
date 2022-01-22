@@ -22,6 +22,7 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue worldForgeSoilFuelValue;
     public static ForgeConfigSpec.IntValue worldForgeStoneFuelValue;
     public static ForgeConfigSpec.IntValue worldForgeFuelPerFragment;
+    public static ForgeConfigSpec.BooleanValue sealWorld;
 
     static {
         ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
@@ -31,6 +32,7 @@ public class ChunkByChunkConfig {
 
     private static void setupConfig(ForgeConfigSpec.Builder builder) {
         builder.push("ChunkGeneration");
+        sealWorld = builder.comment("Should empty chunks be generated as a bedrock outline").define("seal_world", false);
         spawnNewChunkChest = builder.comment("Should chunks include a bedrock chest?").define("spawn_new_chunk_chest", true);
         minNewChunkChestSpawnDepth = builder.comment("The minimum depth at which the bedrock chest can spawn").defineInRange("min_new_chunk_chest_spawn_depth", -60, -64, 128);
         maxNewChunkChestSpawnDepth = builder.comment("The maximum depth at which the bedrock chest can spawn").defineInRange("max_new_chunk_chest_spawn_depth", -60, -64, 128);

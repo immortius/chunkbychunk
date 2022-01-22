@@ -8,6 +8,8 @@ import xyz.immortius.chunkbychunk.forge.ChunkByChunkConfig;
  */
 public class ChunkByChunkSettings {
 
+    public static boolean sealWorld() { return ChunkByChunkConfig.sealWorld.get(); }
+
     public static boolean spawnNewChunkChest() {
         return ChunkByChunkConfig.spawnNewChunkChest.get();
     }

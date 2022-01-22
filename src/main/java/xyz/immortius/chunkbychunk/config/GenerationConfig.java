@@ -8,6 +8,10 @@ import xyz.immortius.chunkbychunk.config.system.Name;
  * Chunk Generation configuration
  */
 public class GenerationConfig {
+    @Name("seal_world")
+    @Comment("Should empty chunks be generated as a bedrock outline")
+    private boolean sealWorld = false;
+
     @Name("spawn_new_chunk_chest")
     @Comment("Should chunks include a bedrock chest?")
     private boolean spawnNewChunkChest = true;
@@ -78,4 +82,7 @@ public class GenerationConfig {
         return maxChestSpawnDepth;
     }
 
+    public boolean sealWorld() {
+        return sealWorld;
+    }
 }

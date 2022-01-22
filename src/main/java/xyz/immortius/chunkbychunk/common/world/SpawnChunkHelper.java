@@ -100,7 +100,12 @@ public final class SpawnChunkHelper {
     private static void copyBlocks(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
         int xOffset = targetChunkPos.getMinBlockX() - sourceChunkPos.getMinBlockX();
         int zOffset = targetChunkPos.getMinBlockZ() - sourceChunkPos.getMinBlockZ();
-        for (int y = to.getMinBuildHeight(); y < to.getMaxBuildHeight(); y++) {
+        for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
+            for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
+                to.setBlock(new BlockPos(x, to.getMinBuildHeight(), z), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
+            }
+        }
+        for (int y = to.getMinBuildHeight() + 1; y < to.getMaxBuildHeight(); y++) {
             for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
                 for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
                     BlockPos sourceBlockPos = new BlockPos(x, y, z);
@@ -127,7 +132,7 @@ public final class SpawnChunkHelper {
      * @param to             The level to teleport entities to
      * @param targetChunkPos The chunk to teleport entities to
      */
-    private static void copyEntities(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
+    public static void copyEntities(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
         List<Entity> entities = from.getEntities((Entity) null, new AABB(sourceChunkPos.getMinBlockX(), from.getMinBuildHeight(), sourceChunkPos.getMinBlockZ(), sourceChunkPos.getMaxBlockX(), from.getMaxBuildHeight(), sourceChunkPos.getMaxBlockZ()), (x) -> true);
         for (Entity e : entities) {
             Vec3 pos = new Vec3(e.getX() + (targetChunkPos.x - sourceChunkPos.x) * 16, e.getY(), e.getZ() + (targetChunkPos.z - sourceChunkPos.z) * 16);
