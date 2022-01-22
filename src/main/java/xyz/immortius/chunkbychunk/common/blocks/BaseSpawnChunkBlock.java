@@ -88,12 +88,14 @@ public abstract class BaseSpawnChunkBlock extends Block {
         if (level instanceof ServerLevel serverLevel) {
             List<BlockPos> targetPositions = new ArrayList<>();
             targetPositions.add(pos);
-            if (HORIZONTAL_DIR.contains(hit.getDirection())) {
-                targetPositions.add(pos.relative(hit.getDirection().getOpposite()));
-                targetPositions.add(pos.relative(hit.getDirection().getCounterClockWise()));
-                targetPositions.add(pos.relative(hit.getDirection().getClockWise()));
-                targetPositions.add(pos.relative(hit.getDirection()));
+            Direction targetDirection = hit.getDirection();
+            if (!HORIZONTAL_DIR.contains(targetDirection)) {
+                targetDirection = Direction.NORTH;
             }
+            targetPositions.add(pos.relative(targetDirection.getOpposite()));
+            targetPositions.add(pos.relative(targetDirection.getCounterClockWise()));
+            targetPositions.add(pos.relative(targetDirection.getClockWise()));
+            targetPositions.add(pos.relative(targetDirection));
 
             for (BlockPos targetPos : targetPositions) {
                 ChunkPos targetChunkPos = new ChunkPos(targetPos);
