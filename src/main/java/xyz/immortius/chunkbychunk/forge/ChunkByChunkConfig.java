@@ -23,6 +23,7 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue worldForgeStoneFuelValue;
     public static ForgeConfigSpec.IntValue worldForgeFuelPerFragment;
     public static ForgeConfigSpec.BooleanValue sealWorld;
+    public static ForgeConfigSpec.BooleanValue blockPlacementAllowedOutsideSpawnedChunks;
 
     static {
         ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
@@ -50,6 +51,9 @@ public class ChunkByChunkConfig {
         worldForgeSoilFuelValue = builder.comment("The value of fuel provided by soils (dirt, sand, gravel, etc). 0 to disallow use as fuel").defineInRange("soil_fuel_value", 2, 0, 256);
         worldForgeStoneFuelValue = builder.comment("The value of fuel provided by raw stones (cobblestone, deep slate cobblestone, etc). 0 to disallow use as fuel").defineInRange("stone_fuel_value", 4, 0, 256);
         worldForgeFuelPerFragment = builder.comment("The cost in fuel to produce a single world fragment").defineInRange("fragment_fuel_cost", 64, 1, 256);
+        builder.pop();
+        builder.push("Gameplay");
+        blockPlacementAllowedOutsideSpawnedChunks = builder.comment("Can blocks be placed outside spawned chunks").define("block_placement_allowed_outside_spawned_chunks", false);
         builder.pop();
     }
 

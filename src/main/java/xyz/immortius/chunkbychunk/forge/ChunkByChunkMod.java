@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.forge;
 
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
@@ -8,15 +9,21 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeWorldPreset;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
@@ -37,7 +44,9 @@ import xyz.immortius.chunkbychunk.common.blocks.WorldForgeBlock;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 import xyz.immortius.chunkbychunk.server.EventHandler;
 
 @Mod("chunkbychunk")
@@ -100,6 +109,17 @@ public class ChunkByChunkMod {
             MenuScreens.register((MenuType<BedrockChestMenu>) BEDROCK_CHEST_MENU.get(), BedrockChestScreen::new);
             MenuScreens.register((MenuType<WorldForgeMenu>) WORLD_FORGE_MENU.get(), WorldForgeScreen::new);
         });
+    }
+
+    @SubscribeEvent
+    public void onPlaceItem(PlayerInteractEvent.RightClickBlock event) {
+        BlockPos pos = event.getPos();
+        BlockPos placePos = pos.relative(event.getFace());
+        if (!ChunkByChunkSettings.isBlockPlacementAllowedOutsideSpawnedChunks() &&
+                event.getEntity().getLevel().dimension().equals(Level.OVERWORLD) &&
+                SpawnChunkHelper.isEmptyChunk(event.getWorld(), new ChunkPos(placePos))) {
+            event.setUseItem(Event.Result.DENY);
+        }
     }
 
     @SubscribeEvent

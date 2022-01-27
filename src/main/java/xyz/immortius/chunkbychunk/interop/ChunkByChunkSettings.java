@@ -61,4 +61,8 @@ public class ChunkByChunkSettings {
     public static int worldForgeFuelPerFragment() {
         return ChunkByChunkConfig.worldForgeFuelPerFragment.get();
     }
+
+    public static boolean isBlockPlacementAllowedOutsideSpawnedChunks() {
+        return ChunkByChunkConfig.blockPlacementAllowedOutsideSpawnedChunks.get();
+    }
 }

@@ -22,6 +22,9 @@ public class ChunkByChunkConfig {
     @Name("WorldForge")
     private final WorldForgeConfig worldForge = new WorldForgeConfig();
 
+    @Name("Gameplay")
+    private final GameplayConfig gameplayConfig = new GameplayConfig();
+
     public GenerationConfig getGeneration() {
         return generation;
     }
@@ -32,4 +35,7 @@ public class ChunkByChunkConfig {
 
     public WorldForgeConfig getWorldForge() { return worldForge; }
 
+    public GameplayConfig getGameplayConfig() {
+        return gameplayConfig;
+    }
 }

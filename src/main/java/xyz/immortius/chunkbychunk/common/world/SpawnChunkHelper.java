@@ -5,6 +5,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.portal.PortalInfo;
@@ -42,7 +44,7 @@ public final class SpawnChunkHelper {
      * @param chunkPos The chunk position to check
      * @return Whether the chunk is 'empty' and thus ready to be spawned into.
      */
-    public static boolean isEmptyChunk(ServerLevel level, ChunkPos chunkPos) {
+    public static boolean isEmptyChunk(LevelAccessor level, ChunkPos chunkPos) {
         BlockPos bedrockCheckBlock = chunkPos.getBlockAt(8, level.getMinBuildHeight(), 8);
         return !Blocks.BEDROCK.equals(level.getBlockState(bedrockCheckBlock).getBlock());
     }
