@@ -31,7 +31,7 @@ public class ChunkByChunkSettings {
     }
 
     public static BedrockChestContents chestContents() {
-        return (BedrockChestContents) ChunkByChunkConfig.chestContents.get();
+        return ChunkByChunkConfig.chestContents.get();
     }
 
     public static int bedrockChestBlocksRemainingThreshold() {

@@ -53,18 +53,18 @@ class EnumFieldMetadata extends FieldMetadata{
 
     @Override
     public void deserializeValue(Object object, String value) {
-        String processedValue = value;
-        if (value.startsWith("\"") && value.endsWith("\"")) {
-            processedValue = value.substring(1, value.length() -1);
+        String processedValue = value.toLowerCase(Locale.ROOT);
+        if (processedValue.startsWith("\"") && processedValue.endsWith("\"")) {
+            processedValue = processedValue.substring(1, value.length() -1);
         }
         Enum<?> enumValue = lowercaseValueMap.get(processedValue);
         if (enumValue == null) {
-            LOGGER.warn("Invalid value {} for config field {}", processedValue, getName());
+            LOGGER.warn("Invalid value {} for config field {}", value, getName());
         } else {
             try {
                 field.set(object, enumValue);
             } catch (IllegalAccessException e) {
-                throw new ConfigException("Failed to set " + getName() + " to value " + processedValue, e);
+                throw new ConfigException("Failed to set " + getName() + " to value " + value, e);
             }
         }
     }

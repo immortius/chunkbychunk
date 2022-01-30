@@ -23,7 +23,7 @@ public final class CBCInteropMethods {
     }
 
     public static void loadServerConfig(MinecraftServer server) {
-
+        // Handled by forge
     }
 
     private static class EntityTeleport implements ITeleporter {

@@ -12,7 +12,6 @@ import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraftforge.common.world.ForgeWorldPreset;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.forge.ChunkByChunkMod;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**

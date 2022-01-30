@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.OptionalInt;
 
 
-public final class EventHandler {
+public final class ServerEventHandler {
 
     private static final List<List<int[]>> CHUNK_SPAWN_OFFSETS = ImmutableList.<List<int[]>>builder()
             .add(ImmutableList.of(new int[]{0, 0}))
@@ -37,7 +37,7 @@ public final class EventHandler {
             .add(ImmutableList.of(new int[]{0, 0}, new int[]{1, 0}, new int[]{0, 1}, new int[]{-1, 0}, new int[]{0, -1}, new int[]{1, 1}, new int[]{-1, -1}, new int[]{1, -1}, new int[]{-1, 1}))
             .build();
 
-    private EventHandler() {
+    private ServerEventHandler() {
 
     }
 

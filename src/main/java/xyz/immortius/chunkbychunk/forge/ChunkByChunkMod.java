@@ -9,20 +9,15 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.world.ForgeWorldPreset;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -35,6 +30,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
+import xyz.immortius.chunkbychunk.common.CommonEventHandler;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.common.blocks.BedrockChestBlock;
@@ -44,10 +40,8 @@ import xyz.immortius.chunkbychunk.common.blocks.WorldForgeBlock;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
-import xyz.immortius.chunkbychunk.server.EventHandler;
+import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 @Mod("chunkbychunk")
 public class ChunkByChunkMod {
@@ -115,21 +109,19 @@ public class ChunkByChunkMod {
     public void onPlaceItem(PlayerInteractEvent.RightClickBlock event) {
         BlockPos pos = event.getPos();
         BlockPos placePos = pos.relative(event.getFace());
-        if (!ChunkByChunkSettings.isBlockPlacementAllowedOutsideSpawnedChunks() &&
-                event.getEntity().getLevel().dimension().equals(Level.OVERWORLD) &&
-                SpawnChunkHelper.isEmptyChunk(event.getWorld(), new ChunkPos(placePos))) {
+        if (!CommonEventHandler.isBlockPlacementAllowed(placePos, event.getEntity(), event.getWorld())) {
             event.setUseItem(Event.Result.DENY);
         }
     }
 
     @SubscribeEvent
     public void onServerStarted(ServerStartedEvent event) {
-        EventHandler.onServerStarted(event.getServer());
+        ServerEventHandler.onServerStarted(event.getServer());
     }
 
     @SubscribeEvent
     public void onServerStarting(ServerAboutToStartEvent event) {
-        EventHandler.onServerStarting(event.getServer());
+        ServerEventHandler.onServerStarting(event.getServer());
     }
 
 }

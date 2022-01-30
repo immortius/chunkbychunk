@@ -2,9 +2,6 @@ package xyz.immortius.chunkbychunk.forge;
 
 import net.minecraftforge.common.ForgeConfigSpec;
 import xyz.immortius.chunkbychunk.config.BedrockChestContents;
-import xyz.immortius.chunkbychunk.config.system.Comment;
-import xyz.immortius.chunkbychunk.config.system.IntRange;
-import xyz.immortius.chunkbychunk.config.system.Name;
 
 public class ChunkByChunkConfig {
     public static final ForgeConfigSpec GENERAL_SPEC;
@@ -53,7 +50,7 @@ public class ChunkByChunkConfig {
         worldForgeFuelPerFragment = builder.comment("The cost in fuel to produce a single world fragment").defineInRange("fragment_fuel_cost", 64, 1, 256);
         builder.pop();
         builder.push("Gameplay");
-        blockPlacementAllowedOutsideSpawnedChunks = builder.comment("Can blocks be placed outside spawned chunks").define("block_placement_allowed_outside_spawned_chunks", false);
+        blockPlacementAllowedOutsideSpawnedChunks = builder.comment("Can blocks be placed outside spawned chunks").define("block_placement_allowed_outside_spawned_chunks", true);
         builder.pop();
     }
 
