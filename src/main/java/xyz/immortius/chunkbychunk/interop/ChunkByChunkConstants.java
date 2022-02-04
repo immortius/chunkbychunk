@@ -11,8 +11,10 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
+import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.forge.ChunkByChunkMod;
 
 /**
@@ -45,6 +47,8 @@ public final class ChunkByChunkConstants {
 
     public static Block worldForgeBlock() { return ChunkByChunkMod.WORLD_FORGE_BLOCK.get(); }
 
+    public static Block worldScannerBlock() { return ChunkByChunkMod.WORLD_SCANNER_BLOCK.get(); }
+
     // Block Items
 
     public static Item spawnChunkBlockItem() {
@@ -62,6 +66,8 @@ public final class ChunkByChunkConstants {
     public static Item worldCoreBlockItem() { return ChunkByChunkMod.WORLD_CORE_BLOCK_ITEM.get(); }
 
     public static Item worldForgeBlockItem() { return ChunkByChunkMod.WORLD_FORGE_BLOCK_ITEM.get(); }
+
+    public static Item worldScannerBlockItem() { return ChunkByChunkMod.WORLD_SCANNER_BLOCK_ITEM.get(); }
 
     // Items
 
@@ -81,6 +87,12 @@ public final class ChunkByChunkConstants {
         return (BlockEntityType<WorldForgeBlockEntity>) ChunkByChunkMod.WORLD_FORGE_BLOCK_ENTITY.get();
     }
 
+    public static BlockEntityType<WorldScannerBlockEntity> worldScannerEntity() {
+        return (BlockEntityType<WorldScannerBlockEntity>) ChunkByChunkMod.WORLD_SCANNER_BLOCK_ENTITY.get();
+    }
+
+    // Sound Events
+
     public static SoundEvent spawnChunkSoundEffect() {
         return ChunkByChunkMod.SPAWN_CHUNK_SOUND_EVENT.get();
     }
@@ -93,5 +105,9 @@ public final class ChunkByChunkConstants {
 
     public static MenuType<WorldForgeMenu> worldForgeMenu() {
         return (MenuType<WorldForgeMenu>) ChunkByChunkMod.WORLD_FORGE_MENU.get();
+    }
+
+    public static MenuType<WorldScannerMenu> worldScannerMenu() {
+        return (MenuType<WorldScannerMenu>) ChunkByChunkMod.WORLD_SCANNER_MENU.get();
     }
 }

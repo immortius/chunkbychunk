@@ -23,7 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
-import xyz.immortius.chunkbychunk.interop.WorldForgeBlockEntityInteropBase;
+import xyz.immortius.chunkbychunk.interop.SidedBlockEntityInteropBase;
 
 import java.util.Map;
 
@@ -31,7 +31,7 @@ import java.util.Map;
  * World Forge Block Entity - this holds the input and output of the world forge,
  * and handles dissolving the input to crystalise the output
  */
-public class WorldForgeBlockEntity extends WorldForgeBlockEntityInteropBase {
+public class WorldForgeBlockEntity extends SidedBlockEntityInteropBase {
     public static final int NUM_ITEM_SLOTS = 2;
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_RESULT = 1;
@@ -174,10 +174,12 @@ public class WorldForgeBlockEntity extends WorldForgeBlockEntityInteropBase {
             return;
         }
 
+        boolean changed = false;
         // Check to consume next item
         if (entity.availableFuel == 0 && isFuel(inputItems)) {
             entity.availableFuel += getFuelValue(inputItems);
             inputItems.shrink(1);
+            changed = true;
         }
 
         int itemCost = CRYSTAL_COSTS.get(producingItem);
@@ -187,6 +189,7 @@ public class WorldForgeBlockEntity extends WorldForgeBlockEntityInteropBase {
         // Produce the item if we can, replacing the existing item
         if (entity.progress >= itemCost) {
             entity.progress -= itemCost;
+            changed = true;
             if (outputItems.isEmpty()) {
                 entity.setItem(SLOT_RESULT, producingItem.getDefaultInstance());
             } else if (outputItems.getCount() == GROW_CRYSTAL_AT - 1 && nextItem != null) {
@@ -195,6 +198,10 @@ public class WorldForgeBlockEntity extends WorldForgeBlockEntityInteropBase {
             } else {
                 outputItems.grow(1);
             }
+        }
+
+        if (changed) {
+            setChanged(level, blockPos, blockState);
         }
     }
 

@@ -24,7 +24,6 @@ public class WorldForgeScreen extends AbstractContainerScreen<WorldForgeMenu> {
 
     public WorldForgeScreen(WorldForgeMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
-        ++this.imageHeight;
     }
 
     @Override

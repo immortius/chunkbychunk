@@ -13,8 +13,8 @@ import net.minecraftforge.items.IItemHandler;
 /**
  * For forge, changes the ITEM_HANDLER_CAPABILITY.
  */
-public abstract class WorldForgeBlockEntityInteropBase extends BaseContainerBlockEntity implements WorldlyContainer, StackedContentsCompatible {
-    protected WorldForgeBlockEntityInteropBase(BlockEntityType<?> p_155076_, BlockPos p_155077_, BlockState p_155078_) {
+public abstract class SidedBlockEntityInteropBase extends BaseContainerBlockEntity implements WorldlyContainer, StackedContentsCompatible {
+    protected SidedBlockEntityInteropBase(BlockEntityType<?> p_155076_, BlockPos p_155077_, BlockState p_155078_) {
         super(p_155076_, p_155077_, p_155078_);
     }
 

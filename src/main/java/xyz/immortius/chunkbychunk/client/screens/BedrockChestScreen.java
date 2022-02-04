@@ -18,7 +18,6 @@ public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu
 
     public BedrockChestScreen(BedrockChestMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
-        ++this.imageHeight;
     }
 
     @Override
