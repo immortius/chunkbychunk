@@ -11,6 +11,7 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
@@ -29,7 +30,6 @@ public class WorldScannerMenu extends AbstractContainerMenu {
 
     private final Container container;
     private final ContainerData containerData;
-    private final Level level;
 
     public WorldScannerMenu(int menuId, Inventory inventory) {
         this(menuId, inventory, new SimpleContainer(WorldScannerBlockEntity.NUM_ITEM_SLOTS), new SimpleContainerData(WorldScannerBlockEntity.NUM_DATA_ITEMS));
@@ -42,7 +42,6 @@ public class WorldScannerMenu extends AbstractContainerMenu {
         Preconditions.checkArgument(container.getContainerSize() >= WorldScannerBlockEntity.NUM_ITEM_SLOTS, "Expected " + WorldScannerBlockEntity.NUM_ITEM_SLOTS + " item slots, but entity has " + container.getContainerSize());
         Preconditions.checkArgument(containerData.getCount() >= WorldScannerBlockEntity.NUM_DATA_ITEMS, "Expected " + WorldScannerBlockEntity.NUM_DATA_ITEMS + " data items, but entity has " + containerData.getCount());
         container.startOpen(inventory.player);
-        level = inventory.player.level;
 
         addSlot(new Slot(container, WorldScannerBlockEntity.SLOT_INPUT, 27, 21));
         addSlot(new WorldForgeFuelSlot(container, WorldScannerBlockEntity.SLOT_FUEL, 27, 50));
@@ -78,8 +77,16 @@ public class WorldScannerMenu extends AbstractContainerMenu {
         return this.containerData.get(WorldScannerBlockEntity.DATA_SCANNING_Z);
     }
 
-    public WorldScannerBlockEntity getScannerEntity() {
-        return (WorldScannerBlockEntity) level.getBlockEntity(new BlockPos(containerData.get(WorldScannerBlockEntity.DATA_BLOCK_X), containerData.get(WorldScannerBlockEntity.DATA_BLOCK_Y), containerData.get(WorldScannerBlockEntity.DATA_BLOCK_Z)));
+    public boolean isMapAvailable() {
+        return this.containerData.get(WorldScannerBlockEntity.DATA_MAP) != WorldScannerBlockEntity.NO_MAP;
+    }
+
+    public String getMapKey() {
+        return MapItem.makeKey(this.containerData.get(WorldScannerBlockEntity.DATA_MAP));
+    }
+
+    public int getMapId() {
+        return this.containerData.get(WorldScannerBlockEntity.DATA_MAP);
     }
 
     @Override

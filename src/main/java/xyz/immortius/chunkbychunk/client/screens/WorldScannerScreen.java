@@ -2,14 +2,18 @@ package xyz.immortius.chunkbychunk.client.screens;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
@@ -26,14 +30,11 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
     private static final int NUM_FRAMES = 8;
 
     private float animCounter = 0.f;
-
-    private ResourceLocation mapLocation;
-    private DynamicTexture mapTexture;
-    private boolean scanChanged = true;
+    private MapRenderer mapRenderer;
 
     public WorldScannerScreen(WorldScannerMenu menu, Inventory inventory, Component component) {
         super(menu, inventory, component);
-        imageWidth = 331;
+        imageWidth = 310;
         imageHeight = 166;
     }
 
@@ -41,31 +42,17 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
     protected void init() {
         super.init();
         LOGGER.info("Initialising scanner screen");
-        this.mapTexture = new DynamicTexture(MAP_TEX_DIMENSIONS, MAP_TEX_DIMENSIONS, true);
-        mapLocation = minecraft.textureManager.register("chunkscanmap", mapTexture);
+        mapRenderer = minecraft.gameRenderer.getMapRenderer();
     }
 
     @Override
     public void onClose() {
         super.onClose();
         LOGGER.info("Closing scanner screen");
-        mapTexture.close();
     }
 
     @Override
     public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
-        if (scanChanged) {
-            byte[] map = menu.getScannerEntity().getMap();
-            if (map.length == MAP_DIMENSIONS * MAP_DIMENSIONS) {
-                for (int i = 0; i < MAP_DIMENSIONS; ++i) {
-                    for (int j = 0; j < MAP_DIMENSIONS; ++j) {
-                        int k = j + i * MAP_DIMENSIONS;
-                        this.mapTexture.getPixels().setPixelRGBA(j, i, MaterialColor.getColorFromPackedId(map[k]));
-                    }
-                }
-                mapTexture.upload();
-            }
-        }
         this.renderBackground(stack);
         super.render(stack, mouseX, mouseY, delta);
         this.renderTooltip(stack, mouseX, mouseY);
@@ -89,10 +76,21 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
             int display = 100 * menu.getEnergy() / menu.getMaxEnergy();
             this.blit(stack, i + 58, j + 55, 24, 172 + frame * 6, display, 6);
         }
-        RenderSystem.setShaderTexture(0, mapLocation);
-        this.blit(stack, i + 174, j + 9, 0, 0, MAP_TEX_DIMENSIONS, MAP_TEX_DIMENSIONS, MAP_TEX_DIMENSIONS);
-        RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        this.blit(stack, i + 174 + 74, j + 9 + 74, 24, 172 + frame * 6, 1, 1);
+        if (menu.isMapAvailable()) {
+            stack.pushPose();
+            stack.translate((double)i + 174, (double)j + 18, 1.0D);
+            MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
+            MapItemSavedData mapData = this.minecraft.level.getMapData(menu.getMapKey());
+            if (mapData != null) {
+                mapRenderer.render(stack, buffer, menu.getMapId(), mapData, true, 15728880);
+            }
+            buffer.endBatch();
+            stack.popPose();
+        }
+//        RenderSystem.setShaderTexture(0, mapLocation);
+//        this.blit(stack, i + 174, j + 9, 0, 0, MAP_TEX_DIMENSIONS, MAP_TEX_DIMENSIONS, MAP_TEX_DIMENSIONS);
+//        RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
+//        this.blit(stack, i + 174 + 74, j + 9 + 74, 24, 172 + frame * 6, 1, 1);
     }
 
     @Override
