@@ -1,6 +1,6 @@
 package xyz.immortius.chunkbychunk.interop;
 
-import xyz.immortius.chunkbychunk.config.BedrockChestContents;
+import xyz.immortius.chunkbychunk.config.ChunkRewardChestContent;
 import xyz.immortius.chunkbychunk.forge.ChunkByChunkConfig;
 
 /**
@@ -13,6 +13,8 @@ public class ChunkByChunkSettings {
     public static boolean spawnNewChunkChest() {
         return ChunkByChunkConfig.spawnNewChunkChest.get();
     }
+
+    public static boolean useBedrockChest() { return ChunkByChunkConfig.useBedrockChest.get(); }
 
     public static int minChestSpawnDepth() {
         return ChunkByChunkConfig.minChestSpawnDepth();
@@ -30,7 +32,7 @@ public class ChunkByChunkSettings {
         return ChunkByChunkConfig.chestQuantity.get();
     }
 
-    public static BedrockChestContents chestContents() {
+    public static ChunkRewardChestContent chestContents() {
         return ChunkByChunkConfig.chestContents.get();
     }
 

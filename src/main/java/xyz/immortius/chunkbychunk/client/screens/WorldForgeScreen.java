@@ -44,13 +44,11 @@ public class WorldForgeScreen extends AbstractContainerScreen<WorldForgeMenu> {
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        int i = leftPos;
-        int j = topPos;
-        this.blit(stack, i, j, 0, 0, this.imageWidth, this.imageHeight);
+        this.blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
         if (menu.getProgress() > 0)
         {
             int completion = 30 * menu.getProgress() / menu.getGoal();
-            this.blit(stack, i + 78, j + 37, 176, frame * 11, completion, 11);
+            this.blit(stack, leftPos + 78, topPos + 37, 176, frame * 11, completion, 11);
         }
     }
 }

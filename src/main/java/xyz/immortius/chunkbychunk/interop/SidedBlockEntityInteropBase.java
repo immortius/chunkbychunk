@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.IItemHandler;
 
 /**
- * For forge, changes the ITEM_HANDLER_CAPABILITY.
+ * Base class for SidedBlocks with top/side/bottom item handler capabilities. In forge, this changes the ITEM_HANDLER_CAPABILITY.
  */
 public abstract class SidedBlockEntityInteropBase extends BaseContainerBlockEntity implements WorldlyContainer, StackedContentsCompatible {
     protected SidedBlockEntityInteropBase(BlockEntityType<?> p_155076_, BlockPos p_155077_, BlockState p_155078_) {

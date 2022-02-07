@@ -3,6 +3,9 @@ package xyz.immortius.chunkbychunk.config;
 import xyz.immortius.chunkbychunk.config.system.Comment;
 import xyz.immortius.chunkbychunk.config.system.Name;
 
+/**
+ * Configuration for general gameplay
+ */
 public class GameplayConfig {
 
     @Name("block_placement_allowed_outside_spawned_chunks")

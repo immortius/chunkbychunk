@@ -1,10 +1,10 @@
 /**
- * Chunk generation related classes.
+ * This package contains classes which only exist to support servers
  */
+@ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
-@ParametersAreNonnullByDefault
-package xyz.immortius.chunkbychunk.common.world;
+package xyz.immortius.chunkbychunk.server;
 
 import net.minecraft.FieldsAreNonnullByDefault;
 import net.minecraft.MethodsReturnNonnullByDefault;

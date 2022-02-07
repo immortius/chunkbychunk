@@ -20,7 +20,15 @@ import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import java.util.*;
 
 /**
- * This is the base for blocks that can be used to trigger spawning an "empty" chunk. Empty in this case is signified by the chunk not having bedrock at the base level.
+ * This is the base for blocks that can be used to trigger spawning an "empty" chunk. Empty in this case is signified by the chunk not having bedrock at the base level. All these blocks
+ * will force the load of the generation chunk they will spawn.
+ *
+ * When used these blocks will try to spawn the first valid chunk out of:
+ * <ul>
+ *     <li>The chunk they are in</li>
+ *     <li>The chunk in the direction the player is looking in, if the block is on a chunk border</li>
+ *     <li>Any other directly adjacent chunk</li>
+ * </ul>
  */
 public abstract class BaseSpawnChunkBlock extends Block {
 

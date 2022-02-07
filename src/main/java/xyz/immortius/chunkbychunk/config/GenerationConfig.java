@@ -9,12 +9,16 @@ import xyz.immortius.chunkbychunk.config.system.Name;
  */
 public class GenerationConfig {
     @Name("seal_world")
-    @Comment("Should empty chunks be generated as a bedrock outline")
+    @Comment("Should empty chunks be generated as bedrock")
     private boolean sealWorld = false;
 
     @Name("spawn_new_chunk_chest")
-    @Comment("Should chunks include a bedrock chest?")
+    @Comment("Should chunks include a chest with materials for generating further chunks?")
     private boolean spawnNewChunkChest = true;
+
+    @Name("use_bedrock_chest")
+    @Comment("Should the generated chest be a bedrock chest")
+    private boolean useBedrockChest = false;
 
     @Name("min_chest_spawn_depth")
     @Comment("The minimum depth at which the chunk spawner chest can spawn")
@@ -28,12 +32,12 @@ public class GenerationConfig {
 
     @Name("chest_contents")
     @Comment("The type of items the bedrock chest provides")
-    private BedrockChestContents chestContents = BedrockChestContents.WorldCore;
+    private ChunkRewardChestContent chestContents = ChunkRewardChestContent.WorldCore;
 
     @Name("chest_quantity")
     @Comment("The number of items the bedrock chest provides")
     @IntRange(min = 1, max = 64)
-    private int chestQuantity = 2;
+    private int chestQuantity = 1;
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially (up to 9).")
@@ -49,6 +53,8 @@ public class GenerationConfig {
     @Comment("Offsets the spawn of chunk from the standard generator.")
     @IntRange(min = Short.MIN_VALUE, max = Short.MAX_VALUE)
     private int chunkGenZOffset = 0;
+
+    public boolean useBedrockChest() { return useBedrockChest; }
 
     public int getInitialChunks() {
         return initialChunks;
@@ -70,7 +76,7 @@ public class GenerationConfig {
         return chestQuantity;
     }
 
-    public BedrockChestContents getChestContents() {
+    public ChunkRewardChestContent getChestContents() {
         return chestContents;
     }
 

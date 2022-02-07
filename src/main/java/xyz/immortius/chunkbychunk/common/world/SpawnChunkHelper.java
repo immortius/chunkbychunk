@@ -7,12 +7,12 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
@@ -25,7 +25,7 @@ import java.util.Random;
  * Helper class for spawning a chunk. Spawning is done by copying a chunk from SkyChunkGeneration level
  * to the overworld. All blocks, block entities and other entities are copied. For best results the chunk being copied
  * should be a forced chunk on the SkyChunkGeneration end to ensure entities are loaded - at least for a little before
- * the copy until after the copy.
+ * the copy until after the copy (takes at least a tick it seems)
  */
 public final class SpawnChunkHelper {
 
@@ -98,23 +98,26 @@ public final class SpawnChunkHelper {
      * @param targetChunkPos The position of the chunk to copy to
      */
     private static void copyBlocks(ServerLevel from, ChunkPos sourceChunkPos, ServerLevel to, ChunkPos targetChunkPos) {
+        BlockPos.MutableBlockPos sourceBlock = new BlockPos.MutableBlockPos();
+        BlockPos.MutableBlockPos targetBlock = new BlockPos.MutableBlockPos();
         int xOffset = targetChunkPos.getMinBlockX() - sourceChunkPos.getMinBlockX();
         int zOffset = targetChunkPos.getMinBlockZ() - sourceChunkPos.getMinBlockZ();
         for (int z = targetChunkPos.getMinBlockZ(); z <= targetChunkPos.getMaxBlockZ(); z++) {
             for (int x = targetChunkPos.getMinBlockX(); x <= targetChunkPos.getMaxBlockX(); x++) {
-                to.setBlock(new BlockPos(x, to.getMinBuildHeight(), z), Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
+                targetBlock.set(x, to.getMinBuildHeight(), z);
+                to.setBlock(targetBlock, Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
             }
         }
         for (int y = to.getMinBuildHeight() + 1; y < to.getMaxBuildHeight(); y++) {
             for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
                 for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
-                    BlockPos sourceBlockPos = new BlockPos(x, y, z);
-                    BlockPos targetBlockPos = new BlockPos(x + xOffset, y, z + zOffset);
-                    Block existingBlock = to.getBlockState(targetBlockPos).getBlock();
+                    sourceBlock.set(x, y, z);
+                    targetBlock.set(x + xOffset, y, z + zOffset);
+                    Block existingBlock = to.getBlockState(targetBlock).getBlock();
                     if (existingBlock instanceof LeavesBlock || existingBlock instanceof AirBlock || existingBlock instanceof LiquidBlock || existingBlock == Blocks.BEDROCK || existingBlock == Blocks.COBBLESTONE) {
-                        to.setBlock(targetBlockPos, from.getBlockState(sourceBlockPos), Block.UPDATE_ALL);
-                        BlockEntity fromBlockEntity = from.getBlockEntity(sourceBlockPos);
-                        BlockEntity toBlockEntity = to.getBlockEntity(targetBlockPos);
+                        to.setBlock(targetBlock, from.getBlockState(sourceBlock), Block.UPDATE_ALL);
+                        BlockEntity fromBlockEntity = from.getBlockEntity(sourceBlock);
+                        BlockEntity toBlockEntity = to.getBlockEntity(targetBlock);
                         if (fromBlockEntity != null && toBlockEntity != null) {
                             toBlockEntity.load(fromBlockEntity.saveWithFullMetadata());
                         }
@@ -164,8 +167,12 @@ public final class SpawnChunkHelper {
         }
 
         BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
-        targetLevel.setBlock(blockPos, ChunkByChunkConstants.bedrockChestBlock().defaultBlockState(), Block.UPDATE_ALL);
-        if (targetLevel.getBlockEntity(blockPos) instanceof BedrockChestBlockEntity chestEntity) {
+        if (ChunkByChunkSettings.useBedrockChest()) {
+            targetLevel.setBlock(blockPos, ChunkByChunkConstants.bedrockChestBlock().defaultBlockState(), Block.UPDATE_ALL);
+        } else {
+            targetLevel.setBlock(blockPos, Blocks.CHEST.defaultBlockState(), Block.UPDATE_ALL);
+        }
+        if (targetLevel.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chestEntity) {
             chestEntity.setItem(0, ChunkByChunkSettings.chestContents().getItem(ChunkByChunkSettings.chestQuantity()));
         }
     }

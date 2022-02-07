@@ -24,14 +24,9 @@ import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 /**
  * World Forge block is used to convert general soil and stone blocks into world crystals and cores.
  */
-public class WorldForgeBlock extends BaseEntityBlock {
+public class WorldForgeBlock extends AbstractContainerBlock {
     public WorldForgeBlock(BlockBehaviour.Properties blockProperties) {
         super(blockProperties);
-    }
-
-    @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable
@@ -41,46 +36,11 @@ public class WorldForgeBlock extends BaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        } else {
-            this.openContainer(level, pos, player);
-            return InteractionResult.CONSUME;
+    protected void openContainer(Level level, BlockPos pos, Player player) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof WorldForgeBlockEntity) {
+            player.openMenu((MenuProvider) blockEntity);
         }
-    }
-
-    @Override
-    public void onRemove(BlockState oldState, Level level, BlockPos pos, BlockState newState, boolean pistonMove) {
-        if (!oldState.is(newState.getBlock())) {
-            BlockEntity blockentity = level.getBlockEntity(pos);
-            if (blockentity instanceof WorldForgeBlockEntity forgeBlockEntity) {
-                if (level instanceof ServerLevel) {
-                    Containers.dropContents(level, pos, forgeBlockEntity);
-                }
-
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(oldState, level, pos, newState, pistonMove);
-        }
-    }
-
-    private void openContainer(Level level, BlockPos pos, Player player) {
-        BlockEntity blockentity = level.getBlockEntity(pos);
-        if (blockentity instanceof WorldForgeBlockEntity) {
-            player.openMenu((MenuProvider) blockentity);
-        }
-    }
-
-    @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
     }
 
     @Override

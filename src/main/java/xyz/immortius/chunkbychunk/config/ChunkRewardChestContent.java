@@ -6,7 +6,10 @@ import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 import java.util.function.Supplier;
 
-public enum BedrockChestContents {
+/**
+ * Enumeration for types of contents allowed in the chunk reward chest
+ */
+public enum ChunkRewardChestContent {
     ChunkSpawner(ChunkByChunkConstants::spawnChunkBlockItem),
     UnstableChunkSpawner(ChunkByChunkConstants::unstableChunkSpawnBlockItem),
     WorldCore(ChunkByChunkConstants::worldCoreBlockItem),
@@ -14,7 +17,7 @@ public enum BedrockChestContents {
 
     private final Supplier<Item> item;
 
-    BedrockChestContents(Supplier<Item> item) {
+    ChunkRewardChestContent(Supplier<Item> item) {
         this.item = item;
     }
 

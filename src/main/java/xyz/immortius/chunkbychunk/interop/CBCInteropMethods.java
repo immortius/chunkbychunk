@@ -11,17 +11,30 @@ import javax.annotation.Nullable;
 import java.util.function.Function;
 
 /**
- * Methods whose implementation varies by mod system
+ * Static methods whose implementation varies by mod system
  */
 public final class CBCInteropMethods {
     private CBCInteropMethods() {
     }
 
+    /**
+     * Change the dimension of an entity.
+     * For forge, this uses the forge extension changeDimension method
+     * @param entity The entity to move
+     * @param level The level to move the entity too
+     * @param portalInfo Portal information for the move
+     * @return The moved entity
+     */
     @Nullable
     public static Entity changeDimension(Entity entity, ServerLevel level, PortalInfo portalInfo) {
         return entity.changeDimension(level, new EntityTeleport(portalInfo));
     }
 
+    /**
+     * Loads configuration for a server.
+     * This is handled automatically by forge.
+     * @param server The server to load config for
+     */
     public static void loadServerConfig(MinecraftServer server) {
         // Handled by forge
     }

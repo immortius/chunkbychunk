@@ -40,9 +40,15 @@ import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
+import java.nio.file.Paths;
+
+/**
+ * The Mod itself. Registers all registerable objects and sets up any event hooks
+ */
 @Mod("chunkbychunk")
 public class ChunkByChunkMod {
     private static final DeferredRegister<ForgeWorldPreset> WORLD_PRESETS = DeferredRegister.create(ForgeRegistries.WORLD_TYPES, ChunkByChunkConstants.MOD_ID);
@@ -88,6 +94,7 @@ public class ChunkByChunkMod {
     }
 
     public ChunkByChunkMod() {
+        new ConfigSystem().synchConfig(Paths.get("defaultconfigs", "chunkbychunk.toml"), new xyz.immortius.chunkbychunk.config.ChunkByChunkConfig());
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ChunkByChunkConfig.GENERAL_SPEC, "chunkByChunk.toml");
         WORLD_PRESETS.register(FMLJavaModLoadingContext.get().getModEventBus());
         BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());

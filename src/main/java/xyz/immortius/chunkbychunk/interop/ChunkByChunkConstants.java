@@ -100,14 +100,14 @@ public final class ChunkByChunkConstants {
     // Menus
 
     public static MenuType<BedrockChestMenu> bedrockChestMenu() {
-        return (MenuType<BedrockChestMenu>) ChunkByChunkMod.BEDROCK_CHEST_MENU.get();
+        return ChunkByChunkMod.BEDROCK_CHEST_MENU.get();
     }
 
     public static MenuType<WorldForgeMenu> worldForgeMenu() {
-        return (MenuType<WorldForgeMenu>) ChunkByChunkMod.WORLD_FORGE_MENU.get();
+        return ChunkByChunkMod.WORLD_FORGE_MENU.get();
     }
 
     public static MenuType<WorldScannerMenu> worldScannerMenu() {
-        return (MenuType<WorldScannerMenu>) ChunkByChunkMod.WORLD_SCANNER_MENU.get();
+        return ChunkByChunkMod.WORLD_SCANNER_MENU.get();
     }
 }

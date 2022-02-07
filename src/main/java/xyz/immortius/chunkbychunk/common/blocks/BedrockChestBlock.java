@@ -66,6 +66,7 @@ public class BedrockChestBlock extends BaseEntityBlock {
             for (int y = aboveY + 1; y <= level.getMaxBuildHeight(); y++) {
                 for (int z = chunkPos.getMinBlockZ(); z < chunkPos.getMaxBlockZ(); z++) {
                     Block block = chunk.getBlockState(new BlockPos(x, y, z)).getBlock();
+                    // TODO: Improve this algorithm, probably pull blocks in via tag like stone and soil
                     if (!(block instanceof AirBlock) &&
                             !(block instanceof LiquidBlock) &&
                             !(block instanceof LadderBlock) &&

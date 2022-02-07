@@ -4,6 +4,9 @@ import xyz.immortius.chunkbychunk.config.system.Comment;
 import xyz.immortius.chunkbychunk.config.system.IntRange;
 import xyz.immortius.chunkbychunk.config.system.Name;
 
+/**
+ * Configuration specifically for the world forge
+ */
 public class WorldForgeConfig {
     @Name("production_rate")
     @IntRange(min = 1, max = 256)

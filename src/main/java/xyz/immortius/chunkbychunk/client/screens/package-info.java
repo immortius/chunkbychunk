@@ -1,3 +1,6 @@
+/**
+ * Client-side screens
+ */
 @MethodsReturnNonnullByDefault
 @FieldsAreNonnullByDefault
 package xyz.immortius.chunkbychunk.client.screens;

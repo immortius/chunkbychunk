@@ -17,21 +17,15 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
  * World Scanner block is used to scan unspawned chunks for particular features.
  */
-public class WorldScannerBlock extends BaseEntityBlock {
+public class WorldScannerBlock extends AbstractContainerBlock {
     public WorldScannerBlock(Properties blockProperties) {
         super(blockProperties);
-    }
-
-    @Override
-    public RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Nullable
@@ -41,46 +35,11 @@ public class WorldScannerBlock extends BaseEntityBlock {
     }
 
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.isClientSide) {
-            return InteractionResult.SUCCESS;
-        } else {
-            this.openContainer(level, pos, player);
-            return InteractionResult.CONSUME;
-        }
-    }
-
-    @Override
-    public void onRemove(BlockState oldState, Level level, BlockPos pos, BlockState newState, boolean pistonMove) {
-        if (!oldState.is(newState.getBlock())) {
-            BlockEntity blockentity = level.getBlockEntity(pos);
-            if (blockentity instanceof WorldScannerBlockEntity scannerBlockEntity) {
-                if (level instanceof ServerLevel) {
-                    Containers.dropContents(level, pos, scannerBlockEntity);
-                }
-
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-
-            super.onRemove(oldState, level, pos, newState, pistonMove);
-        }
-    }
-
-    private void openContainer(Level level, BlockPos pos, Player player) {
+    protected void openContainer(Level level, BlockPos pos, Player player) {
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (blockentity instanceof WorldScannerBlockEntity) {
             player.openMenu((MenuProvider) blockentity);
         }
-    }
-
-    @Override
-    public boolean hasAnalogOutputSignal(BlockState state) {
-        return true;
-    }
-
-    @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
-        return AbstractContainerMenu.getRedstoneSignalFromBlockEntity(level.getBlockEntity(pos));
     }
 
     @Override

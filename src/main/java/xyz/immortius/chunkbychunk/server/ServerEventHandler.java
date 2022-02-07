@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.server;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
@@ -8,11 +9,19 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.storage.ServerLevelData;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
+import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
@@ -21,9 +30,14 @@ import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.List;
 import java.util.OptionalInt;
+import java.util.Set;
 
-
+/**
+ * Server event handlers for events triggered server-side
+ */
 public final class ServerEventHandler {
+
+    private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
     private static final List<List<int[]>> CHUNK_SPAWN_OFFSETS = ImmutableList.<List<int[]>>builder()
             .add(ImmutableList.of(new int[]{0, 0}))
@@ -41,6 +55,11 @@ public final class ServerEventHandler {
 
     }
 
+    /**
+     * Handles the event when the server is first starting, before any levels are created. Used to fiddle the world generators to move the existing overworld generation into a new generation dimension, and change
+     * the overworld to spawn as a skyworld.
+     * @param server The minecraft server that is starting
+     */
     public static void onServerStarting(MinecraftServer server) {
         WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
         LevelStem overworldStem = worldGenSettings.dimensions().get(Level.OVERWORLD.location());
@@ -59,6 +78,10 @@ public final class ServerEventHandler {
 
     }
 
+    /**
+     * Event when the server has started. Loads/synchs the server config and spawns the initial chunk if needed.
+     * @param server The minecraft server that has started
+     */
     public static void onServerStarted(MinecraftServer server) {
         CBCInteropMethods.loadServerConfig(server);
         checkSpawnInitialChunks(server);
@@ -72,12 +95,49 @@ public final class ServerEventHandler {
             BlockPos spawnPos = generationLevel.getSharedSpawnPos();
             ChunkPos chunkSpawnPos = new ChunkPos(spawnPos);
             if (SpawnChunkHelper.isEmptyChunk(overworldLevel, chunkSpawnPos)) {
-                spawnInitialChunks(overworldLevel, chunkSpawnPos);
+                findAppropriateSpawnChunk(overworldLevel, generationLevel);
+                spawnInitialChunks(overworldLevel);
             }
         }
     }
 
-    private static void spawnInitialChunks(ServerLevel overworldLevel, ChunkPos centerChunkPos) {
+    /**
+     * Finds an appropriate spawn chunk. I want it to have at least 2 logs and 2 leaves... Obviously this isn't necessarily sufficent because if no seeds drop then the
+     * player is in trouble, but provides some baseline threshold for an acceptable chunk.
+     * @param overworldLevel
+     * @param generationLevel
+     */
+    private static void findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
+        Set<Block> logs = ImmutableSet.copyOf(BlockTags.LOGS.getValues());
+        Set<Block> leaves = ImmutableSet.copyOf(BlockTags.LEAVES.getValues());
+
+        ChunkPos initialChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
+        SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
+        int attempts = 0;
+        while (attempts < 128) {
+            LevelChunk chunk = generationLevel.getChunk(iterator.getX(), iterator.getY());
+            int numLogs = ChunkUtil.countBlocks(chunk, logs);
+            if (numLogs > 1) {
+                int numLeaves = ChunkUtil.countBlocks(chunk, leaves);
+                if (numLeaves > 1) {
+                    ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
+                    levelData.setSpawn(new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ()), levelData.getSpawnAngle());
+                    break;
+                }
+            }
+            iterator.next();
+            attempts++;
+        }
+        LOGGER.info("Found appropriate spawn chunk in {} attempts", attempts);
+    }
+
+    /**
+     * Spawns the initial chunk.
+     * @param overworldLevel
+     */
+    // BUG: The initial chunk will not have entities copied into it from the generation dimension as it takes a tick for entities to be loaded.
+    private static void spawnInitialChunks(ServerLevel overworldLevel) {
+        ChunkPos centerChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
         List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkSettings.initialChunks() - 1);
         for (int[] offset : chunkOffsets) {
             ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
