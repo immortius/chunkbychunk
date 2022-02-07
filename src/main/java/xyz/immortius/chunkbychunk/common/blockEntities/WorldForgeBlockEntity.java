@@ -99,6 +99,7 @@ public class WorldForgeBlockEntity extends SidedBlockEntityInteropBase {
         fuelBuilder.put(Blocks.ANDESITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
         fuelBuilder.put(Blocks.DIORITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
         fuelBuilder.put(Blocks.GRANITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
+        fuelBuilder.put(Blocks.TUFF.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
 
         fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings.worldForgeFuelPerFragment());
         fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);

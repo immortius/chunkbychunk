@@ -6,11 +6,10 @@ import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.inventory.ContainerData;
-import net.minecraft.world.inventory.SimpleContainerData;
-import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.inventory.*;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MapItem;
 import net.minecraft.world.level.Level;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
@@ -30,6 +29,7 @@ public class WorldScannerMenu extends AbstractContainerMenu {
 
     private final Container container;
     private final ContainerData containerData;
+    private final ResultContainer resultContainer = new ResultContainer();
 
     public WorldScannerMenu(int menuId, Inventory inventory) {
         this(menuId, inventory, new SimpleContainer(WorldScannerBlockEntity.NUM_ITEM_SLOTS), new SimpleContainerData(WorldScannerBlockEntity.NUM_DATA_ITEMS));
@@ -59,6 +59,10 @@ public class WorldScannerMenu extends AbstractContainerMenu {
         }
 
         addDataSlots(containerData);
+
+        ItemStack itemstack = new ItemStack(Items.FILLED_MAP);
+        itemstack.getOrCreateTag().putInt("map", getMapId());
+        this.resultContainer.setItem(2, itemstack);
     }
 
     public int getEnergy() {

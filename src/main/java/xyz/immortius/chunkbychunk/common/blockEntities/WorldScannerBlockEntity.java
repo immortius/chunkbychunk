@@ -1,6 +1,9 @@
 package xyz.immortius.chunkbychunk.common.blockEntities;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMultimap;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Either;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,6 +29,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkStatus;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import org.apache.logging.log4j.LogManager;
@@ -36,6 +40,7 @@ import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.SidedBlockEntityInteropBase;
 
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +66,8 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
     public static final int DATA_SCANNING_Z = 4;
     public static final int NUM_DATA_ITEMS = 5;
 
-    public static final int SCAN_CENTER = 63;
+    public static final int SCAN_CENTER = 15;
+    public static final int SCAN_ZOOM = 4;
 
     public static final int NO_MAP = -1;
 
@@ -86,6 +92,17 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
             MaterialColor.GOLD.getPackedId(MaterialColor.Brightness.HIGH),
             MaterialColor.SNOW.getPackedId(MaterialColor.Brightness.HIGH)
     };
+
+    private static final Multimap<Item, Block> SCAN_ITEM_MAPPINGS = ImmutableMultimap.<Item, Block>builder()
+            .putAll(Items.RAW_GOLD, Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.RAW_GOLD_BLOCK)
+            .putAll(Items.RAW_IRON, Blocks.IRON_ORE, Blocks.DEEPSLATE_IRON_ORE, Blocks.RAW_IRON_BLOCK)
+            .putAll(Items.RAW_COPPER, Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK)
+            .putAll(Items.DIAMOND, Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE)
+            .putAll(Items.EMERALD, Blocks.EMERALD_ORE, Blocks.DEEPSLATE_EMERALD_ORE)
+            .putAll(Items.COAL, Blocks.COAL_ORE, Blocks.DEEPSLATE_COAL_ORE)
+            .putAll(Items.LAPIS_LAZULI, Blocks.LAPIS_ORE, Blocks.DEEPSLATE_LAPIS_ORE)
+            .putAll(Items.REDSTONE, Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE)
+            .build();
 
     private static final int[] SCAN_COLOR_THRESHOLD = {0, 1, 8, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
 
@@ -197,10 +214,19 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
         ContainerHelper.saveAllItems(tag, this.items);
     }
 
+    public boolean validTarget() {
+        ItemStack targetItem = items.get(SLOT_INPUT);
+        if (targetItem.getItem() instanceof BucketItem bucket) {
+            return bucket.getFluid() instanceof FlowingFluid;
+        }
+
+        return targetItem.getItem() instanceof BlockItem || SCAN_ITEM_MAPPINGS.keySet().contains(targetItem.getItem());
+    }
+
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, WorldScannerBlockEntity entity) {
         ServerLevel serverLevel = (ServerLevel) level;
         boolean changed = false;
-        if (entity.scanX > 0) {
+        if (entity.scanX >= 0 && entity.validTarget()) {
             ItemStack targetItem = entity.items.get(SLOT_INPUT);
             ItemStack fuelItem = entity.items.get(SLOT_FUEL);
 
@@ -236,39 +262,15 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
                 ChunkPos chunkPos = chunk.getPos();
                 byte color = MaterialColor.NONE.getPackedId(MaterialColor.Brightness.NORMAL);
                 Set<Block> scanForBlocks = new HashSet<>();
-                if (targetItem.getItem() == Items.WATER_BUCKET) {
-                    scanForBlocks.add(Blocks.WATER);
-                } else if (targetItem.getItem() == Items.LAVA_BUCKET) {
-                    scanForBlocks.add(Blocks.LAVA);
-                } else if (targetItem.getItem() == Items.POWDER_SNOW_BUCKET) {
-                    scanForBlocks.add(Blocks.POWDER_SNOW);
+                Collection<Block> mappings = SCAN_ITEM_MAPPINGS.get(targetItem.getItem());
+                if (!mappings.isEmpty()) {
+                    scanForBlocks.addAll(mappings);
+                } else if (targetItem.getItem() instanceof BucketItem bucket) {
+                    scanForBlocks.add(bucket.getFluid().defaultFluidState().createLegacyBlock().getBlock());
                 } else if (targetItem.getItem() instanceof BlockItem blockItem) {
                     scanForBlocks.add(blockItem.getBlock());
-                } else if (targetItem.getItem() == Items.RAW_GOLD) {
-                    scanForBlocks.add(Blocks.RAW_GOLD_BLOCK);
-                    scanForBlocks.add(Blocks.DEEPSLATE_GOLD_ORE);
-                    scanForBlocks.add(Blocks.NETHER_GOLD_ORE);
-                } else if (targetItem.getItem() == Items.RAW_IRON) {
-                    scanForBlocks.add(Blocks.RAW_IRON_BLOCK);
-                    scanForBlocks.add(Blocks.DEEPSLATE_IRON_ORE);
-                } else if (targetItem.getItem() == Items.DIAMOND) {
-                    scanForBlocks.add(Blocks.DIAMOND_ORE);
-                    scanForBlocks.add(Blocks.DEEPSLATE_DIAMOND_ORE);
-                } else if (targetItem.getItem() == Items.RAW_COPPER) {
-                    scanForBlocks.add(Blocks.COPPER_ORE);
-                } else if (targetItem.getItem() == Items.EMERALD) {
-                    scanForBlocks.add(Blocks.EMERALD_ORE);
-                    scanForBlocks.add(Blocks.DEEPSLATE_EMERALD_ORE);
-                } else if (targetItem.getItem() == Items.COAL) {
-                    scanForBlocks.add(Blocks.COAL_ORE);
-                    scanForBlocks.add(Blocks.DEEPSLATE_COAL_ORE);
-                } else if (targetItem.getItem() == Items.LAPIS_LAZULI) {
-                    scanForBlocks.add(Blocks.LAPIS_ORE);
-                    scanForBlocks.add(Blocks.DEEPSLATE_LAPIS_ORE);
-                } else if (targetItem.getItem() == Items.REDSTONE) {
-                    scanForBlocks.add(Blocks.REDSTONE_ORE);
-                    scanForBlocks.add(Blocks.DEEPSLATE_REDSTONE_ORE);
                 }
+
                 if (!scanForBlocks.isEmpty()) {
                     BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0, 0, 0);
                     int blockCount = 0;
@@ -300,7 +302,13 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
                 }
 
                 MapItemSavedData data = entity.getLevel().getMapData(MapItem.makeKey(entity.map));
-                data.setColor(entity.scanX, entity.scanZ, color);
+                for (int innerX = 0; innerX < SCAN_ZOOM; innerX++) {
+                    for (int innerZ = 0; innerZ < SCAN_ZOOM; innerZ++) {
+                        int pixelX = entity.scanX * SCAN_ZOOM + innerX;
+                        int pixelY = entity.scanZ * SCAN_ZOOM + innerZ;
+                        data.setColor(pixelX, pixelY, color);
+                    }
+                }
 
                 entity.iterateScanPosition();
                 entity.scanCharge -= ENERGY_PER_CHUNK;
@@ -327,7 +335,9 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
 
     private void createMap() {
         if (map == NO_MAP) {
-            MapItemSavedData data = MapItemSavedData.createFresh(getBlockPos().getX(), getBlockPos().getY(), (byte) 4, true, true, level.dimension());
+            ChunkPos pos = new ChunkPos(getBlockPos());
+
+            MapItemSavedData data = MapItemSavedData.createFresh(pos.getMaxBlockX() , pos.getMaxBlockZ(), (byte) 2, false, false, level.dimension()).locked();
             map = level.getFreeMapId();
             level.setMapData(MapItem.makeKey(map), data);
         }
@@ -395,10 +405,38 @@ public class WorldScannerBlockEntity extends SidedBlockEntityInteropBase {
 
     @Override
     public void setItem(int slot, ItemStack newItem) {
+        boolean targetUnchanged = true;
+        if (slot == SLOT_INPUT) {
+            ItemStack itemStack = this.items.get(slot);
+            targetUnchanged = !newItem.isEmpty() && newItem.sameItem(itemStack);
+        }
+
         items.set(slot, newItem);
         if (newItem.getCount() > this.getMaxStackSize()) {
             newItem.setCount(this.getMaxStackSize());
         }
+
+        if (!targetUnchanged) {
+            resetScan();
+        }
+    }
+
+    private void resetScan() {
+        if (map != NO_MAP) {
+            MapItemSavedData data = getLevel().getMapData(MapItem.makeKey(map));
+            for (int x = 0; x < MapItem.IMAGE_WIDTH; x++) {
+                for (int y = 0; y < MapItem.IMAGE_HEIGHT; y++) {
+                    data.setColor(x, y, MaterialColor.NONE.getPackedId(MaterialColor.Brightness.NORMAL));
+                }
+            }
+        }
+
+        scanX = SCAN_CENTER;
+        scanZ = SCAN_CENTER;
+        scanDirection = 0;
+        scanLineLength = 1;
+        scanLineRemaining = 1;
+        setChanged();
     }
 
     @Override
