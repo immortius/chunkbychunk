@@ -25,6 +25,9 @@ public class ChunkByChunkConfig {
     @Name("Gameplay")
     private final GameplayConfig gameplayConfig = new GameplayConfig();
 
+    @Name("WorldScanner")
+    private final WorldScannerConfig worldScannerConfig = new WorldScannerConfig();
+
     public GenerationConfig getGeneration() {
         return generation;
     }
@@ -37,5 +40,9 @@ public class ChunkByChunkConfig {
 
     public GameplayConfig getGameplayConfig() {
         return gameplayConfig;
+    }
+
+    public WorldScannerConfig getWorldScannerConfig() {
+        return worldScannerConfig;
     }
 }

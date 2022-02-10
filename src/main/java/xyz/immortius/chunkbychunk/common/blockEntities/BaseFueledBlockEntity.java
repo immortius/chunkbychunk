@@ -23,13 +23,13 @@ import java.util.Map;
 public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase {
 
     private final int fuelSlot;
-    private final Map<Item, Integer> fuel;
+    private final Map<Item, FuelValueSupplier> fuel;
     private int remainingFuel;
     private int chargedFuel;
 
     private NonNullList<ItemStack> items;
 
-    protected BaseFueledBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state, int numItemSlots, int fuelSlot, Map<Item, Integer> fuel) {
+    protected BaseFueledBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state, int numItemSlots, int fuelSlot, Map<Item, FuelValueSupplier> fuel) {
         super(blockEntityType, pos, state);
         this.items = NonNullList.withSize(numItemSlots, ItemStack.EMPTY);
         this.fuelSlot = fuelSlot;
@@ -102,7 +102,7 @@ public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase 
      * @return Is this item fuel
      */
     public boolean isFuel(ItemStack itemStack) {
-        return fuel.getOrDefault(itemStack.getItem(), 0) > 0;
+        return fuel.getOrDefault(itemStack.getItem(), () -> 0).get() > 0;
     }
 
     /**
@@ -110,7 +110,7 @@ public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase 
      * @return How much fuel does this item provide (0 if not fuel)
      */
     public int getFuelValue(ItemStack itemStack) {
-        return fuel.getOrDefault(itemStack.getItem(), 0);
+        return fuel.getOrDefault(itemStack.getItem(), () -> 0).get();
     }
 
     @Override
@@ -183,6 +183,11 @@ public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase 
             return isFuel(item);
         }
         return true;
+    }
+
+    @FunctionalInterface
+    public interface FuelValueSupplier {
+        int get();
     }
 
 }

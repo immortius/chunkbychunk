@@ -35,8 +35,8 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     public static final int DATA_GOAL = 1;
 
     private static final int GROW_CRYSTAL_AT = 4;
-    private static final Map<Item, Integer> FUEL;
-    private static final Map<Item, Integer> CRYSTAL_COSTS;
+    private static final Map<Item, FuelValueSupplier> FUEL;
+    private static final Map<Item, FuelValueSupplier> CRYSTAL_COSTS;
     private static final Item INITIAL_CRYSTAL = ChunkByChunkConstants.worldFragmentItem();
     private static final Map<Item, Item> CRYSTAL_STEPS;
 
@@ -76,25 +76,25 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     };
 
     static {
-        ImmutableMap.Builder<Item, Integer> fuelBuilder = ImmutableMap.builder();
+        ImmutableMap.Builder<Item, FuelValueSupplier> fuelBuilder = ImmutableMap.builder();
         for (Item value : ItemTags.bind("chunkbychunk:weakworldforgefuel").getValues()) {
-            fuelBuilder.put(value, ChunkByChunkSettings.worldForgeSoilFuelValue());
+            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeSoilFuelValue);
         }
         for (Item value : ItemTags.bind("chunkbychunk:worldforgefuel").getValues()) {
-            fuelBuilder.put(value, ChunkByChunkSettings.worldForgeStoneFuelValue());
+            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStoneFuelValue);
         }
 
-        fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings.worldForgeFuelPerFragment());
-        fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);
-        fuelBuilder.put(ChunkByChunkConstants.worldCrystalItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 16);
+        fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldForgeFuelPerFragment);
+        fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);
+        fuelBuilder.put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 16);
 
         FUEL = fuelBuilder.build();
 
-        CRYSTAL_COSTS = ImmutableMap.<Item, Integer>builder()
-                .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings.worldForgeFuelPerFragment())
-                .put(ChunkByChunkConstants.worldShardItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 4)
-                .put(ChunkByChunkConstants.worldCrystalItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 16)
-                .put(ChunkByChunkConstants.worldCoreBlockItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 64).build();
+        CRYSTAL_COSTS = ImmutableMap.<Item, FuelValueSupplier>builder()
+                .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldForgeFuelPerFragment)
+                .put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 4)
+                .put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 16)
+                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 64).build();
 
         CRYSTAL_STEPS = ImmutableMap.<Item, Item>builder()
                 .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkConstants.worldShardItem())
@@ -117,7 +117,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     }
 
     public static boolean isWorldForgeFuel(ItemStack itemStack) {
-        return FUEL.getOrDefault(itemStack.getItem(), 0) > 0;
+        return FUEL.getOrDefault(itemStack.getItem(), () -> 0).get() > 0;
     }
 
     @Override
@@ -155,7 +155,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
         boolean changed = entity.checkConsumeFuelItem();
 
-        int itemCost = CRYSTAL_COSTS.get(producingItem);
+        int itemCost = CRYSTAL_COSTS.get(producingItem).get();
         Item nextItem = CRYSTAL_STEPS.get(producingItem);
         entity.goal = itemCost;
 
@@ -167,7 +167,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
                 entity.setItem(SLOT_RESULT, producingItem.getDefaultInstance());
             } else if (outputItems.getCount() == GROW_CRYSTAL_AT - 1 && nextItem != null) {
                 entity.setItem(SLOT_RESULT, nextItem.getDefaultInstance());
-                entity.goal = CRYSTAL_COSTS.get(nextItem);
+                entity.goal = CRYSTAL_COSTS.get(nextItem).get();
             } else {
                 outputItems.grow(1);
             }

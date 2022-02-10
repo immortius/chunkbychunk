@@ -3,7 +3,6 @@ package xyz.immortius.chunkbychunk.common.menus;
 import net.minecraft.world.Container;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 
 import java.util.function.Predicate;
 

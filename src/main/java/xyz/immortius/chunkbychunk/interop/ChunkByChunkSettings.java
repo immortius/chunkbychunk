@@ -67,4 +67,16 @@ public class ChunkByChunkSettings {
     public static boolean isBlockPlacementAllowedOutsideSpawnedChunks() {
         return ChunkByChunkConfig.blockPlacementAllowedOutsideSpawnedChunks.get();
     }
+
+    public static int worldScannerFuelPerFragment() {
+        return ChunkByChunkConfig.worldScannerFuelPerFragment.get();
+    }
+
+    public static int worldScannerFuelConsumedPerTick() {
+        return ChunkByChunkConfig.worldScannerFuelConsumedPerTick.get();
+    }
+
+    public static int worldScannerFuelRequiredPerChunk() {
+        return ChunkByChunkConfig.worldScannerFuelRequiredPerChunk.get();
+    }
 }

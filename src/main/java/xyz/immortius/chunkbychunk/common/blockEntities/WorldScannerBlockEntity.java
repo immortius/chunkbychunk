@@ -29,11 +29,13 @@ import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Supplier;
 
 /**
  * World Scanner Block Entity - this consumes crystals in order to scan for a provided block or item hint.
@@ -55,12 +57,9 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     public static final int NO_MAP = -1;
 
-    private static final int ENERGY_PER_FRAGMENT = 32;
-    private static final int ENERGY_PER_CHUNK = 32;
-    private static final int ENERGY_PER_TICK = 1;
     private static final int TICKS_BETWEEN_REPLICATES = 11;
 
-    private static final Map<Item, Integer> FUEL;
+    private static final Map<Item, FuelValueSupplier> FUEL;
 
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_SIDES = new int[]{SLOT_FUEL};
@@ -124,11 +123,11 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
     };
 
     static {
-        FUEL = ImmutableMap.<Item, Integer>builder()
-                .put(ChunkByChunkConstants.worldFragmentItem(), ENERGY_PER_FRAGMENT)
-                .put(ChunkByChunkConstants.worldShardItem(), 4 * ENERGY_PER_FRAGMENT)
-                .put(ChunkByChunkConstants.worldCrystalItem(), 16 * ENERGY_PER_FRAGMENT)
-                .put(ChunkByChunkConstants.worldCoreBlockItem(), 64 * ENERGY_PER_FRAGMENT).build();
+        FUEL = ImmutableMap.<Item, FuelValueSupplier>builder()
+                .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldScannerFuelPerFragment)
+                .put(ChunkByChunkConstants.worldShardItem(), () -> 4 * ChunkByChunkSettings.worldScannerFuelPerFragment())
+                .put(ChunkByChunkConstants.worldCrystalItem(), () -> 16 * ChunkByChunkSettings.worldScannerFuelPerFragment())
+                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> 64 * ChunkByChunkSettings.worldScannerFuelPerFragment()).build();
     }
 
     public WorldScannerBlockEntity(BlockPos pos, BlockState state) {
@@ -146,7 +145,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
     }
 
     public static boolean isWorldScannerFuel(ItemStack itemStack) {
-        return FUEL.getOrDefault(itemStack.getItem(), 0) > 0;
+        return FUEL.getOrDefault(itemStack.getItem(), () -> 0).get() > 0;
     }
 
     @Override
@@ -184,13 +183,14 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
             // Process fuel
             if (entity.getRemainingFuel() > 0) {
-                int consumeAmount = entity.consumeFuel(ENERGY_PER_TICK);
+                int consumeAmount = entity.consumeFuel(ChunkByChunkSettings.worldScannerFuelConsumedPerTick());
                 entity.scanCharge += consumeAmount;
             }
             changed = entity.checkConsumeFuelItem();
 
             // If there is enough charge to scan a chunk, do so
-            if (entity.scanCharge >= ENERGY_PER_CHUNK) {
+            int chunkCost = ChunkByChunkSettings.worldScannerFuelRequiredPerChunk();
+            if (entity.scanCharge >= chunkCost) {
                 if (entity.map == NO_MAP) {
                     entity.createMap();
                 }
@@ -239,7 +239,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 }
 
                 entity.scanIterator.next();
-                entity.scanCharge -= ENERGY_PER_CHUNK;
+                entity.scanCharge -= chunkCost;
                 changed = true;
             }
         }

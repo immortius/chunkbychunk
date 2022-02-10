@@ -25,6 +25,9 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue worldForgeFuelPerFragment;
     public static ForgeConfigSpec.BooleanValue sealWorld;
     public static ForgeConfigSpec.BooleanValue blockPlacementAllowedOutsideSpawnedChunks;
+    public static ForgeConfigSpec.IntValue worldScannerFuelPerFragment;
+    public static ForgeConfigSpec.IntValue worldScannerFuelRequiredPerChunk;
+    public static ForgeConfigSpec.IntValue worldScannerFuelConsumedPerTick;
 
     static {
         ForgeConfigSpec.Builder configBuilder = new ForgeConfigSpec.Builder();
@@ -57,6 +60,11 @@ public class ChunkByChunkConfig {
         builder.pop();
         builder.push("Gameplay");
         blockPlacementAllowedOutsideSpawnedChunks = builder.comment("Can blocks be placed outside spawned chunks").define("block_placement_allowed_outside_spawned_chunks", exampleConfig.getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks());
+        builder.pop();
+        builder.push("WorldScanner");
+        worldScannerFuelPerFragment = builder.comment("The amount of fuel provided by each world fragment (and then scaled up for world shard, crystal and core").defineInRange("fuel_per_fragment", exampleConfig.getWorldScannerConfig().getFuelPerFragment(), 1, 512);
+        worldScannerFuelRequiredPerChunk = builder.comment("The amount of fuel required to scan each chunk").defineInRange("fuel_required_per_chunk", exampleConfig.getWorldScannerConfig().getFuelRequiredPerChunk(), 1, Short.MAX_VALUE * 2);
+        worldScannerFuelConsumedPerTick = builder.comment("The amount of fuel consumed each tick").defineInRange("fuel_consumed_per_tick", exampleConfig.getWorldScannerConfig().getFuelConsumedPerTick(), 1, Short.MAX_VALUE * 2);
         builder.pop();
     }
 
