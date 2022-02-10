@@ -10,7 +10,7 @@
       "item" : "minecraft:redstone_block"
     },
     "y" : {
-      "item" : "minecraft:oxidized_copper"
+      "item" : "minecraft:copper_block"
     },
     "c" : {
       "item" : "chunkbychunk:worldcore"

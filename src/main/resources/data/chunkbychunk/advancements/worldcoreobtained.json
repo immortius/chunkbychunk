@@ -10,6 +10,6 @@
     }
   },
   "rewards" : {
-    "recipes" : ["chunkbychunk:unstablechunkspawner","chunkbychunk:disassemble_worldcore","chunkbychunk:worldcore","chunkbychunk:worldforge"]
+    "recipes" : ["chunkbychunk:unstablechunkspawner","chunkbychunk:disassemble_worldcore","chunkbychunk:worldcore","chunkbychunk:worldforge","chunkbychunk:worldscanner"]
   }
 }

@@ -55,7 +55,8 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     public static final int NO_MAP = -1;
 
-    private static final int ENERGY_PER_CHUNK = 1;
+    private static final int ENERGY_PER_FRAGMENT = 32;
+    private static final int ENERGY_PER_CHUNK = 32;
     private static final int ENERGY_PER_TICK = 1;
     private static final int TICKS_BETWEEN_REPLICATES = 11;
 
@@ -124,10 +125,10 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     static {
         FUEL = ImmutableMap.<Item, Integer>builder()
-                .put(ChunkByChunkConstants.worldFragmentItem(), 20)
-                .put(ChunkByChunkConstants.worldShardItem(), 40)
-                .put(ChunkByChunkConstants.worldCrystalItem(), 80)
-                .put(ChunkByChunkConstants.worldCoreBlockItem(), 160).build();
+                .put(ChunkByChunkConstants.worldFragmentItem(), ENERGY_PER_FRAGMENT)
+                .put(ChunkByChunkConstants.worldShardItem(), 4 * ENERGY_PER_FRAGMENT)
+                .put(ChunkByChunkConstants.worldCrystalItem(), 16 * ENERGY_PER_FRAGMENT)
+                .put(ChunkByChunkConstants.worldCoreBlockItem(), 64 * ENERGY_PER_FRAGMENT).build();
     }
 
     public WorldScannerBlockEntity(BlockPos pos, BlockState state) {

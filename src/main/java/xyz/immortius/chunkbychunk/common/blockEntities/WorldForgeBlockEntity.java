@@ -77,21 +77,12 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     static {
         ImmutableMap.Builder<Item, Integer> fuelBuilder = ImmutableMap.builder();
-        for (Item value : ItemTags.DIRT.getValues()) {
+        for (Item value : ItemTags.bind("chunkbychunk:weakworldforgefuel").getValues()) {
             fuelBuilder.put(value, ChunkByChunkSettings.worldForgeSoilFuelValue());
         }
-        for (Item value : ItemTags.SAND.getValues()) {
-            fuelBuilder.put(value, ChunkByChunkSettings.worldForgeSoilFuelValue());
-        }
-        fuelBuilder.put(Blocks.GRAVEL.asItem(), ChunkByChunkSettings.worldForgeSoilFuelValue());
-
-        for (Item value : ItemTags.STONE_CRAFTING_MATERIALS.getValues()) {
+        for (Item value : ItemTags.bind("chunkbychunk:worldforgefuel").getValues()) {
             fuelBuilder.put(value, ChunkByChunkSettings.worldForgeStoneFuelValue());
         }
-        fuelBuilder.put(Blocks.ANDESITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
-        fuelBuilder.put(Blocks.DIORITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
-        fuelBuilder.put(Blocks.GRANITE.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
-        fuelBuilder.put(Blocks.TUFF.asItem(), ChunkByChunkSettings.worldForgeStoneFuelValue());
 
         fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings.worldForgeFuelPerFragment());
         fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);

@@ -7,7 +7,7 @@
   ],
   "key" : {
     "r" : {
-      "item" : "minecraft:diamond"
+      "item" : "chunkbychunk:worldcrystal"
     },
     "S" : {
       "item" : "chunkbychunk:unstablechunkspawner"

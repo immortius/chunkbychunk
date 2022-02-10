@@ -2,6 +2,7 @@
   "replace" : false,
   "values" : [
     "chunkbychunk:worldcore",
-    "chunkbychunk:worldforge"
+    "chunkbychunk:worldforge",
+    "chunkbychunk:worldscanner"
   ]
 }

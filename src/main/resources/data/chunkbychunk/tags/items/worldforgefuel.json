@@ -1,0 +1,10 @@
+{
+  "replace" : false,
+  "values" : [
+    "#stone_crafting_materials",
+    "andesite",
+    "diorite",
+    "granite",
+    "tuff"
+  ]
+}

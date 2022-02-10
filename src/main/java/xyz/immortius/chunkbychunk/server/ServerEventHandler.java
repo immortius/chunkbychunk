@@ -13,6 +13,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -38,6 +39,7 @@ import java.util.Set;
 public final class ServerEventHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
+    private static final int MAX_FIND_CHUNK_ATTEMPTS = 512;
 
     private static final List<List<int[]>> CHUNK_SPAWN_OFFSETS = ImmutableList.<List<int[]>>builder()
             .add(ImmutableList.of(new int[]{0, 0}))
@@ -102,7 +104,8 @@ public final class ServerEventHandler {
     }
 
     /**
-     * Finds an appropriate spawn chunk. I want it to have at least 2 logs and 2 leaves... Obviously this isn't necessarily sufficent because if no seeds drop then the
+     * Finds an appropriate spawn chunk. I want it to have at least 2 logs and 2 leaves, and mats to make another chunk...
+     * Obviously this isn't necessarily sufficient because if no seeds drop then the
      * player is in trouble, but provides some baseline threshold for an acceptable chunk.
      * @param overworldLevel
      * @param generationLevel
@@ -110,25 +113,27 @@ public final class ServerEventHandler {
     private static void findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
         Set<Block> logs = ImmutableSet.copyOf(BlockTags.LOGS.getValues());
         Set<Block> leaves = ImmutableSet.copyOf(BlockTags.LEAVES.getValues());
+        Set<Block> redstone = ImmutableSet.of(Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE);
+        Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
 
         ChunkPos initialChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
         SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
         int attempts = 0;
-        while (attempts < 128) {
+        while (attempts < MAX_FIND_CHUNK_ATTEMPTS) {
             LevelChunk chunk = generationLevel.getChunk(iterator.getX(), iterator.getY());
-            int numLogs = ChunkUtil.countBlocks(chunk, logs);
-            if (numLogs > 1) {
-                int numLeaves = ChunkUtil.countBlocks(chunk, leaves);
-                if (numLeaves > 1) {
-                    ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
-                    levelData.setSpawn(new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ()), levelData.getSpawnAngle());
-                    break;
-                }
+            if (ChunkUtil.countBlocks(chunk, logs) > 1 && ChunkUtil.countBlocks(chunk, leaves) > 1 && ChunkUtil.countBlocks(chunk, redstone) >= 36 && ChunkUtil.countBlocks(chunk, copper) >= 36) {
+                ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
+                levelData.setSpawn(new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ()), levelData.getSpawnAngle());
+                break;
             }
             iterator.next();
             attempts++;
         }
-        LOGGER.info("Found appropriate spawn chunk in {} attempts", attempts);
+        if (attempts < MAX_FIND_CHUNK_ATTEMPTS) {
+            LOGGER.info("Found appropriate spawn chunk in {} attempts", attempts);
+        } else {
+            LOGGER.info("No appropriate spawn chunk found :(");
+        }
     }
 
     /**
