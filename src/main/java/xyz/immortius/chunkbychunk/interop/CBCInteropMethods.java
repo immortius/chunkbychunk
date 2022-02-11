@@ -3,11 +3,16 @@ package xyz.immortius.chunkbychunk.interop;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraftforge.common.util.ITeleporter;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.function.Function;
 
 /**
@@ -20,8 +25,9 @@ public final class CBCInteropMethods {
     /**
      * Change the dimension of an entity.
      * For forge, this uses the forge extension changeDimension method
-     * @param entity The entity to move
-     * @param level The level to move the entity too
+     *
+     * @param entity     The entity to move
+     * @param level      The level to move the entity to
      * @param portalInfo Portal information for the move
      * @return The moved entity
      */
@@ -31,8 +37,25 @@ public final class CBCInteropMethods {
     }
 
     /**
+     * @param bucket The bucket to get the contents of
+     * @return The fluid contents of the bucket (may be null)
+     */
+    public static Fluid getBucketContents(BucketItem bucket) {
+        return bucket.getFluid();
+    }
+
+    /**
+     * @param id The id of the item tag
+     * @return A list of all tagged items
+     */
+    public static List<Item> getTaggedItems(String id) {
+        return ItemTags.bind(id).getValues();
+    }
+
+    /**
      * Loads configuration for a server.
      * This is handled automatically by forge.
+     *
      * @param server The server to load config for
      */
     public static void loadServerConfig(MinecraftServer server) {
@@ -63,5 +86,5 @@ public final class CBCInteropMethods {
         }
     }
 
-    ;
+
 }

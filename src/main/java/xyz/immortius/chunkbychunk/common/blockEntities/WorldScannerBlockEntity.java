@@ -28,6 +28,7 @@ import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
@@ -35,7 +36,6 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.function.Supplier;
 
 /**
  * World Scanner Block Entity - this consumes crystals in order to scan for a provided block or item hint.
@@ -167,7 +167,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
     private boolean validTarget() {
         ItemStack targetItem = getItem(SLOT_INPUT);
         if (targetItem.getItem() instanceof BucketItem bucket) {
-            return bucket.getFluid() instanceof FlowingFluid;
+            return CBCInteropMethods.getBucketContents(bucket) instanceof FlowingFluid;
         }
 
         return targetItem.getItem() instanceof BlockItem || SCAN_ITEM_MAPPINGS.keySet().contains(targetItem.getItem());
@@ -213,7 +213,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 if (!mappings.isEmpty()) {
                     scanForBlocks.addAll(mappings);
                 } else if (targetItem.getItem() instanceof BucketItem bucket) {
-                    scanForBlocks.add(bucket.getFluid().defaultFluidState().createLegacyBlock().getBlock());
+                    scanForBlocks.add(CBCInteropMethods.getBucketContents(bucket).defaultFluidState().createLegacyBlock().getBlock());
                 } else if (targetItem.getItem() instanceof BlockItem blockItem) {
                     scanForBlocks.add(blockItem.getBlock());
                 }
@@ -270,7 +270,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
         if (map == NO_MAP) {
             ChunkPos pos = new ChunkPos(getBlockPos());
 
-            MapItemSavedData data = MapItemSavedData.createFresh(pos.getMaxBlockX() , pos.getMaxBlockZ(), (byte) 2, false, false, level.dimension()).locked();
+            MapItemSavedData data = MapItemSavedData.createFresh(pos.getMaxBlockX(), pos.getMaxBlockZ(), (byte) 2, false, false, level.dimension()).locked();
             map = level.getFreeMapId();
             level.setMapData(MapItem.makeKey(map), data);
         }

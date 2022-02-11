@@ -6,16 +6,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
+import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
@@ -77,10 +76,10 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     static {
         ImmutableMap.Builder<Item, FuelValueSupplier> fuelBuilder = ImmutableMap.builder();
-        for (Item value : ItemTags.bind("chunkbychunk:weakworldforgefuel").getValues()) {
+        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:weakworldforgefuel")) {
             fuelBuilder.put(value, ChunkByChunkSettings::worldForgeSoilFuelValue);
         }
-        for (Item value : ItemTags.bind("chunkbychunk:worldforgefuel").getValues()) {
+        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:worldforgefuel")) {
             fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStoneFuelValue);
         }
 
