@@ -308,9 +308,11 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
     private void resetScan() {
         if (map != NO_MAP) {
             MapItemSavedData data = getLevel().getMapData(MapItem.makeKey(map));
-            for (int x = 0; x < MapItem.IMAGE_WIDTH; x++) {
-                for (int y = 0; y < MapItem.IMAGE_HEIGHT; y++) {
-                    data.setColor(x, y, MaterialColor.NONE.getPackedId(MaterialColor.Brightness.NORMAL));
+            if (data != null) {
+                for (int x = 0; x < MapItem.IMAGE_WIDTH; x++) {
+                    for (int y = 0; y < MapItem.IMAGE_HEIGHT; y++) {
+                        data.setColor(x, y, MaterialColor.NONE.getPackedId(MaterialColor.Brightness.NORMAL));
+                    }
                 }
             }
         }
