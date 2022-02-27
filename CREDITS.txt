@@ -1,3 +1,9 @@
+Chunk By Chunk Credits
+
+Chunk By Chunk was developed by dividesBy0/Immortius.
+
+=================================================================
+
 Minecraft Forge: Credits/Thank You
 
 Forge is a set of tools and modifications to the Minecraft base game code to assist 

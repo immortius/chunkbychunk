@@ -1,3 +1,9 @@
+Chunk-By-Chunk
+-------------------------------------------
+
+This mod is built around the concept of a single-chunk skyworld with the ability to expand it over time. This is achieved
+by maintaining a generation dimension and copying chunks out of it as necessary. Further mod features expand upon this
+core concept.
 
 Source installation information for modders
 -------------------------------------------
