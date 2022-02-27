@@ -60,6 +60,8 @@ public class ChunkByChunkSettings {
         return ChunkByChunkConfig.worldForgeStoneFuelValue.get();
     }
 
+    public static int worldForgeStrongFuelValue() { return ChunkByChunkConfig.worldForgeStrongFuelValue.get(); }
+
     public static int worldForgeFuelPerFragment() {
         return ChunkByChunkConfig.worldForgeFuelPerFragment.get();
     }

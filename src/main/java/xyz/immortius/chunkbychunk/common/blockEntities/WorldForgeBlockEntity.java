@@ -82,6 +82,9 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
         for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:worldforgefuel")) {
             fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStoneFuelValue);
         }
+        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:strongworldforgefuel")) {
+            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStrongFuelValue);
+        }
 
         fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldForgeFuelPerFragment);
         fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);

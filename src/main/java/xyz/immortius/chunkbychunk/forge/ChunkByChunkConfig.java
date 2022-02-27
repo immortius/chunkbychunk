@@ -1,13 +1,22 @@
 package xyz.immortius.chunkbychunk.forge;
 
 import net.minecraftforge.common.ForgeConfigSpec;
-import xyz.immortius.chunkbychunk.config.ChunkRewardChestContent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import xyz.immortius.chunkbychunk.config.*;
+import xyz.immortius.chunkbychunk.config.system.Comment;
+import xyz.immortius.chunkbychunk.config.system.IntRange;
+import xyz.immortius.chunkbychunk.config.system.Name;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+
+import java.lang.reflect.Field;
 
 /**
  * Forge implementation of config storage. Keeping this for now because forge does some lifting (ensures config is passed to client primarily), but it is duplicating the common config code.
  */
 public class ChunkByChunkConfig {
     public static final ForgeConfigSpec GENERAL_SPEC;
+    private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
     public static ForgeConfigSpec.BooleanValue spawnNewChunkChest;
     public static ForgeConfigSpec.BooleanValue useBedrockChest;
@@ -22,6 +31,7 @@ public class ChunkByChunkConfig {
     public static ForgeConfigSpec.IntValue worldForgeProductionRate;
     public static ForgeConfigSpec.IntValue worldForgeSoilFuelValue;
     public static ForgeConfigSpec.IntValue worldForgeStoneFuelValue;
+    public static ForgeConfigSpec.IntValue worldForgeStrongFuelValue;
     public static ForgeConfigSpec.IntValue worldForgeFuelPerFragment;
     public static ForgeConfigSpec.BooleanValue sealWorld;
     public static ForgeConfigSpec.BooleanValue blockPlacementAllowedOutsideSpawnedChunks;
@@ -38,33 +48,34 @@ public class ChunkByChunkConfig {
     private static void setupConfig(ForgeConfigSpec.Builder builder) {
         xyz.immortius.chunkbychunk.config.ChunkByChunkConfig exampleConfig = new xyz.immortius.chunkbychunk.config.ChunkByChunkConfig();
         builder.push("ChunkGeneration");
-        sealWorld = builder.comment("Should empty chunks be generated as a bedrock outline").define("seal_world", exampleConfig.getGeneration().sealWorld());
-        spawnNewChunkChest = builder.comment("Should chunks include a chest with items to enable obtaining more chunks?").define("spawn_new_chunk_chest", exampleConfig.getGeneration().spawnNewChunkChest());
-        useBedrockChest = builder.comment("Should the chest be a bedrock chest rather than a standard chest?").define("use_bedrock_chest", exampleConfig.getGeneration().useBedrockChest());
-        minNewChunkChestSpawnDepth = builder.comment("The minimum depth at which the bedrock chest can spawn").defineInRange("min_new_chunk_chest_spawn_depth", exampleConfig.getGeneration().getMinChestSpawnDepth(), -64, 128);
-        maxNewChunkChestSpawnDepth = builder.comment("The maximum depth at which the bedrock chest can spawn").defineInRange("max_new_chunk_chest_spawn_depth", exampleConfig.getGeneration().getMaxChestSpawnDepth(), -64, 128);
-        chestQuantity = builder.comment("The number of items the bedrock chest provides").defineInRange("chest_quantity", exampleConfig.getGeneration().getChestQuantity(), 1, 64);
-        chestContents = builder.comment("The type of items the bedrock chest provides").defineEnum("chest_contents", exampleConfig.getGeneration().getChestContents());
-        initialChunks= builder.comment("The number of chunks to spawn initially (up to 9).").defineInRange("initial_chunks", exampleConfig.getGeneration().getInitialChunks(), 1, 9);
-        chunkGenXOffset = builder.comment("Offsets the spawn of chunk from the standard generator. e.g. an offset of 3 means the (0,0) chunk will be the (3,0) chunk of the world").defineInRange("chunk_gen_x_offset", exampleConfig.getGeneration().getChunkGenXOffset(), Short.MIN_VALUE, Short.MAX_VALUE);
-        chunkGenZOffset = builder.comment("Offsets the spawn of chunk from the standard generator.").defineInRange("chunk_gen_z_offset", exampleConfig.getGeneration().getChunkGenZOffset(), Short.MIN_VALUE, Short.MAX_VALUE);
+        sealWorld = buildFrom(builder, GenerationConfig.class, "sealWorld", exampleConfig.getGeneration().sealWorld());
+        spawnNewChunkChest = buildFrom(builder, GenerationConfig.class, "spawnNewChunkChest", exampleConfig.getGeneration().spawnNewChunkChest());
+        useBedrockChest = buildFrom(builder, GenerationConfig.class, "useBedrockChest", exampleConfig.getGeneration().useBedrockChest());
+        minNewChunkChestSpawnDepth = buildFrom(builder, GenerationConfig.class, "minChestSpawnDepth", exampleConfig.getGeneration().getMinChestSpawnDepth());
+        maxNewChunkChestSpawnDepth = buildFrom(builder, GenerationConfig.class, "maxChestSpawnDepth", exampleConfig.getGeneration().getMaxChestSpawnDepth());
+        chestQuantity = buildFrom(builder, GenerationConfig.class, "chestQuantity", exampleConfig.getGeneration().getChestQuantity());
+        chestContents = buildFrom(builder, GenerationConfig.class, "chestContents", exampleConfig.getGeneration().getChestContents());
+        initialChunks= buildFrom(builder, GenerationConfig.class, "initialChunks", exampleConfig.getGeneration().getInitialChunks());
+        chunkGenXOffset = buildFrom(builder, GenerationConfig.class, "chunkGenXOffset", exampleConfig.getGeneration().getChunkGenXOffset());
+        chunkGenZOffset = buildFrom(builder, GenerationConfig.class, "chunkGenZOffset", exampleConfig.getGeneration().getChunkGenZOffset());
         builder.pop();
         builder.push("BedrockChest");
-        bedrockChestBlocksRemainingThreshold = builder.comment("The number of blocks within the chunk above the bedrock chest allowed to remain before it will open").defineInRange("bedrock_chest_unlock_at_blocks_remaining", exampleConfig.getBedrockChest().getBedrockChestBlocksRemainingThreshold(), 0, Short.MAX_VALUE * 2);
+        bedrockChestBlocksRemainingThreshold = buildFrom(builder, BedrockChestConfig.class, "bedrockChestBlocksRemainingThreshold", exampleConfig.getBedrockChest().getBedrockChestBlocksRemainingThreshold());
         builder.pop();
         builder.push("WorldForge");
-        worldForgeProductionRate = builder.comment("The rate at which the world forge processes consumed blocks, in fuel per tick").defineInRange("production_rate", exampleConfig.getWorldForge().getProductionRate(), 1, 256);
-        worldForgeSoilFuelValue = builder.comment("The value of fuel provided by soils (dirt, sand, gravel, etc). 0 to disallow use as fuel").defineInRange("soil_fuel_value", exampleConfig.getWorldForge().getSoilFuelValue(), 0, 256);
-        worldForgeStoneFuelValue = builder.comment("The value of fuel provided by raw stones (cobblestone, deep slate cobblestone, etc). 0 to disallow use as fuel").defineInRange("stone_fuel_value", exampleConfig.getWorldForge().getStoneFuelValue(), 0, 256);
-        worldForgeFuelPerFragment = builder.comment("The cost in fuel to produce a single world fragment").defineInRange("fragment_fuel_cost", exampleConfig.getWorldForge().getFragmentFuelCost(), 1, 256);
+        worldForgeProductionRate = buildFrom(builder, WorldForgeConfig.class, "productionRate", exampleConfig.getWorldForge().getProductionRate());
+        worldForgeSoilFuelValue = buildFrom(builder, WorldForgeConfig.class, "soilFuelValue", exampleConfig.getWorldForge().getSoilFuelValue());
+        worldForgeStoneFuelValue = buildFrom(builder, WorldForgeConfig.class, "stoneFuelValue", exampleConfig.getWorldForge().getStoneFuelValue());
+        worldForgeStrongFuelValue = buildFrom(builder, WorldForgeConfig.class, "strongFuelValue", exampleConfig.getWorldForge().getStrongFuelValue());
+        worldForgeFuelPerFragment = buildFrom(builder, WorldForgeConfig.class, "fragmentFuelCost", exampleConfig.getWorldForge().getFragmentFuelCost());
         builder.pop();
         builder.push("Gameplay");
-        blockPlacementAllowedOutsideSpawnedChunks = builder.comment("Can blocks be placed outside spawned chunks").define("block_placement_allowed_outside_spawned_chunks", exampleConfig.getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks());
+        blockPlacementAllowedOutsideSpawnedChunks = buildFrom(builder, GameplayConfig.class, "blockPlacementAllowedOutsideSpawnedChunks",exampleConfig.getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks());
         builder.pop();
         builder.push("WorldScanner");
-        worldScannerFuelPerFragment = builder.comment("The amount of fuel provided by each world fragment (and then scaled up for world shard, crystal and core").defineInRange("fuel_per_fragment", exampleConfig.getWorldScannerConfig().getFuelPerFragment(), 1, 512);
-        worldScannerFuelRequiredPerChunk = builder.comment("The amount of fuel required to scan each chunk").defineInRange("fuel_required_per_chunk", exampleConfig.getWorldScannerConfig().getFuelRequiredPerChunk(), 1, Short.MAX_VALUE * 2);
-        worldScannerFuelConsumedPerTick = builder.comment("The amount of fuel consumed each tick").defineInRange("fuel_consumed_per_tick", exampleConfig.getWorldScannerConfig().getFuelConsumedPerTick(), 1, Short.MAX_VALUE * 2);
+        worldScannerFuelPerFragment = buildFrom(builder, WorldScannerConfig.class, "fuelPerFragment", exampleConfig.getWorldScannerConfig().getFuelPerFragment());
+        worldScannerFuelRequiredPerChunk = buildFrom(builder, WorldScannerConfig.class, "fuelRequiredPerChunk", exampleConfig.getWorldScannerConfig().getFuelRequiredPerChunk());
+        worldScannerFuelConsumedPerTick = buildFrom(builder, WorldScannerConfig.class, "fuelConsumedPerTick", exampleConfig.getWorldScannerConfig().getFuelConsumedPerTick());
         builder.pop();
     }
 
@@ -74,6 +85,70 @@ public class ChunkByChunkConfig {
 
     public static int maxChestSpawnDepth() {
         return Math.max(minNewChunkChestSpawnDepth.get(), maxNewChunkChestSpawnDepth.get());
+    }
+
+    private static ForgeConfigSpec.BooleanValue buildFrom(ForgeConfigSpec.Builder builder, Class<?> type, String fieldName, boolean defaultValue) {
+        try {
+            Field field = type.getDeclaredField(fieldName);
+            Comment comment = field.getAnnotation(Comment.class);
+            if (comment != null) {
+                builder.comment(comment.value());
+            }
+            String name = fieldName;
+            Name nameAnnotation = field.getAnnotation(Name.class);
+            if (nameAnnotation != null) {
+                name = nameAnnotation.value();
+            }
+            return builder.define(name, defaultValue);
+        } catch (NoSuchFieldException e) {
+            LOGGER.error("Failed to find field {} in {}", fieldName, type.getName(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static ForgeConfigSpec.IntValue buildFrom(ForgeConfigSpec.Builder builder, Class<?> type, String fieldName, int defaultValue) {
+        try {
+            Field field = type.getDeclaredField(fieldName);
+            Comment comment = field.getAnnotation(Comment.class);
+            if (comment != null) {
+                builder.comment(comment.value());
+            }
+            String name = fieldName;
+            Name nameAnnotation = field.getAnnotation(Name.class);
+            if (nameAnnotation != null) {
+                name = nameAnnotation.value();
+            }
+            int min = Integer.MIN_VALUE;
+            int max = Integer.MAX_VALUE;
+            IntRange range = field.getAnnotation(IntRange.class);
+            if (range != null) {
+                min = range.min();
+                max = range.max();
+            }
+            return builder.defineInRange(name, defaultValue, min, max);
+        } catch (NoSuchFieldException e) {
+            LOGGER.error("Failed to find field {} in {}", fieldName, type.getName(), e);
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static <T extends Enum<T>> ForgeConfigSpec.EnumValue<T> buildFrom(ForgeConfigSpec.Builder builder, Class<?> type, String fieldName, T defaultValue) {
+        try {
+            Field field = type.getDeclaredField(fieldName);
+            Comment comment = field.getAnnotation(Comment.class);
+            if (comment != null) {
+                builder.comment(comment.value());
+            }
+            String name = fieldName;
+            Name nameAnnotation = field.getAnnotation(Name.class);
+            if (nameAnnotation != null) {
+                name = nameAnnotation.value();
+            }
+            return builder.defineEnum(name, defaultValue);
+        } catch (NoSuchFieldException e) {
+            LOGGER.error("Failed to find field {} in {}", fieldName, type.getName(), e);
+            throw new RuntimeException(e);
+        }
     }
 
 

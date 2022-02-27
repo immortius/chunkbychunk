@@ -23,6 +23,11 @@ public class WorldForgeConfig {
     @IntRange(min = 0, max = 256)
     private int stoneFuelValue = 4;
 
+    @Name("strong_fuel_value")
+    @Comment("The value of fuel provided by more valuable materials (none by default, this is for modpacks and extensions)")
+    @IntRange(min = 0, max = 256)
+    private int strongFuelValue = 8;
+
     @Name("fragment_fuel_cost")
     @IntRange(min = 1, max = 256)
     @Comment("The cost in fuel to produce a single world fragment")
@@ -43,4 +48,6 @@ public class WorldForgeConfig {
     public int getStoneFuelValue() {
         return stoneFuelValue;
     }
+
+    public int getStrongFuelValue() { return strongFuelValue; }
 }
