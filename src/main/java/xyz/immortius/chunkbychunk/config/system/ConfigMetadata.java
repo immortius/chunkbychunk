@@ -9,10 +9,10 @@ import java.util.Map;
 /**
  * Root metadata for a configuration file
  */
-class ConfigMetadata extends ObjectMetadata {
+public class ConfigMetadata extends ObjectMetadata {
     private final Map<String, SectionMetadata> sections;
 
-    public ConfigMetadata(Collection<SectionMetadata> sections, Collection<FieldMetadata> fields) {
+    public ConfigMetadata(Collection<SectionMetadata> sections, Collection<FieldMetadata<?>> fields) {
         super(fields);
         ImmutableMap.Builder<String, SectionMetadata> sectionsBuilder = ImmutableMap.builder();
         for (SectionMetadata section : sections) {

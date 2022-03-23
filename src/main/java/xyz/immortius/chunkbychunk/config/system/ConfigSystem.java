@@ -44,13 +44,8 @@ public class ConfigSystem {
      * @param object The config object to load into or create the file from
      */
     public void synchConfig(Path configFile, Object object) {
-        if (configFile.getParent() != null && !Files.exists(configFile.getParent())) {
-            try {
-                Files.createDirectories(configFile.getParent());
-            } catch (IOException e) {
-                LOGGER.error("Failed to create server config path '{}'", configFile.getParent(), e);
-                return;
-            }
+        if (!createPathTo(configFile)) {
+            return;
         }
 
         if (Files.exists(configFile)) {
@@ -66,6 +61,36 @@ public class ConfigSystem {
                 LOGGER.error("Failed to write server config at {}", configFile, e);
             }
         }
+    }
+
+    /**
+     * Writes config to the given path
+     * @param configFile The path to write config to
+     * @param object The configuration to write
+     */
+    public void write(Path configFile, Object object) {
+        if (!createPathTo(configFile)) {
+            return;
+        }
+
+        try (BufferedWriter writer = Files.newBufferedWriter(configFile)) {
+            write(writer, object);
+        } catch (IOException e) {
+            LOGGER.error("Failed to write server config at {}", configFile, e);
+        }
+    }
+
+    private boolean createPathTo(Path configFile) {
+        if (configFile.getParent() != null && !Files.exists(configFile.getParent())) {
+            try {
+                Files.createDirectories(configFile.getParent());
+                return true;
+            } catch (IOException e) {
+                LOGGER.error("Failed to create server config path '{}'", configFile.getParent(), e);
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -145,7 +170,7 @@ public class ConfigSystem {
 
     }
 
-    private void writeField(Writer writer, Object object, FieldMetadata field, String indentation) throws IOException {
+    private void writeField(Writer writer, Object object, FieldMetadata<?> field, String indentation) throws IOException {
         for (String commentLine : field.getComments()) {
             for (String line : commentLine.split("[\n\r]+")) {
                 writer.write(indentation);

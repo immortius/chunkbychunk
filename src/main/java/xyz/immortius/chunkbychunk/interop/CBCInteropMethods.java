@@ -52,16 +52,6 @@ public final class CBCInteropMethods {
         return ItemTags.bind(id).getValues();
     }
 
-    /**
-     * Loads configuration for a server.
-     * This is handled automatically by forge.
-     *
-     * @param server The server to load config for
-     */
-    public static void loadServerConfig(MinecraftServer server) {
-        // Handled by forge
-    }
-
     private static class EntityTeleport implements ITeleporter {
 
         private final PortalInfo portalInfo;

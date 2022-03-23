@@ -16,23 +16,27 @@ import java.util.Map;
 /**
  * Field Metadata for an enumeration config field
  */
-class EnumFieldMetadata extends FieldMetadata{
+public class EnumFieldMetadata extends FieldMetadata<Enum> {
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
     private static final Joiner VALUE_JOINER = Joiner.on(", ");
 
-    private final Field field;
     private final Map<String, Enum<?>> lowercaseValueMap = new HashMap<>();
+    private final Class<? extends Enum<?>> type;
 
+    @SuppressWarnings("unchecked")
     public EnumFieldMetadata(Field field, String name, String comment) {
-        super(name, comment);
+        super(field, name, comment);
         Preconditions.checkArgument(Enum.class.isAssignableFrom(field.getType()));
-        this.field = field;
-        this.field.setAccessible(true);
+        type = (Class<? extends Enum<?>>) field.getType();
         Object[] enumValues = field.getType().getEnumConstants();
         for (Object value : enumValues) {
             Enum<?> enumValue = (Enum<?>) value;
             lowercaseValueMap.put(enumValue.name().toLowerCase(Locale.ROOT), enumValue);
         }
+    }
+
+    public Class<? extends Enum<?>> enumType() {
+        return type;
     }
 
     @Override
@@ -43,29 +47,21 @@ class EnumFieldMetadata extends FieldMetadata{
 
     @Override
     public String serializeValue(Object object) {
-        try {
-            Enum<?> value = (Enum<?>) field.get(object);
-            return "\"" + value.name() + "\"";
-        } catch (IllegalAccessException e) {
-            throw new ConfigException("Failed to retrieve " + getName() + " from object " + object, e);
-        }
+        Enum<?> value = (Enum<?>) getValue(object);
+        return "\"" + value.name() + "\"";
     }
 
     @Override
     public void deserializeValue(Object object, String value) {
         String processedValue = value.toLowerCase(Locale.ROOT);
         if (processedValue.startsWith("\"") && processedValue.endsWith("\"")) {
-            processedValue = processedValue.substring(1, value.length() -1);
+            processedValue = processedValue.substring(1, value.length() - 1);
         }
         Enum<?> enumValue = lowercaseValueMap.get(processedValue);
         if (enumValue == null) {
             LOGGER.warn("Invalid value {} for config field {}", value, getName());
         } else {
-            try {
-                field.set(object, enumValue);
-            } catch (IllegalAccessException e) {
-                throw new ConfigException("Failed to set " + getName() + " to value " + value, e);
-            }
+            setValue(object, enumValue);
         }
     }
 }

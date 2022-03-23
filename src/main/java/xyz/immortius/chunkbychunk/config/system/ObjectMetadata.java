@@ -10,17 +10,17 @@ import java.util.Map;
  * Base metadata for an object - either the root config object, or a section
  */
 abstract class ObjectMetadata {
-    private final Map<String, FieldMetadata> fields;
+    private final Map<String, FieldMetadata<?>> fields;
 
-    public ObjectMetadata(Collection<FieldMetadata> fields) {
-        ImmutableMap.Builder<String, FieldMetadata> fieldsBuilder = ImmutableMap.builder();
-        for (FieldMetadata field : fields) {
+    public ObjectMetadata(Collection<FieldMetadata<?>> fields) {
+        ImmutableMap.Builder<String, FieldMetadata<?>> fieldsBuilder = ImmutableMap.builder();
+        for (FieldMetadata<?> field : fields) {
             fieldsBuilder.put(field.getName().toLowerCase(Locale.ROOT), field);
         }
         this.fields = fieldsBuilder.build();
     }
 
-    public Map<String, FieldMetadata> getFields() {
+    public Map<String, FieldMetadata<?>> getFields() {
         return fields;
     }
 }

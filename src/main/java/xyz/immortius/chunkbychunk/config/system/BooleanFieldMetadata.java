@@ -10,18 +10,17 @@ import java.lang.reflect.Field;
 /**
  * A boolean field
  */
-class BooleanFieldMetadata extends FieldMetadata {
+public class BooleanFieldMetadata extends FieldMetadata<Boolean> {
     public static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
     private final Field field;
 
     public BooleanFieldMetadata(Field field, String name, String comment) {
-        super(name, comment);
+        super(field, name, comment);
         Preconditions.checkArgument(Boolean.TYPE.equals(field.getType()));
         this.field = field;
         this.field.setAccessible(true);
     }
-
 
     @Override
     public String serializeValue(Object object) {

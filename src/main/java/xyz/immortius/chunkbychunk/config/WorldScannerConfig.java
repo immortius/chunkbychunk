@@ -25,11 +25,23 @@ public class WorldScannerConfig {
         return fuelConsumedPerTick;
     }
 
+    public void setFuelConsumedPerTick(int fuelConsumedPerTick) {
+        this.fuelConsumedPerTick = fuelConsumedPerTick;
+    }
+
     public int getFuelPerFragment() {
         return fuelPerFragment;
     }
 
+    public void setFuelPerFragment(int fuelPerFragment) {
+        this.fuelPerFragment = fuelPerFragment;
+    }
+
     public int getFuelRequiredPerChunk() {
         return fuelRequiredPerChunk;
+    }
+
+    public void setFuelRequiredPerChunk(int fuelRequiredPerChunk) {
+        this.fuelRequiredPerChunk = fuelRequiredPerChunk;
     }
 }

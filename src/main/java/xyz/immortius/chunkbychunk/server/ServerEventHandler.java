@@ -18,6 +18,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
+import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,9 +26,10 @@ import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.List;
 import java.util.OptionalInt;
@@ -40,6 +42,8 @@ public final class ServerEventHandler {
 
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
     private static final int MAX_FIND_CHUNK_ATTEMPTS = 512;
+    private static final String SERVERCONFIG = "serverconfig";
+    private static final ConfigSystem configSystem = new ConfigSystem();
 
     private static final List<List<int[]>> CHUNK_SPAWN_OFFSETS = ImmutableList.<List<int[]>>builder()
             .add(ImmutableList.of(new int[]{0, 0}))
@@ -74,7 +78,7 @@ public final class ServerEventHandler {
                 worldGenSettings.dimensions().register(skychunkgeneration, generationStem, Lifecycle.stable());
             }
 
-            LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkSettings.sealWorld()));
+            LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld()));
             worldGenSettings.dimensions().registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.OVERWORLD.location()), newOverworldStem, Lifecycle.stable());
         }
 
@@ -85,7 +89,7 @@ public final class ServerEventHandler {
      * @param server The minecraft server that has started
      */
     public static void onServerStarted(MinecraftServer server) {
-        CBCInteropMethods.loadServerConfig(server);
+        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
         checkSpawnInitialChunks(server);
     }
 
@@ -143,10 +147,10 @@ public final class ServerEventHandler {
     // BUG: The initial chunk will not have entities copied into it from the generation dimension as it takes a tick for entities to be loaded.
     private static void spawnInitialChunks(ServerLevel overworldLevel) {
         ChunkPos centerChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
-        List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkSettings.initialChunks() - 1);
+        List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkConfig.get().getGeneration().getInitialChunks() - 1);
         for (int[] offset : chunkOffsets) {
             ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-            ChunkPos sourcePos = new ChunkPos(targetPos.x + ChunkByChunkSettings.chunkGenXOffset(), targetPos.z + ChunkByChunkSettings.chunkGenZOffset());
+            ChunkPos sourcePos = new ChunkPos(targetPos.x + ChunkByChunkConfig.get().getGeneration().getChunkGenXOffset(), targetPos.z + ChunkByChunkConfig.get().getGeneration().getChunkGenZOffset());
             SpawnChunkHelper.spawnChunk(overworldLevel, sourcePos, targetPos);
         }
     }

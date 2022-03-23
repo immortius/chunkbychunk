@@ -27,7 +27,6 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
     private static final int MAP_DIMENSIONS = 128;
     private static final float TICKS_PER_FRAME = 4f;
     private static final int NUM_FRAMES = 8;
-    private static final int UNLIT = 15728880;
 
     private float animCounter = 0.f;
     private MapRenderer mapRenderer;
@@ -116,7 +115,7 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
         MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         MapItemSavedData mapData = this.minecraft.level.getMapData(menu.getMapKey());
         if (mapData != null) {
-            mapRenderer.render(stack, buffer, menu.getMapId(), mapData, true, UNLIT);
+            mapRenderer.render(stack, buffer, menu.getMapId(), mapData, true, 0xFFFFFF);
         }
         buffer.endBatch();
         stack.popPose();

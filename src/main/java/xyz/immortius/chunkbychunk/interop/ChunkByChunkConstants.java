@@ -9,6 +9,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
@@ -25,7 +27,12 @@ public final class ChunkByChunkConstants {
     private ChunkByChunkConstants() {
     }
 
+    public static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
+
     public static final String MOD_ID = "chunkbychunk";
+
+    public static final String DEFAULT_CONFIG_PATH = "defaultconfigs";
+    public static final String CONFIG_FILE = MOD_ID + ".toml";
 
     public static final ResourceKey<Level> SKY_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "skychunkgeneration"));
 

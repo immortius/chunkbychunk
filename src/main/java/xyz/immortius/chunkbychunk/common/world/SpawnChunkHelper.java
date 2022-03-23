@@ -13,9 +13,9 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.List;
 import java.util.Objects;
@@ -81,7 +81,7 @@ public final class SpawnChunkHelper {
         if (sourceLevel != null) {
             copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
             copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
-            if (ChunkByChunkSettings.spawnNewChunkChest()) {
+            if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
                 createNextSpawner(targetLevel, targetChunkPos);
             }
         }
@@ -154,8 +154,8 @@ public final class SpawnChunkHelper {
      * @param chunkPos    The position of the chunk
      */
     private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
-        int minPos = ChunkByChunkSettings.minChestSpawnDepth();
-        int maxPos = ChunkByChunkSettings.maxChestSpawnDepth();
+        int minPos = ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth();
+        int maxPos = ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth();
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {
             maxPos--;
         }
@@ -167,13 +167,13 @@ public final class SpawnChunkHelper {
         }
 
         BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
-        if (ChunkByChunkSettings.useBedrockChest()) {
+        if (ChunkByChunkConfig.get().getGeneration().useBedrockChest()) {
             targetLevel.setBlock(blockPos, ChunkByChunkConstants.bedrockChestBlock().defaultBlockState(), Block.UPDATE_ALL);
         } else {
             targetLevel.setBlock(blockPos, Blocks.CHEST.defaultBlockState(), Block.UPDATE_ALL);
         }
         if (targetLevel.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chestEntity) {
-            chestEntity.setItem(0, ChunkByChunkSettings.chestContents().getItem(ChunkByChunkSettings.chestQuantity()));
+            chestEntity.setItem(0, ChunkByChunkConfig.get().getGeneration().getChestContents().getItem(ChunkByChunkConfig.get().getGeneration().getChestQuantity()));
         }
     }
 

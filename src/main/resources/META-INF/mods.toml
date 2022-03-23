@@ -17,10 +17,7 @@ credits="Sound effects from Kenny (www.kenney.nl)"
 authors="Immortius"
 description='''
 Punch the world one chunk at a time.
-
-This mod provides a two new world types: "One Chunk" that generates a single chunk sky world, and "Sealed World" that seals all chunks but one in bedrock. In both cases as the bottom of the chunk is a chest that can only be opened when the chunk has been cleared, providing a block that can be placed in an empty or sealed chunk and used to spawn it. The new chunk will likewise have a chunk spawner block at the bottom. Punch a chunk, generate another, and build your world with the resources you obtain!
-
-World setup can be customised by spawning chunks with the chunk spawner block.
+This mod starts the overworld with a single chunk, but provides the tools to expand the world one chunk at a time.
 '''
 [[dependencies.chunkbychunk]]
     modId="forge"

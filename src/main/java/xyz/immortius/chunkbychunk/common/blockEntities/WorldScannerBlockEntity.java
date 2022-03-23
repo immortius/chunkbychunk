@@ -28,9 +28,9 @@ import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -124,10 +124,10 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     static {
         FUEL = ImmutableMap.<Item, FuelValueSupplier>builder()
-                .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldScannerFuelPerFragment)
-                .put(ChunkByChunkConstants.worldShardItem(), () -> 4 * ChunkByChunkSettings.worldScannerFuelPerFragment())
-                .put(ChunkByChunkConstants.worldCrystalItem(), () -> 16 * ChunkByChunkSettings.worldScannerFuelPerFragment())
-                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> 64 * ChunkByChunkSettings.worldScannerFuelPerFragment()).build();
+                .put(ChunkByChunkConstants.worldFragmentItem(), () -> ChunkByChunkConfig.get().getWorldScannerConfig().getFuelPerFragment())
+                .put(ChunkByChunkConstants.worldShardItem(), () -> 4 * ChunkByChunkConfig.get().getWorldScannerConfig().getFuelPerFragment())
+                .put(ChunkByChunkConstants.worldCrystalItem(), () -> 16 * ChunkByChunkConfig.get().getWorldScannerConfig().getFuelPerFragment())
+                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> 64 * ChunkByChunkConfig.get().getWorldScannerConfig().getFuelPerFragment()).build();
     }
 
     public WorldScannerBlockEntity(BlockPos pos, BlockState state) {
@@ -183,13 +183,13 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
             // Process fuel
             if (entity.getRemainingFuel() > 0) {
-                int consumeAmount = entity.consumeFuel(ChunkByChunkSettings.worldScannerFuelConsumedPerTick());
+                int consumeAmount = entity.consumeFuel(ChunkByChunkConfig.get().getWorldScannerConfig().getFuelConsumedPerTick());
                 entity.scanCharge += consumeAmount;
             }
             changed = entity.checkConsumeFuelItem();
 
             // If there is enough charge to scan a chunk, do so
-            int chunkCost = ChunkByChunkSettings.worldScannerFuelRequiredPerChunk();
+            int chunkCost = ChunkByChunkConfig.get().getWorldScannerConfig().getFuelRequiredPerChunk();
             if (entity.scanCharge >= chunkCost) {
                 if (entity.map == NO_MAP) {
                     entity.createMap();

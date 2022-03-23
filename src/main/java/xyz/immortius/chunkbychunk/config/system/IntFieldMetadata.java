@@ -12,20 +12,17 @@ import java.util.List;
 /**
  * Metadata for integer config fields
  */
-class IntFieldMetadata extends FieldMetadata {
+public class IntFieldMetadata extends FieldMetadata<Integer> {
     public static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
     private final int minValue;
     private final int maxValue;
-    private final Field field;
 
     public IntFieldMetadata(Field field, String name, String comment, int minValue, int maxValue) {
-        super(name, comment);
+        super(field, name, comment);
         Preconditions.checkArgument(Integer.TYPE.equals(field.getType()));
         this.minValue = minValue;
         this.maxValue = maxValue;
-        this.field = field;
-        this.field.setAccessible(true);
     }
 
     public int getMinValue() {
@@ -40,14 +37,9 @@ class IntFieldMetadata extends FieldMetadata {
     public List<String> getComments() {
         return ImmutableList.<String>builder().addAll(super.getComments()).add("Range: " + minValue + " ~ " + maxValue).build();
     }
-
     @Override
     public String serializeValue(Object object) {
-        try {
-            return field.get(object).toString();
-        } catch (IllegalAccessException e) {
-            throw new ConfigException("Failed to retrieve " + getName() + " from object " + object, e);
-        }
+        return getValue(object).toString();
     }
 
     @Override
@@ -59,10 +51,8 @@ class IntFieldMetadata extends FieldMetadata {
             } else if (intValue < minValue) {
                 LOGGER.warn ("Invalid value {} for config field {} - less than min value {}", value, getName(), minValue);
             } else {
-                field.set(object, intValue);
+                setValue(object, intValue);
             }
-        } catch (IllegalAccessException e) {
-            throw new ConfigException("Failed to set " + getName() + " to value " + value, e);
         } catch (NumberFormatException e) {
             LOGGER.warn("Invalid value {} for config field {}", value, getName());
         }

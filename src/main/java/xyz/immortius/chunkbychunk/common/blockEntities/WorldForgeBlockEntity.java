@@ -14,9 +14,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkSettings;
 
 import java.util.Map;
 
@@ -77,26 +77,26 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     static {
         ImmutableMap.Builder<Item, FuelValueSupplier> fuelBuilder = ImmutableMap.builder();
         for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:weakworldforgefuel")) {
-            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeSoilFuelValue);
+            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getSoilFuelValue());
         }
         for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:worldforgefuel")) {
-            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStoneFuelValue);
+            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getStoneFuelValue());
         }
         for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:strongworldforgefuel")) {
-            fuelBuilder.put(value, ChunkByChunkSettings::worldForgeStrongFuelValue);
+            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getStrongFuelValue());
         }
 
-        fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldForgeFuelPerFragment);
-        fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 4);
-        fuelBuilder.put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 16);
+        fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost());
+        fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 4);
+        fuelBuilder.put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 16);
 
         FUEL = fuelBuilder.build();
 
         CRYSTAL_COSTS = ImmutableMap.<Item, FuelValueSupplier>builder()
-                .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkSettings::worldForgeFuelPerFragment)
-                .put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 4)
-                .put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 16)
-                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> ChunkByChunkSettings.worldForgeFuelPerFragment() * 64).build();
+                .put(ChunkByChunkConstants.worldFragmentItem(),() -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost())
+                .put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 4)
+                .put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 16)
+                .put(ChunkByChunkConstants.worldCoreBlockItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 64).build();
 
         CRYSTAL_STEPS = ImmutableMap.<Item, Item>builder()
                 .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkConstants.worldShardItem())
@@ -137,7 +137,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, WorldForgeBlockEntity entity) {
         // Consume available fuel
         if (entity.getRemainingFuel() > 0) {
-            int consumeAmount = entity.consumeFuel(ChunkByChunkSettings.worldForgeProductionRate());
+            int consumeAmount = entity.consumeFuel(ChunkByChunkConfig.get().getWorldForge().getProductionRate());
             entity.progress += consumeAmount;
         }
 

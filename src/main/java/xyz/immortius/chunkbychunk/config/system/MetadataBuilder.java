@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Scans a type to build config metadata
  */
-final class MetadataBuilder {
+public final class MetadataBuilder {
 
     private MetadataBuilder() {
 
@@ -19,7 +19,7 @@ final class MetadataBuilder {
      * @return ConfigMetadata describing the type
      */
     public static ConfigMetadata build(Class<?> type) {
-        List<FieldMetadata> fields = processFields(type);
+        List<FieldMetadata<?>> fields = processFields(type);
         List<SectionMetadata> sections = new ArrayList<>();
         for (Field declaredField : type.getDeclaredFields()) {
             if (Modifier.isStatic(declaredField.getModifiers())) {
@@ -36,12 +36,12 @@ final class MetadataBuilder {
 
     private static SectionMetadata processSection(Class<?> type, Field field) {
         String name = getName(field);
-        List<FieldMetadata> fields = processFields(type);
+        List<FieldMetadata<?>> fields = processFields(type);
         return new SectionMetadata(name, fields, field);
     }
 
-    private static List<FieldMetadata> processFields(Class<?> type) {
-        List<FieldMetadata> fields = new ArrayList<>();
+    private static List<FieldMetadata<?>> processFields(Class<?> type) {
+        List<FieldMetadata<?>> fields = new ArrayList<>();
         for (Field declaredField : type.getDeclaredFields()) {
             Class<?> fieldType = declaredField.getType();
             if (Integer.TYPE.equals(fieldType)) {

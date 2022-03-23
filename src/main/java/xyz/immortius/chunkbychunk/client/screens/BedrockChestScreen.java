@@ -21,10 +21,10 @@ public class BedrockChestScreen extends AbstractContainerScreen<BedrockChestMenu
     }
 
     @Override
-    public void render(PoseStack stack, int p_99250_, int p_99251_, float p_99252_) {
+    public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
         this.renderBackground(stack);
-        super.render(stack, p_99250_, p_99251_, p_99252_);
-        this.renderTooltip(stack, p_99250_, p_99251_);
+        super.render(stack, mouseX, mouseY, delta);
+        this.renderTooltip(stack, mouseX, mouseY);
     }
 
     @Override

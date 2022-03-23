@@ -37,17 +37,37 @@ public class WorldForgeConfig {
         return fragmentFuelCost;
     }
 
+    public void setFragmentFuelCost(int fragmentFuelCost) {
+        this.fragmentFuelCost = fragmentFuelCost;
+    }
+
     public int getProductionRate() {
         return productionRate;
+    }
+
+    public void setProductionRate(int productionRate) {
+        this.productionRate = productionRate;
     }
 
     public int getSoilFuelValue() {
         return soilFuelValue;
     }
 
+    public void setSoilFuelValue(int soilFuelValue) {
+        this.soilFuelValue = soilFuelValue;
+    }
+
     public int getStoneFuelValue() {
         return stoneFuelValue;
     }
 
+    public void setStoneFuelValue(int stoneFuelValue) {
+        this.stoneFuelValue = stoneFuelValue;
+    }
+
     public int getStrongFuelValue() { return strongFuelValue; }
+
+    public void setStrongFuelValue(int strongFuelValue) {
+        this.strongFuelValue = strongFuelValue;
+    }
 }
