@@ -8,7 +8,6 @@ import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -30,15 +29,7 @@ public class NetherChunkByChunkGenerator extends BaseSkyChunkGenerator {
      * @param parent The chunkGenerator this generator is based on
      */
     public NetherChunkByChunkGenerator(ChunkGenerator parent) {
-        super(parent, ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL, parent.getSettings());
-    }
-
-    /**
-     * @param parent            The chunkGenerator this generator is based on
-     * @param structureSettings Structure settings to use, if not from the parent generator
-     */
-    public NetherChunkByChunkGenerator(ChunkGenerator parent, StructureSettings structureSettings) {
-        super(parent, ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL, structureSettings);
+        super(parent, ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL);
     }
 
     @Override

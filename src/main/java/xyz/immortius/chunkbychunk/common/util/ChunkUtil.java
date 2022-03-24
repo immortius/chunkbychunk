@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -81,6 +82,28 @@ public final class ChunkUtil {
             for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight() - 1; pos.setY(pos.getY() + 1)) {
                 for (pos.setZ(chunkPos.getMinBlockZ()); pos.getZ() <= chunkPos.getMaxBlockZ(); pos.setZ(pos.getZ() + 1)) {
                     if (chunk.getBlockState(pos).getBlock() == block) {
+                        count++;
+                    }
+                }
+            }
+        }
+        return count;
+    }
+
+    /**
+     * @param chunk The chunk to check
+     * @param blockTag The block to count
+     * @return The number of matching blocks
+     */
+    public static int countBlocks(ChunkAccess chunk, TagKey<Block> blockTag) {
+        ChunkPos chunkPos = chunk.getPos();
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0,0,0);
+
+        int count = 0;
+        for (pos.setX(chunkPos.getMinBlockX()); pos.getX() <= chunkPos.getMaxBlockX(); pos.setX(pos.getX() + 1)) {
+            for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight(); pos.setY(pos.getY() + 1)) {
+                for (pos.setZ(chunkPos.getMinBlockZ()); pos.getZ() <= chunkPos.getMaxBlockZ(); pos.setZ(pos.getZ() + 1)) {
+                    if (chunk.getBlockState(pos).is(blockTag)) {
                         count++;
                     }
                 }

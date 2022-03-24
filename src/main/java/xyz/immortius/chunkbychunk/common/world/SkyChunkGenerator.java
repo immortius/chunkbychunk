@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -35,17 +34,7 @@ public class SkyChunkGenerator extends BaseSkyChunkGenerator {
      * @param generateSealedWorld Whether to generate a basic bedrock heightmap or not
      */
     public SkyChunkGenerator(ChunkGenerator parent, boolean generateSealedWorld) {
-        super(parent, ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, parent.getSettings());
-        this.generateSealedWorld = generateSealedWorld;
-    }
-
-    /**
-     * @param parent The chunkGenerator this generator is based on
-     * @param generateSealedWorld Whether to generate a basic bedrock heightmap or not
-     * @param structureSettings Structure settings to use, if not from the parent generator
-     */
-    public SkyChunkGenerator(ChunkGenerator parent, boolean generateSealedWorld, StructureSettings structureSettings) {
-        super(parent, ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, structureSettings);
+        super(parent, ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
         this.generateSealedWorld = generateSealedWorld;
     }
 
@@ -82,5 +71,4 @@ public class SkyChunkGenerator extends BaseSkyChunkGenerator {
             return super.fillFromNoise(executor, blender, structureFeatureManager, chunk);
         }
     }
-
 }

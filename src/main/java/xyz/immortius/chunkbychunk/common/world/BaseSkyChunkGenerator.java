@@ -1,8 +1,7 @@
 package xyz.immortius.chunkbychunk.common.world;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.RegistryAccess;
+import com.mojang.datafixers.util.Pair;
+import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -14,13 +13,16 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.feature.StructureFeature;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
+import java.util.stream.Stream;
 
 /**
  * The Base Sky Chunk Generator - Sky Chunk Generators wrap a parent generator but disable actual generation. The
@@ -36,17 +38,7 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
      * @param parent The chunkGenerator this generator is based on
      */
     public BaseSkyChunkGenerator(ChunkGenerator parent, ResourceKey<Level> generationLevel) {
-        super(parent.getBiomeSource(), parent.getSettings());
-        this.parent = parent;
-        this.generationLevel = generationLevel;
-    }
-
-    /**
-     * @param parent The chunkGenerator this generator is based on
-     * @param structureSettings Structure settings to use, if not from the parent generator
-     */
-    public BaseSkyChunkGenerator(ChunkGenerator parent, ResourceKey<Level> generationLevel, StructureSettings structureSettings) {
-        super(parent.getBiomeSource(), structureSettings);
+        super(CBCInteropMethods.getStructureSets(parent), CBCInteropMethods.getStructureOverrides(parent), parent.getBiomeSource());
         this.parent = parent;
         this.generationLevel = generationLevel;
     }
@@ -115,13 +107,13 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public Biome getNoiseBiome(int x, int y, int z) {
-        return parent.getNoiseBiome(x, y, z);
+    public Holder<Biome> getNoiseBiome(int p_204416_, int p_204417_, int p_204418_) {
+        return parent.getNoiseBiome(p_204416_, p_204417_, p_204418_);
     }
 
     @Override
-    public BlockPos findNearestMapFeature(ServerLevel level, StructureFeature<?> feature, BlockPos pos, int p_62165_, boolean p_62166_) {
-        return parent.findNearestMapFeature(level, feature, pos, p_62165_, p_62166_);
+    public Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> findNearestMapFeature(ServerLevel level, HolderSet<ConfiguredStructureFeature<?, ?>> structures, BlockPos pos, int p_207974_, boolean p_207975_) {
+        return parent.findNearestMapFeature(level, structures, pos, p_207974_, p_207975_);
     }
 
     @Override
@@ -140,8 +132,8 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Biome biome, StructureFeatureManager structureFeatureManager, MobCategory mobCategory, BlockPos pos) {
-        return parent.getMobsAt(biome, structureFeatureManager, mobCategory, pos);
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> biome, StructureFeatureManager structures, MobCategory mobCategory, BlockPos pos) {
+        return parent.getMobsAt(biome, structures, mobCategory, pos);
     }
 
     @Override
@@ -165,7 +157,22 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public boolean hasStronghold(ChunkPos chunkPos) {
-        return parent.hasStronghold(chunkPos);
+    public boolean hasFeatureChunkInRange(ResourceKey<StructureSet> structures, long p_212267_, int p_212268_, int p_212269_, int p_212270_) {
+        return parent.hasFeatureChunkInRange(structures, p_212267_, p_212268_, p_212269_, p_212270_);
     }
+
+    @Override
+    public void addDebugScreenInfo(List<String> p_208054_, BlockPos p_208055_) {
+    }
+
+    @Override
+    public Stream<Holder<StructureSet>> possibleStructureSets() {
+        return parent.possibleStructureSets();
+    }
+
+    @Override
+    public void ensureStructuresGenerated() {
+        parent.ensureStructuresGenerated();
+    }
+
 }

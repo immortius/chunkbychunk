@@ -21,9 +21,11 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.Event;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.network.NetworkDirection;
 import net.minecraftforge.network.NetworkRegistry;
@@ -99,11 +101,6 @@ public class ChunkByChunkMod {
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CONFIG_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "configchannel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
 
-    static {
-        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "skychunkgenerator"), SkyChunkGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "netherchunkgenerator"), NetherChunkByChunkGenerator.CODEC);
-    }
-
     public ChunkByChunkMod() {
         new ConfigSystem().synchConfig(Paths.get("defaultconfigs", "chunkbychunk.toml"), ChunkByChunkConfig.get());
 
@@ -115,6 +112,7 @@ public class ChunkByChunkMod {
         SOUNDS.register(FMLJavaModLoadingContext.get().getModEventBus());
 
         FMLJavaModLoadingContext.get().getModEventBus().addListener(this::clientSetup);
+        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::commonSetup);
 
         MinecraftForge.EVENT_BUS.register(this);
 
@@ -133,6 +131,11 @@ public class ChunkByChunkMod {
             MenuScreens.register(WORLD_FORGE_MENU.get(), WorldForgeScreen::new);
             MenuScreens.register(WORLD_SCANNER_MENU.get(), WorldScannerScreen::new);
         });
+    }
+
+    private void commonSetup(FMLCommonSetupEvent event) {
+        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "skychunkgenerator"), SkyChunkGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "netherchunkgenerator"), NetherChunkByChunkGenerator.CODEC);
     }
 
     @SubscribeEvent

@@ -3,9 +3,12 @@ package xyz.immortius.chunkbychunk.common.blockEntities;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -15,7 +18,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
-import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 import java.util.Map;
@@ -35,12 +37,17 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     private static final int GROW_CRYSTAL_AT = 4;
     private static final Map<Item, FuelValueSupplier> FUEL;
+    private static final Map<TagKey<Item>, FuelValueSupplier> FUEL_TAGS;
     private static final Map<Item, FuelValueSupplier> CRYSTAL_COSTS;
     private static final Item INITIAL_CRYSTAL = ChunkByChunkConstants.worldFragmentItem();
     private static final Map<Item, Item> CRYSTAL_STEPS;
 
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_DOWN = new int[]{SLOT_RESULT};
+
+    private static final TagKey<Item> SOIL_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:weakworldforgefuel"));
+    private static final TagKey<Item> STONE_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:worldforgefuel"));
+    private static final TagKey<Item> STRONG_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:strongworldforgefuel"));
 
     private int progress;
     private int goal;
@@ -76,21 +83,16 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     static {
         ImmutableMap.Builder<Item, FuelValueSupplier> fuelBuilder = ImmutableMap.builder();
-        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:weakworldforgefuel")) {
-            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getSoilFuelValue());
-        }
-        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:worldforgefuel")) {
-            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getStoneFuelValue());
-        }
-        for (Item value : CBCInteropMethods.getTaggedItems("chunkbychunk:strongworldforgefuel")) {
-            fuelBuilder.put(value, () -> ChunkByChunkConfig.get().getWorldForge().getStrongFuelValue());
-        }
 
         fuelBuilder.put(ChunkByChunkConstants.worldFragmentItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost());
         fuelBuilder.put(ChunkByChunkConstants.worldShardItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 4);
         fuelBuilder.put(ChunkByChunkConstants.worldCrystalItem(), () -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() * 16);
 
         FUEL = fuelBuilder.build();
+
+        FUEL_TAGS = ImmutableMap.of(SOIL_FUEL_TAG, () -> ChunkByChunkConfig.get().getWorldForge().getSoilFuelValue(),
+                STONE_FUEL_TAG, () -> ChunkByChunkConfig.get().getWorldForge().getStoneFuelValue(),
+                STRONG_FUEL_TAG, () -> ChunkByChunkConfig.get().getWorldForge().getStrongFuelValue());
 
         CRYSTAL_COSTS = ImmutableMap.<Item, FuelValueSupplier>builder()
                 .put(ChunkByChunkConstants.worldFragmentItem(),() -> ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost())
@@ -105,7 +107,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     }
 
     public WorldForgeBlockEntity(BlockPos pos, BlockState state) {
-        super(ChunkByChunkConstants.worldForgeEntity(), pos, state, NUM_ITEM_SLOTS, SLOT_INPUT, FUEL);
+        super(ChunkByChunkConstants.worldForgeEntity(), pos, state, NUM_ITEM_SLOTS, SLOT_INPUT, FUEL, FUEL_TAGS);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     }
 
     public static boolean isWorldForgeFuel(ItemStack itemStack) {
-        return FUEL.getOrDefault(itemStack.getItem(), () -> 0).get() > 0;
+        return FUEL.get(itemStack.getItem()) != null || itemStack.is(SOIL_FUEL_TAG) || itemStack.is(STONE_FUEL_TAG);
     }
 
     @Override

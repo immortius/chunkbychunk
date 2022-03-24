@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.player.StackedContents;
@@ -22,17 +23,19 @@ import java.util.Map;
 public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase {
 
     private final int fuelSlot;
-    private final Map<Item, FuelValueSupplier> fuel;
+    private final Map<Item, FuelValueSupplier> itemFuel;
+    private final Map<TagKey<Item>, FuelValueSupplier> tagFuel;
     private int remainingFuel;
     private int chargedFuel;
 
     private NonNullList<ItemStack> items;
 
-    protected BaseFueledBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state, int numItemSlots, int fuelSlot, Map<Item, FuelValueSupplier> fuel) {
+    protected BaseFueledBlockEntity(BlockEntityType<?> blockEntityType, BlockPos pos, BlockState state, int numItemSlots, int fuelSlot, Map<Item, FuelValueSupplier> itemFuel, Map<TagKey<Item>, FuelValueSupplier> tagFuel) {
         super(blockEntityType, pos, state);
         this.items = NonNullList.withSize(numItemSlots, ItemStack.EMPTY);
         this.fuelSlot = fuelSlot;
-        this.fuel = fuel;
+        this.itemFuel = itemFuel;
+        this.tagFuel = tagFuel;
     }
 
     /**
@@ -101,7 +104,15 @@ public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase 
      * @return Is this item fuel
      */
     public boolean isFuel(ItemStack itemStack) {
-        return fuel.getOrDefault(itemStack.getItem(), () -> 0).get() > 0;
+        if (itemFuel.getOrDefault(itemStack.getItem(), () -> 0).get() > 0) {
+            return true;
+        }
+        for (Map.Entry<TagKey<Item>, FuelValueSupplier> entry : tagFuel.entrySet()) {
+            if (itemStack.is(entry.getKey())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -109,7 +120,19 @@ public abstract class BaseFueledBlockEntity extends SidedBlockEntityInteropBase 
      * @return How much fuel does this item provide (0 if not fuel)
      */
     public int getFuelValue(ItemStack itemStack) {
-        return fuel.getOrDefault(itemStack.getItem(), () -> 0).get();
+        FuelValueSupplier fuelValueSupplier = itemFuel.get(itemStack.getItem());
+        if (fuelValueSupplier == null) {
+            for (Map.Entry<TagKey<Item>, FuelValueSupplier> entry : tagFuel.entrySet()) {
+                if (itemStack.is(entry.getKey())) {
+                    fuelValueSupplier = entry.getValue();
+                }
+            }
+        }
+
+        if (fuelValueSupplier != null) {
+            return fuelValueSupplier.get();
+        }
+        return 0;
     }
 
     @Override

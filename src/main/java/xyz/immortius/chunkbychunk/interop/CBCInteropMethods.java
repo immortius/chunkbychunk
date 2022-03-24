@@ -1,16 +1,18 @@
 package xyz.immortius.chunkbychunk.interop;
 
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.ItemTags;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
+import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraftforge.common.util.ITeleporter;
 
-import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 /**
@@ -41,14 +43,6 @@ public final class CBCInteropMethods {
         return bucket.getFluid();
     }
 
-    /**
-     * @param id The id of the item tag
-     * @return A list of all tagged items
-     */
-    public static List<Item> getTaggedItems(String id) {
-        return ItemTags.bind(id).getValues();
-    }
-
     private static class EntityTeleport implements ITeleporter {
 
         private final PortalInfo portalInfo;
@@ -73,5 +67,19 @@ public final class CBCInteropMethods {
         }
     }
 
+    /**
+     * @param generator
+     * @return The structure sets for a given generator
+     */
+    public static Registry<StructureSet> getStructureSets(ChunkGenerator generator) {
+        return generator.structureSets;
+    }
 
+    /**
+     * @param generator
+     * @return The structure overrides for a given generator
+     */
+    public static Optional<HolderSet<StructureSet>> getStructureOverrides(ChunkGenerator generator) {
+        return generator.structureOverrides;
+    }
 }
