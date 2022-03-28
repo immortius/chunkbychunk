@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.TranslatableComponent;
-import net.minecraftforge.client.ConfigGuiHandler;
-import net.minecraftforge.fml.ModLoadingContext;
 import xyz.immortius.chunkbychunk.client.uielements.SettingListWidget;
 import xyz.immortius.chunkbychunk.common.util.ConfigUtil;
 
@@ -21,13 +19,9 @@ public class ChunkByChunkConfigScreen extends Screen {
         this.lastScreen = lastScreen;
     }
 
-    public static void register() {
-        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((minecraft, screen) -> new ChunkByChunkConfigScreen(screen)));
-    }
-
     @Override
     protected void init() {
-        settingsList = new SettingListWidget(this, width, 22, height - 44, (int) (0.9f * width));
+        settingsList = new SettingListWidget(minecraft, this, width, 22, height - 44, (int) (0.9f * width));
 
         int w = (width / 3 - 60) / 2;
         resetButton = new Button(w, height - 32, 60, 20, new TranslatableComponent("controls.reset"), button -> {
@@ -35,13 +29,11 @@ public class ChunkByChunkConfigScreen extends Screen {
         });
         cancelButton = new Button(width / 3 + w, height - 32, 60, 20, new TranslatableComponent("gui.cancel"), button -> {
             ConfigUtil.loadDefaultConfig();
-            this.minecraft.popGuiLayer();
-            this.minecraft.pushGuiLayer(lastScreen);
+            this.minecraft.setScreen(lastScreen);
         });
         saveButton = new Button(2 * width / 3 + w, height - 32, 60, 20, new TranslatableComponent("selectWorld.edit.save"), button -> {
             ConfigUtil.saveDefaultConfig();
-            this.minecraft.popGuiLayer();
-            this.minecraft.pushGuiLayer(lastScreen);
+            this.minecraft.setScreen(lastScreen);
         });
 
         this.addWidget(settingsList);
@@ -54,7 +46,7 @@ public class ChunkByChunkConfigScreen extends Screen {
     public void onClose() {
         ConfigUtil.loadDefaultConfig();
         super.onClose();
-        this.minecraft.pushGuiLayer(lastScreen);
+        this.minecraft.setScreen(lastScreen);
     }
 
     @Override

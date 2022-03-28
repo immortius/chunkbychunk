@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.client.uielements;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.CycleButton;
@@ -13,7 +14,6 @@ import net.minecraft.network.chat.TranslatableComponent;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.*;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
@@ -24,12 +24,11 @@ import java.util.function.Supplier;
  */
 public class SettingListWidget extends ContainerObjectSelectionList<SettingListWidget.SettingEntry> {
 
-    @Nullable
     private EditBox lastFocused = null;
     private int rowWidth;
 
-    public SettingListWidget(Screen parent, int width, int top, int bottom, int rowWidth) {
-        super(parent.getMinecraft(), width, parent.height, top, bottom, 22);
+    public SettingListWidget(Minecraft minecraft, Screen parent, int width, int top, int bottom, int rowWidth) {
+        super(minecraft, width, parent.height, top, bottom, 22);
         this.rowWidth = rowWidth;
         ConfigMetadata metadata = MetadataBuilder.build(ChunkByChunkConfig.class);
         ChunkByChunkConfig defaultConfig = new ChunkByChunkConfig();

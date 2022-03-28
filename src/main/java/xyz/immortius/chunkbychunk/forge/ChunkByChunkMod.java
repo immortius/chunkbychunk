@@ -128,11 +128,10 @@ public class ChunkByChunkMod {
 
     private void clientSetup(final FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            ChunkByChunkConfigScreen.register();
+            ChunkByChunkClientMod.registerConfigScreen();
             MenuScreens.register(BEDROCK_CHEST_MENU.get(), BedrockChestScreen::new);
             MenuScreens.register(WORLD_FORGE_MENU.get(), WorldForgeScreen::new);
             MenuScreens.register(WORLD_SCANNER_MENU.get(), WorldScannerScreen::new);
-
         });
     }
 
