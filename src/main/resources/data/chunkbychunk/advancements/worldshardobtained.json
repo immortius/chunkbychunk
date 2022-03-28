@@ -1,15 +1,35 @@
 {
-  "criteria" : {
-    "obtainworldshard" : {
-      "trigger" : "minecraft:inventory_changed",
-      "conditions" : {
-        "items" : [{
-          "items" : ["chunkbychunk:worldshard"]
-        }]
+  "parent": "chunkbychunk:worldfragmentobtained",
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:worldshard"
+    },
+    "title": {
+      "translate": "advancement.chunkbychunk.worldshardobtained.title"
+    },
+    "description": {
+      "translate": "advancement.chunkbychunk.worldshardobtained.description"
+    }
+  },
+  "criteria": {
+    "obtainworldshard": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "chunkbychunk:worldshard"
+            ]
+          }
+        ]
       }
     }
   },
-  "rewards" : {
-    "recipes" : ["chunkbychunk:worldcrystal","chunkbychunk:disassemble_worldshard","chunkbychunk:worldfragment"]
+  "rewards": {
+    "recipes": [
+      "chunkbychunk:worldcrystal",
+      "chunkbychunk:disassemble_worldshard",
+      "chunkbychunk:worldfragment"
+    ]
   }
 }

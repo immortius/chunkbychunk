@@ -1,14 +1,14 @@
 {
-  "parent": "chunkbychunk:unstablechunkspawnerobtained",
+  "parent": "chunkbychunk:chunkspawnerobtained",
   "display": {
     "icon": {
-      "item": "chunkbychunk:chunkspawner"
+      "item": "chunkbychunk:worldscanner"
     },
     "title": {
-      "translate": "advancement.chunkbychunk.chunkspawnerobtained.title"
+      "translate": "advancement.chunkbychunk.worldscannerobtained.title"
     },
     "description": {
-      "translate": "advancement.chunkbychunk.chunkspawnerobtained.description"
+      "translate": "advancement.chunkbychunk.worldscannerobtained.description"
     }
   },
   "criteria": {

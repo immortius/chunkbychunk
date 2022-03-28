@@ -1,4 +1,16 @@
 {
+  "parent" : "chunkbychunk:worldforgeobtained",
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:worldfragment"
+    },
+    "title": {
+      "translate" : "advancement.chunkbychunk.worldfragmentobtained.title"
+    },
+    "description": {
+      "translate" : "advancement.chunkbychunk.worldfragmentobtained.description"
+    }
+  },
   "criteria" : {
     "obtainworldfragment" : {
       "trigger" : "minecraft:inventory_changed",

@@ -14,6 +14,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -67,6 +68,14 @@ public final class ServerEventHandler {
      * @param server The minecraft server that is starting
      */
     public static void onServerStarting(MinecraftServer server) {
+        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
+        if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
+            applyChunkByChunkWorldGeneration(server);
+        }
+
+    }
+
+    private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
         LevelStem overworldStem = worldGenSettings.dimensions().get(Level.OVERWORLD.location());
         LevelStem generationStem = worldGenSettings.dimensions().get(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
@@ -81,7 +90,6 @@ public final class ServerEventHandler {
             LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld()));
             worldGenSettings.dimensions().registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.OVERWORLD.location()), newOverworldStem, Lifecycle.stable());
         }
-
     }
 
     /**
@@ -89,8 +97,9 @@ public final class ServerEventHandler {
      * @param server The minecraft server that has started
      */
     public static void onServerStarted(MinecraftServer server) {
-        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
-        checkSpawnInitialChunks(server);
+        if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
+            checkSpawnInitialChunks(server);
+        }
     }
 
     private static void checkSpawnInitialChunks(MinecraftServer server) {

@@ -63,15 +63,11 @@ import java.util.function.Supplier;
  */
 @Mod("chunkbychunk")
 public class ChunkByChunkMod {
-    private static final DeferredRegister<ForgeWorldPreset> WORLD_PRESETS = DeferredRegister.create(ForgeRegistries.WORLD_TYPES, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITIES, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.CONTAINERS, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ChunkByChunkConstants.MOD_ID);
-
-    public static final RegistryObject<ForgeWorldPreset> ONE_CHUNK_WORLD = WORLD_PRESETS.register("onechunkskyworld", () -> new ForgeWorldPreset(new SkyChunkGeneratorFactory(false)));
-    public static final RegistryObject<ForgeWorldPreset> SEALED_CHUNK_WORLD = WORLD_PRESETS.register("onechunksealedworld", () -> new ForgeWorldPreset(new SkyChunkGeneratorFactory(true)));
 
     public static final RegistryObject<Block> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
     public static final RegistryObject<Block> UNSTABLE_SPAWN_CHUNK_BLOCK = BLOCKS.register("unstablechunkspawner", () -> new UnstableSpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
@@ -111,7 +107,6 @@ public class ChunkByChunkMod {
     public ChunkByChunkMod() {
         new ConfigSystem().synchConfig(Paths.get("defaultconfigs", "chunkbychunk.toml"), ChunkByChunkConfig.get());
 
-        WORLD_PRESETS.register(FMLJavaModLoadingContext.get().getModEventBus());
         BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
         ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
 

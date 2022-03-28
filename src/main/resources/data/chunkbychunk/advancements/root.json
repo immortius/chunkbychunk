@@ -1,0 +1,19 @@
+{
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:worldcore"
+    },
+    "title": {
+      "translate": "advancement.chunkbychunk.root.title"
+    },
+    "description": {
+      "translate": "advancement.chunkbychunk.root.description"
+    },
+    "background": "chunkbychunk:textures/gui/advancements/backgrounds/background.png"
+  },
+  "criteria": {
+    "login": {
+      "trigger": "minecraft:tick"
+    }
+  }
+}

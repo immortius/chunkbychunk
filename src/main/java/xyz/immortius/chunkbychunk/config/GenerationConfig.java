@@ -8,6 +8,10 @@ import xyz.immortius.chunkbychunk.config.system.Name;
  * Chunk Generation configuration
  */
 public class GenerationConfig {
+    @Name("enabled")
+    @Comment("Is ChunkByChunk generation enabled")
+    private boolean enabled = true;
+
     @Name("seal_world")
     @Comment("Should empty chunks be generated as bedrock")
     private boolean sealWorld = false;
@@ -53,6 +57,14 @@ public class GenerationConfig {
     @Comment("Offsets the spawn of chunk from the standard generator.")
     @IntRange(min = Short.MIN_VALUE, max = Short.MAX_VALUE)
     private int chunkGenZOffset = 0;
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public boolean useBedrockChest() { return useBedrockChest; }
 
