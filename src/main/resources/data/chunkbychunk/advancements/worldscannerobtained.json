@@ -18,17 +18,11 @@
         "items": [
           {
             "items": [
-              "chunkbychunk:chunkspawner"
+              "chunkbychunk:worldscanner"
             ]
           }
         ]
       }
     }
-  },
-  "rewards": {
-    "recipes": [
-      "chunkbychunk:chunkspawnerunstablefromstable",
-      "chunkbychunk:chunkspawnerstablefromunstable"
-    ]
   }
 }

@@ -2,9 +2,14 @@ package xyz.immortius.chunkbychunk.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.gson.JsonElement;
+import com.mojang.serialization.DataResult;
+import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -18,6 +23,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.levelgen.StructureSettings;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -87,7 +93,9 @@ public final class ServerEventHandler {
                 worldGenSettings.dimensions().register(skychunkgeneration, generationStem, Lifecycle.stable());
             }
 
-            LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld()));
+            // Create a copy of structure settings, to ensure it isn't shared across generator instances for compatibility with other mods. Ideally would copy the whole overworldStem.generator(), but that doesn't seem to work at this point.
+            StructureSettings structureSettingsCopy = StructureSettings.CODEC.parse(NbtOps.INSTANCE, StructureSettings.CODEC.encodeStart(NbtOps.INSTANCE, overworldStem.generator().getSettings()).result().get()).result().get();
+            LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld(), structureSettingsCopy));
             worldGenSettings.dimensions().registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.OVERWORLD.location()), newOverworldStem, Lifecycle.stable());
         }
     }

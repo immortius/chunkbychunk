@@ -51,6 +51,17 @@ public class SkyChunkGenerator extends ChunkGenerator {
         this.generateSealedWorld = generateSealedWorld;
     }
 
+    /**
+     * @param parent The chunkGenerator this generator is based on
+     * @param generateSealedWorld Whether to generate a basic bedrock heightmap or not
+     * @param structureSettings Structure settings to use, if not from the parent generator
+     */
+    public SkyChunkGenerator(ChunkGenerator parent, boolean generateSealedWorld, StructureSettings structureSettings) {
+        super(parent.getBiomeSource(), structureSettings);
+        this.parent = parent;
+        this.generateSealedWorld = generateSealedWorld;
+    }
+
     public ChunkGenerator getParent() {
         return parent;
     }
@@ -152,11 +163,6 @@ public class SkyChunkGenerator extends ChunkGenerator {
     @Override
     public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureFeatureManager structureFeatureManager) {
 
-    }
-
-    @Override
-    public StructureSettings getSettings() {
-        return parent.getSettings();
     }
 
     @Override
