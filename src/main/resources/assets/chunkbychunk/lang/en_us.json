@@ -62,5 +62,9 @@
   "advancement.chunkbychunk.worldfragmentobtained.title" : "From the Smallest Seed",
   "advancement.chunkbychunk.worldfragmentobtained.description" : "Obtain a World Fragment. The smallest seed of crystallized world essence.",
   "advancement.chunkbychunk.worldshardobtained.title" : "Hope Sprouts",
-  "advancement.chunkbychunk.worldshardobtained.description" : "Obtain a World Shard. Formed by fusing 4 World Fragments, either through crafting or within the World Forge."
+  "advancement.chunkbychunk.worldshardobtained.description" : "Obtain a World Shard. Formed by fusing 4 World Fragments, either through crafting or within the World Forge.",
+  "commands.chunkbychunk.spawnchunk.invalidPosition" : "Invalid block position",
+  "commands.chunkbychunk.spawnchunk.invalidlevel" :  "Invalid dimension for chunk spawn",
+  "commands.chunkbychunk.spawnchunk.nonemptychunk" : "Cowardly refusing to spawn into existing chunk"
+
 }

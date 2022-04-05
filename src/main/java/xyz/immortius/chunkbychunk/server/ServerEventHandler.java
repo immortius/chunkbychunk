@@ -2,14 +2,10 @@ package xyz.immortius.chunkbychunk.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.JsonElement;
-import com.mojang.serialization.DataResult;
-import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -19,7 +15,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
@@ -35,7 +30,6 @@ import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 import java.util.List;
@@ -161,14 +155,14 @@ public final class ServerEventHandler {
      * Spawns the initial chunk.
      * @param overworldLevel
      */
-    // BUG: The initial chunk will not have entities copied into it from the generation dimension as it takes a tick for entities to be loaded.
     private static void spawnInitialChunks(ServerLevel overworldLevel) {
         ChunkPos centerChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
         List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkConfig.get().getGeneration().getInitialChunks() - 1);
         for (int[] offset : chunkOffsets) {
             ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-            ChunkPos sourcePos = new ChunkPos(targetPos.x + ChunkByChunkConfig.get().getGeneration().getChunkGenXOffset(), targetPos.z + ChunkByChunkConfig.get().getGeneration().getChunkGenZOffset());
-            SpawnChunkHelper.spawnChunk(overworldLevel, sourcePos, targetPos);
+            ChunkPos sourcePos = new ChunkPos(targetPos.x, targetPos.z);
+            SpawnChunkHelper.spawnChunkBlocks(overworldLevel, sourcePos, targetPos);
+            overworldLevel.setBlock(new BlockPos(targetPos.getMiddleBlockX(), overworldLevel.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), ChunkByChunkConstants.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
         }
     }
 }

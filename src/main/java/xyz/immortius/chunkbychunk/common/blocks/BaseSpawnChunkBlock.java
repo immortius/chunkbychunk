@@ -17,11 +17,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumSet;
+import java.util.List;
 
 /**
- * This is the base for blocks that can be used to trigger spawning an "empty" chunk. Empty in this case is signified by the chunk not having bedrock at the base level. All these blocks
- * will force the load of the generation chunk they will spawn.
+ * This is the base for blocks that can be used to trigger spawning an "empty" chunk. Empty in this case is signified by the chunk not having bedrock at the base level.
  *
  * When used these blocks will try to spawn the first valid chunk out of:
  * <ul>
@@ -38,55 +39,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
         super(blockProperties);
     }
 
-    protected abstract ChunkPos getSourceChunk(Level targetLevel, BlockPos targetBlockPos);
-
-    @Override
-    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60570_) {
-        super.onPlace(state, level, pos, prevState, p_60570_);
-        if (!level.isClientSide()) {
-            ServerLevel targetLevel = (ServerLevel) level;
-            ServerLevel sourceLevel = level.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
-            if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                Set<BlockPos> relativePos = getPossibleTargetPos(targetLevel, pos);
-                for (BlockPos targetPos : relativePos) {
-                    ChunkPos sourceChunkPos = getSourceChunk(level, targetPos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
-                }
-            }
-        }
-    }
-
-    @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60519_) {
-        super.onRemove(state, level, pos, prevState, p_60519_);
-        if (!level.isClientSide()) {
-            ServerLevel targetLevel = (ServerLevel) level;
-            ServerLevel sourceLevel = level.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
-            if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                Set<BlockPos> relativePos = getPossibleTargetPos(targetLevel, pos);
-                for (BlockPos targetPos : relativePos) {
-                    ChunkPos sourceChunkPos = getSourceChunk(level, targetPos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
-                }
-            }
-        }
-    }
-
-    private Set<BlockPos> getPossibleTargetPos(ServerLevel level, BlockPos pos) {
-        ChunkPos originChunk = new ChunkPos(pos);
-        if (SpawnChunkHelper.isEmptyChunk(level, originChunk)) {
-            return Collections.singleton(pos);
-        }
-        Set<BlockPos> result = new LinkedHashSet<>();
-        Set<ChunkPos> coveredChunks = new HashSet<>();
-        for (Direction dir : HORIZONTAL_DIR) {
-            ChunkPos adjChunk = new ChunkPos(pos.relative(dir));
-            if (coveredChunks.add(adjChunk) && SpawnChunkHelper.isEmptyChunk(level, adjChunk)) {
-                result.add(pos.relative(dir));
-            }
-        }
-        return result;
-    }
+    public abstract BlockState getTriggeredBlockState();
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -95,23 +48,25 @@ public abstract class BaseSpawnChunkBlock extends Block {
         }
         if (level instanceof ServerLevel serverLevel) {
             List<BlockPos> targetPositions = new ArrayList<>();
-            targetPositions.add(pos);
+            BlockPos initialPos = pos.atY(level.getMaxBuildHeight() - 1);
+            targetPositions.add(initialPos);
             Direction targetDirection = hit.getDirection();
             if (!HORIZONTAL_DIR.contains(targetDirection)) {
                 targetDirection = Direction.NORTH;
             }
-            targetPositions.add(pos.relative(targetDirection.getOpposite()));
-            targetPositions.add(pos.relative(targetDirection.getCounterClockWise()));
-            targetPositions.add(pos.relative(targetDirection.getClockWise()));
-            targetPositions.add(pos.relative(targetDirection));
+            targetPositions.add(initialPos.relative(targetDirection.getOpposite()));
+            targetPositions.add(initialPos.relative(targetDirection.getCounterClockWise()));
+            targetPositions.add(initialPos.relative(targetDirection.getClockWise()));
+            targetPositions.add(initialPos.relative(targetDirection));
 
             for (BlockPos targetPos : targetPositions) {
                 ChunkPos targetChunkPos = new ChunkPos(targetPos);
                 if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
-                    ChunkPos sourceChunkPos = getSourceChunk(level, targetPos);
-                    serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                    serverLevel.setBlock(targetPos, getTriggeredBlockState(), Block.UPDATE_ALL);
+                    if (!pos.equals(targetPos)) {
+                        serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+                    }
                     level.playSound(null, pos, ChunkByChunkConstants.spawnChunkSoundEffect(), SoundSource.BLOCKS, 1.0f, 1.0f);
-                    SpawnChunkHelper.spawnChunk(serverLevel, sourceChunkPos, targetChunkPos);
                     return InteractionResult.SUCCESS;
                 }
             }

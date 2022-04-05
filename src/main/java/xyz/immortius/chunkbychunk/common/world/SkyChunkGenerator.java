@@ -108,7 +108,7 @@ public class SkyChunkGenerator extends ChunkGenerator {
                 BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(0,0,0);
                 for (blockPos.setZ(0); blockPos.getZ() < 16; blockPos.setZ(blockPos.getZ() + 1)) {
                     for (blockPos.setX(0); blockPos.getX() < 16; blockPos.setX(blockPos.getX() + 1)) {
-                        blockPos.setY(chunkAccess.getMaxBuildHeight());
+                        blockPos.setY(chunkAccess.getMaxBuildHeight() - 1);
                         while (blockPos.getY() > chunkAccess.getMinBuildHeight() && chunkAccess.getBlockState(blockPos).getBlock() instanceof AirBlock) {
                             blockPos.setY(blockPos.getY() - 1);
                         }

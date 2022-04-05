@@ -1,6 +1,5 @@
 package xyz.immortius.chunkbychunk.interop;
 
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.ItemTags;

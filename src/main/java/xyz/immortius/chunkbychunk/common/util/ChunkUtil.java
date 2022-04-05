@@ -23,7 +23,7 @@ public final class ChunkUtil {
      * @return A y coord that is available for spawns
      */
     public static int getSafeSpawnHeight(ChunkAccess chunk, int x, int z) {
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x,chunk.getMaxBuildHeight(),z);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x,chunk.getMaxBuildHeight() - 1,z);
         // Find some space first
         while (pos.getY() > chunk.getMinBuildHeight()) {
             if (chunk.getBlockState(pos).getBlock().isPossibleToRespawnInThis()) {
@@ -57,7 +57,7 @@ public final class ChunkUtil {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0,0,0);
         int count = 0;
         for (pos.setX(chunkPos.getMinBlockX()); pos.getX() <= chunkPos.getMaxBlockX(); pos.setX(pos.getX() + 1)) {
-            for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight(); pos.setY(pos.getY() + 1)) {
+            for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight() - 1; pos.setY(pos.getY() + 1)) {
                 for (pos.setZ(chunkPos.getMinBlockZ()); pos.getZ() <= chunkPos.getMaxBlockZ(); pos.setZ(pos.getZ() + 1)) {
                     if (blocks.contains(chunk.getBlockState(pos).getBlock())) {
                         count++;
@@ -78,7 +78,7 @@ public final class ChunkUtil {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(0,0,0);
         int count = 0;
         for (pos.setX(chunkPos.getMinBlockX()); pos.getX() <= chunkPos.getMaxBlockX(); pos.setX(pos.getX() + 1)) {
-            for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight(); pos.setY(pos.getY() + 1)) {
+            for (pos.setY(chunk.getMinBuildHeight()); pos.getY() <= chunk.getMaxBuildHeight() - 1; pos.setY(pos.getY() + 1)) {
                 for (pos.setZ(chunkPos.getMinBlockZ()); pos.getZ() <= chunkPos.getMaxBlockZ(); pos.setZ(pos.getZ() + 1)) {
                     if (chunk.getBlockState(pos).getBlock() == block) {
                         count++;

@@ -3,7 +3,6 @@ package xyz.immortius.chunkbychunk.forge;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -15,34 +14,31 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
-import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.world.ForgeWorldPreset;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.*;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.NetworkRegistry;
+import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.simple.SimpleChannel;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
-import xyz.immortius.chunkbychunk.client.screens.ChunkByChunkConfigScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
 import xyz.immortius.chunkbychunk.common.CommonEventHandler;
-import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.blocks.*;
+import xyz.immortius.chunkbychunk.common.commands.SpawnChunkCommand;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
@@ -54,9 +50,6 @@ import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 import java.nio.file.Paths;
 import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * The Mod itself. Registers all registerable objects and sets up any event hooks
@@ -76,6 +69,9 @@ public class ChunkByChunkMod {
     public static final RegistryObject<Block> WORLD_FORGE_BLOCK = BLOCKS.register("worldforge", () -> new WorldForgeBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7)));
     public static final RegistryObject<Block> WORLD_SCANNER_BLOCK = BLOCKS.register("worldscanner", () -> new WorldScannerBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
 
+    public static final RegistryObject<Block> TRIGGERED_SPAWN_CHUNK_BLOCK = BLOCKS.register("triggeredchunkspawner", () -> new TriggeredSpawnChunkBlock(BlockBehaviour.Properties.of(Material.AIR)));
+    public static final RegistryObject<Block> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = BLOCKS.register("triggeredrandomchunkspawner", () -> new TriggeredSpawnRandomChunkBlock(BlockBehaviour.Properties.of(Material.AIR)));
+
     public static final RegistryObject<Item> SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("chunkspawner", () -> new BlockItem(SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("unstablechunkspawner", () -> new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> BEDROCK_CHEST_ITEM = ITEMS.register("bedrockchest", () -> new BlockItem(BEDROCK_CHEST_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
@@ -90,6 +86,8 @@ public class ChunkByChunkMod {
     public static final RegistryObject<BlockEntityType<?>> BEDROCK_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("bedrockchestentity", () -> BlockEntityType.Builder.of(BedrockChestBlockEntity::new, BEDROCK_CHEST_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_FORGE_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldforgeentity", () -> BlockEntityType.Builder.of(WorldForgeBlockEntity::new, WORLD_FORGE_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_SCANNER_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldscannerentity", () -> BlockEntityType.Builder.of(WorldScannerBlockEntity::new, WORLD_SCANNER_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, TRIGGERED_SPAWN_CHUNK_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnrandomchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnRandomChunkBlockEntity::new, TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get()).build(null));
 
     public static final RegistryObject<MenuType<BedrockChestMenu>> BEDROCK_CHEST_MENU = CONTAINERS.register("bedrockchestmenu", () -> new MenuType<>(BedrockChestMenu::new));
     public static final RegistryObject<MenuType<WorldForgeMenu>> WORLD_FORGE_MENU = CONTAINERS.register("worldforgemenu", () -> new MenuType<>(WorldForgeMenu::new));
@@ -133,6 +131,11 @@ public class ChunkByChunkMod {
             MenuScreens.register(WORLD_FORGE_MENU.get(), WorldForgeScreen::new);
             MenuScreens.register(WORLD_SCANNER_MENU.get(), WorldScannerScreen::new);
         });
+    }
+
+    @SubscribeEvent
+    public void registerCommands(RegisterCommandsEvent event) {
+        SpawnChunkCommand.register(event.getDispatcher());
     }
 
     @SubscribeEvent

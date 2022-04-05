@@ -48,16 +48,6 @@ public class GenerationConfig {
     @IntRange(min = 1, max = 9)
     private int initialChunks = 1;
 
-    @Name("chunk_gen_x_offset")
-    @Comment("Offsets the spawn of chunk from the standard generator. e.g. an offset of 3 means the (0,0) chunk will be the (3,0) chunk of the world")
-    @IntRange(min = Short.MIN_VALUE, max = Short.MAX_VALUE)
-    private int chunkGenXOffset = 0;
-
-    @Name("chunk_gen_z_offset")
-    @Comment("Offsets the spawn of chunk from the standard generator.")
-    @IntRange(min = Short.MIN_VALUE, max = Short.MAX_VALUE)
-    private int chunkGenZOffset = 0;
-
     public boolean isEnabled() {
         return enabled;
     }
@@ -78,22 +68,6 @@ public class GenerationConfig {
 
     public void setInitialChunks(int initialChunks) {
         this.initialChunks = initialChunks;
-    }
-
-    public int getChunkGenXOffset() {
-        return chunkGenXOffset;
-    }
-
-    public void setChunkGenXOffset(int chunkGenXOffset) {
-        this.chunkGenXOffset = chunkGenXOffset;
-    }
-
-    public int getChunkGenZOffset() {
-        return chunkGenZOffset;
-    }
-
-    public void setChunkGenZOffset(int chunkGenZOffset) {
-        this.chunkGenZOffset = chunkGenZOffset;
     }
 
     public boolean spawnNewChunkChest() {

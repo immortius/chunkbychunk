@@ -1,14 +1,10 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
-
-import java.util.Random;
+import net.minecraft.world.level.block.state.BlockState;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 /**
- * Spawns a pseudo-random chunk from the generation dimension (position determined from block position).
- * Pseudo-random used so that the same chunk is forced, generated and unforced.
+ * Spawns a random chunk
  */
 public class UnstableSpawnChunkBlock extends BaseSpawnChunkBlock {
 
@@ -17,10 +13,7 @@ public class UnstableSpawnChunkBlock extends BaseSpawnChunkBlock {
     }
 
     @Override
-    protected ChunkPos getSourceChunk(Level targetLevel, BlockPos targetBlockPos) {
-        Random random = new Random(targetBlockPos.asLong());
-        return new ChunkPos(random.nextInt(Short.MIN_VALUE, Short.MAX_VALUE), random.nextInt(Short.MIN_VALUE, Short.MAX_VALUE));
+    public BlockState getTriggeredBlockState() {
+        return ChunkByChunkConstants.triggeredSpawnRandomChunkBlock().defaultBlockState();
     }
-
-
 }

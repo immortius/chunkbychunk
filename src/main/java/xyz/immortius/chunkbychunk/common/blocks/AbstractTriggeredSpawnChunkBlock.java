@@ -1,0 +1,67 @@
+package xyz.immortius.chunkbychunk.common.blocks;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+
+import java.util.function.Function;
+
+/**
+ * Base type for blocks that trigger the spawn of a chunk (after a short delay to allow entity spawn).
+ * These blocks are used to force the loading of the chunk that will be spawned in the generation dimension.
+ */
+public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
+
+    private Function<BlockPos, ChunkPos> sourceChunkFunc;
+
+    public AbstractTriggeredSpawnChunkBlock(Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
+        super(blockProperties);
+        this.sourceChunkFunc = sourceChunkFunc;
+    }
+
+    @Override
+    public RenderShape getRenderShape(BlockState state) {
+        return RenderShape.INVISIBLE;
+    }
+
+    @Override
+    public VoxelShape getShape(BlockState state, BlockGetter getter, BlockPos pos, CollisionContext collisionContext) {
+        return Shapes.empty();
+    }
+
+    @Override
+    public void onPlace(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60570_) {
+        super.onPlace(state, level, pos, prevState, p_60570_);
+        if (!level.isClientSide()) {
+            ServerLevel targetLevel = (ServerLevel) level;
+            ServerLevel sourceLevel = level.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
+            if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
+            }
+        }
+    }
+
+    @Override
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60519_) {
+        super.onRemove(state, level, pos, prevState, p_60519_);
+        if (!level.isClientSide()) {
+            ServerLevel targetLevel = (ServerLevel) level;
+            ServerLevel sourceLevel = level.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
+            if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
+            }
+        }
+    }
+}

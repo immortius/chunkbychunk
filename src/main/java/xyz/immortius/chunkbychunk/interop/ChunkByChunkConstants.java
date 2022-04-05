@@ -11,9 +11,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
-import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
@@ -56,6 +54,10 @@ public final class ChunkByChunkConstants {
 
     public static Block worldScannerBlock() { return ChunkByChunkMod.WORLD_SCANNER_BLOCK.get(); }
 
+    public static Block triggeredSpawnChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK.get(); }
+
+    public static Block triggeredSpawnRandomChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get(); }
+
     // Block Items
 
     public static Item spawnChunkBlockItem() {
@@ -96,6 +98,14 @@ public final class ChunkByChunkConstants {
 
     public static BlockEntityType<WorldScannerBlockEntity> worldScannerEntity() {
         return (BlockEntityType<WorldScannerBlockEntity>) ChunkByChunkMod.WORLD_SCANNER_BLOCK_ENTITY.get();
+    }
+
+    public static BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity() {
+        return (BlockEntityType<TriggeredSpawnChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY.get();
+    }
+
+    public static BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity() {
+        return (BlockEntityType<TriggeredSpawnRandomChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY.get();
     }
 
     // Sound Events

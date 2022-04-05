@@ -61,8 +61,29 @@ public final class SpawnChunkHelper {
      * @param targetLevel The level to spawn the chunk in
      * @param chunkPos    The position to spawn the chunk (both source and target)
      */
-    public static void spawnChunk(ServerLevel targetLevel, ChunkPos chunkPos) {
-        spawnChunk(targetLevel, chunkPos, chunkPos);
+    public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos chunkPos) {
+        spawnChunkBlocks(targetLevel, chunkPos, chunkPos);
+    }
+
+    /**
+     * Spawns the blocks for a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
+     *
+     * @param targetLevel    The level to spawn the chunk in
+     * @param sourceChunkPos The position of the chunk in the source dimension to pull from
+     * @param targetChunkPos The position of the chunk in the target dimension to spawn
+     */
+    public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
+        if (!isValidForChunkSpawn(targetLevel)) {
+            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
+            return;
+        }
+        ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
+        if (sourceLevel != null) {
+            copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
+            if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
+                createNextSpawner(targetLevel, targetChunkPos);
+            }
+        }
     }
 
     /**
@@ -72,18 +93,14 @@ public final class SpawnChunkHelper {
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      * @param targetChunkPos The position of the chunk in the target dimension to spawn
      */
-    public static void spawnChunk(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
+    public static void spawnChunkEntities(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
         if (!isValidForChunkSpawn(targetLevel)) {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
             return;
         }
         ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
         if (sourceLevel != null) {
-            copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
             copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
-            if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
-                createNextSpawner(targetLevel, targetChunkPos);
-            }
         }
     }
 
@@ -108,7 +125,7 @@ public final class SpawnChunkHelper {
                 to.setBlock(targetBlock, Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
             }
         }
-        for (int y = to.getMinBuildHeight() + 1; y < to.getMaxBuildHeight(); y++) {
+        for (int y = to.getMinBuildHeight() + 1; y < to.getMaxBuildHeight() - 1; y++) {
             for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
                 for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
                     sourceBlock.set(x, y, z);
