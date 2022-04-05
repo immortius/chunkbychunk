@@ -45,7 +45,6 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             }
         }
         if (entity.tickCounter >= TICKS_TO_SPAWN_ENTITIES) {
-            ChunkByChunkConstants.LOGGER.info("Spawning entities");
             if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel)) {
                 ChunkPos targetChunkPos = new ChunkPos(blockPos);
                 SpawnChunkHelper.spawnChunkEntities(serverLevel, entity.sourceChunkPosFunc.apply(blockPos), targetChunkPos);

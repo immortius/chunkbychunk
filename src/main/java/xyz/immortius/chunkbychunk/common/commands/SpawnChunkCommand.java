@@ -17,7 +17,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
-import xyz.immortius.chunkbychunk.forge.ChunkByChunkMod;
+import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 public class SpawnChunkCommand {
 
@@ -55,10 +55,10 @@ public class SpawnChunkCommand {
         if (random) {
             ChunkPos sourceChunk = TriggeredSpawnRandomChunkBlock.getSourceChunk(pos);
             SpawnChunkHelper.spawnChunkBlocks(level, sourceChunk, chunkPos);
-            level.setBlock(pos, ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(pos, ChunkByChunkConstants.triggeredSpawnRandomChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
         } else {
             SpawnChunkHelper.spawnChunkBlocks(level, chunkPos);
-            level.setBlock(pos, ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK.get().defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(pos, ChunkByChunkConstants.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
         }
         return 1;
     }
