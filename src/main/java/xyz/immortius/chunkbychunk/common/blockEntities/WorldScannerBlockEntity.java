@@ -17,10 +17,12 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
@@ -168,8 +170,9 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
         ItemStack targetItem = getItem(SLOT_INPUT);
         if (targetItem.getItem() instanceof BucketItem bucket) {
             return CBCInteropMethods.getBucketContents(bucket) instanceof FlowingFluid;
+        } else if (Items.SLIME_BALL.equals(targetItem.getItem())) {
+            return true;
         }
-
         return targetItem.getItem() instanceof BlockItem || SCAN_ITEM_MAPPINGS.keySet().contains(targetItem.getItem());
     }
 
@@ -207,17 +210,26 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 }
                 ChunkAccess chunk = scanLevel.getChunk(chunkX, chunkZ);
 
+                int blockCount;
                 // Count the targeted blocks
-                Set<Block> scanForBlocks = new HashSet<>();
-                Collection<Block> mappings = SCAN_ITEM_MAPPINGS.get(targetItem.getItem());
-                if (!mappings.isEmpty()) {
-                    scanForBlocks.addAll(mappings);
-                } else if (targetItem.getItem() instanceof BucketItem bucket) {
-                    scanForBlocks.add(CBCInteropMethods.getBucketContents(bucket).defaultFluidState().createLegacyBlock().getBlock());
-                } else if (targetItem.getItem() instanceof BlockItem blockItem) {
-                    scanForBlocks.add(blockItem.getBlock());
+                if (targetItem.getItem().equals(Items.SLIME_BALL) || targetItem.getItem().equals(Items.SLIME_BLOCK)) {
+                    if (WorldgenRandom.seedSlimeChunk(chunkX, chunkZ, ((WorldGenLevel) scanLevel).getSeed(), 987234911L).nextInt(10) == 0) {
+                        blockCount = 20000;
+                    } else {
+                        blockCount = 0;
+                    }
+                } else {
+                    Set<Block> scanForBlocks = new HashSet<>();
+                    Collection<Block> mappings = SCAN_ITEM_MAPPINGS.get(targetItem.getItem());
+                    if (!mappings.isEmpty()) {
+                        scanForBlocks.addAll(mappings);
+                    } else if (targetItem.getItem() instanceof BucketItem bucket) {
+                        scanForBlocks.add(CBCInteropMethods.getBucketContents(bucket).defaultFluidState().createLegacyBlock().getBlock());
+                    } else if (targetItem.getItem() instanceof BlockItem blockItem) {
+                        scanForBlocks.add(blockItem.getBlock());
+                    }
+                    blockCount = ChunkUtil.countBlocks(chunk, scanForBlocks);
                 }
-                int blockCount = ChunkUtil.countBlocks(chunk, scanForBlocks);
 
                 // Set the color based on the count
                 byte color = MaterialColor.COLOR_BLACK.getPackedId(MaterialColor.Brightness.NORMAL);
