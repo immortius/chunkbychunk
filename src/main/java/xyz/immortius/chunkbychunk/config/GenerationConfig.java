@@ -16,6 +16,10 @@ public class GenerationConfig {
     @Comment("Should empty chunks be generated as bedrock")
     private boolean sealWorld = false;
 
+    @Name("synch_nether_chunk_spawn")
+    @Comment("Should the nether start empty with chunks spawning in response to overworld spawns")
+    private boolean synchNether = false;
+
     @Name("spawn_new_chunk_chest")
     @Comment("Should chunks include a chest with materials for generating further chunks?")
     private boolean spawnNewChunkChest = true;
@@ -54,6 +58,14 @@ public class GenerationConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public boolean isSynchNether() {
+        return synchNether;
+    }
+
+    public void setSynchNether(boolean synchNether) {
+        this.synchNether = synchNether;
     }
 
     public boolean useBedrockChest() { return useBedrockChest; }

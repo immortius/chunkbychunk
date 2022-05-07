@@ -52,11 +52,11 @@ public final class SpawnChunkHelper {
      * @return Whether the level is appropriate for spawning chunks - is it a SkyChunkGenerator level.
      */
     public static boolean isValidForChunkSpawn(ServerLevel level) {
-        return level != null && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
+        return level != null && level.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator;
     }
 
     /**
-     * Spawns a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
+     * Spawns a chunk. This is done by copying information from the associated generation level
      *
      * @param targetLevel The level to spawn the chunk in
      * @param chunkPos    The position to spawn the chunk (both source and target)
@@ -66,23 +66,38 @@ public final class SpawnChunkHelper {
     }
 
     /**
-     * Spawns the blocks for a chunk. This is done by copying information from the SKY_CHUNK_GENERATION level
+     * Spawns the blocks for a chunk. This is done by copying information from the associated generation level
      *
      * @param targetLevel    The level to spawn the chunk in
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      * @param targetChunkPos The position of the chunk in the target dimension to spawn
      */
     public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
+        if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator generator) {
+            ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(generator.getGenerationLevel());
+            if (sourceLevel != null) {
+                spawnChunkBlocks(targetLevel, targetChunkPos, sourceLevel, sourceChunkPos);
+            }
+        } else {
+            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
+        }
+    }
+
+    /**
+     * Spawns the blocks for a chunk.
+     * @param targetLevel    The level to spawn the chunk in
+     * @param targetChunkPos The position of the chunk in the target dimension to spawn
+     * @param sourceLevel    The level to spawn the chunk from
+     * @param sourceChunkPos The position of the chunk in the source dimension to pull from
+     */
+    public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos targetChunkPos, ServerLevel sourceLevel, ChunkPos sourceChunkPos) {
         if (!isValidForChunkSpawn(targetLevel)) {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
             return;
         }
-        ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
-        if (sourceLevel != null) {
-            copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
-            if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
-                createNextSpawner(targetLevel, targetChunkPos);
-            }
+        copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
+        if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
+            createNextSpawner(targetLevel, targetChunkPos);
         }
     }
 
@@ -94,13 +109,13 @@ public final class SpawnChunkHelper {
      * @param targetChunkPos The position of the chunk in the target dimension to spawn
      */
     public static void spawnChunkEntities(ServerLevel targetLevel, ChunkPos sourceChunkPos, ChunkPos targetChunkPos) {
-        if (!isValidForChunkSpawn(targetLevel)) {
+        if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator generator) {
+            ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(generator.getGenerationLevel());
+            if (sourceLevel != null) {
+                copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
+            }
+        } else {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
-            return;
-        }
-        ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
-        if (sourceLevel != null) {
-            copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
         }
     }
 

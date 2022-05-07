@@ -33,6 +33,7 @@ public final class ChunkByChunkConstants {
     public static final String CONFIG_FILE = MOD_ID + ".toml";
 
     public static final ResourceKey<Level> SKY_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "skychunkgeneration"));
+    public static final ResourceKey<Level> NETHER_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "netherchunkgeneration"));
 
     /// Blocks
 

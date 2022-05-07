@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -26,6 +25,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
+import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
@@ -78,11 +78,12 @@ public final class ServerEventHandler {
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
         LevelStem overworldStem = worldGenSettings.dimensions().get(Level.OVERWORLD.location());
-        LevelStem generationStem = worldGenSettings.dimensions().get(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
         if (!(overworldStem.generator() instanceof SkyChunkGenerator)) {
+            LevelStem generationStem = worldGenSettings.dimensions().get(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
             Registry<DimensionType> dimensionTypeRegistry = server.registryAccess().registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+
             if (generationStem == null) {
-                ResourceKey<LevelStem> skychunkgeneration = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "skychunkgeneration"));
+                ResourceKey<LevelStem> skychunkgeneration = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
                 generationStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), overworldStem.generator());
                 worldGenSettings.dimensions().register(skychunkgeneration, generationStem, Lifecycle.stable());
             }
@@ -91,6 +92,23 @@ public final class ServerEventHandler {
             StructureSettings structureSettingsCopy = StructureSettings.CODEC.parse(NbtOps.INSTANCE, StructureSettings.CODEC.encodeStart(NbtOps.INSTANCE, overworldStem.generator().getSettings()).result().get()).result().get();
             LevelStem newOverworldStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld(), structureSettingsCopy));
             worldGenSettings.dimensions().registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.OVERWORLD.location()), newOverworldStem, Lifecycle.stable());
+        }
+        if (ChunkByChunkConfig.get().getGeneration().isSynchNether()) {
+            LevelStem netherStem = worldGenSettings.dimensions().get(Level.NETHER.location());
+            if (!(netherStem.generator() instanceof NetherChunkByChunkGenerator)) {
+                LevelStem netherGenerationStem = worldGenSettings.dimensions().get(ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL.location());
+                Registry<DimensionType> dimensionTypeRegistry = server.registryAccess().registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
+
+                if (netherGenerationStem == null) {
+                    ResourceKey<LevelStem> netherchunkgeneration = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL.location());
+                    netherGenerationStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.NETHER_LOCATION), netherStem.generator());
+                    worldGenSettings.dimensions().register(netherchunkgeneration, netherGenerationStem, Lifecycle.stable());
+                }
+
+                StructureSettings structureSettingsCopy = StructureSettings.CODEC.parse(NbtOps.INSTANCE, StructureSettings.CODEC.encodeStart(NbtOps.INSTANCE, netherStem.generator().getSettings()).result().get()).result().get();
+                LevelStem newNetherStem = new LevelStem(() -> dimensionTypeRegistry.get(DimensionType.NETHER_LOCATION), new NetherChunkByChunkGenerator(netherStem.generator(), structureSettingsCopy));
+                worldGenSettings.dimensions().registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.NETHER.location()), newNetherStem, Lifecycle.stable());
+            }
         }
     }
 
@@ -160,8 +178,7 @@ public final class ServerEventHandler {
         List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkConfig.get().getGeneration().getInitialChunks() - 1);
         for (int[] offset : chunkOffsets) {
             ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-            ChunkPos sourcePos = new ChunkPos(targetPos.x, targetPos.z);
-            SpawnChunkHelper.spawnChunkBlocks(overworldLevel, sourcePos, targetPos);
+            SpawnChunkHelper.spawnChunkBlocks(overworldLevel, targetPos);
             overworldLevel.setBlock(new BlockPos(targetPos.getMiddleBlockX(), overworldLevel.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), ChunkByChunkConstants.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
         }
     }

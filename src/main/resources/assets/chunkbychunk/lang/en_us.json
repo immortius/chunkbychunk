@@ -18,6 +18,7 @@
   "config.chunkbychunk.section.chunkgeneration" : "Chunk Generation",
   "config.chunkbychunk.option.enabled" : "Enabled",
   "config.chunkbychunk.option.sealWorld" : "Seal World",
+  "config.chunkbychunk.option.synchNether" : "Synch Nether chunks",
   "config.chunkbychunk.option.spawnNewChunkChest" : "Spawn chunk chest",
   "config.chunkbychunk.option.useBedrockChest" : "Use bedrock chest",
   "config.chunkbychunk.option.minChestSpawnDepth" : "Min chest spawn depth",
