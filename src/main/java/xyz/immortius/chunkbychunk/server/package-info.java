@@ -1,9 +1,5 @@
 /**
- * This package contains classes which only exist to support servers
+ * This package contains classes only for use on the server
  */
-@MethodsReturnNonnullByDefault
-@FieldsAreNonnullByDefault
 package xyz.immortius.chunkbychunk.server;
 
-import net.minecraft.FieldsAreNonnullByDefault;
-import net.minecraft.MethodsReturnNonnullByDefault;

@@ -7,7 +7,6 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 
 /**
  * BaseContainerMenu is a base for any menu that includes access to the player's inventory in the standard layout
@@ -30,7 +29,7 @@ public abstract class BaseInventoryContainerMenu extends AbstractContainerMenu {
      * @param playerInventoryX The x-coord of the top-left corner of the player's inventory display
      * @param playerInventoryY The y-coord of the top-left corner of the player's inventory display
      */
-    protected BaseInventoryContainerMenu(@Nullable MenuType<?> menuType, int menuId, Container container, Inventory inventory, int playerInventoryX, int playerInventoryY) {
+    protected BaseInventoryContainerMenu(MenuType<?> menuType, int menuId, Container container, Inventory inventory, int playerInventoryX, int playerInventoryY) {
         super(menuType, menuId);
         this.container = container;
         container.startOpen(inventory.player);

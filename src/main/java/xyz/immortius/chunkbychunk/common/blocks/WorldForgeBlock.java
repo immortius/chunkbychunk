@@ -9,7 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -21,7 +20,6 @@ public class WorldForgeBlock extends AbstractContainerBlock {
         super(blockProperties);
     }
 
-    @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new WorldForgeBlockEntity(pos, state);

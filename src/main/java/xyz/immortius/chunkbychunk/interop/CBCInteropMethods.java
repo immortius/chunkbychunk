@@ -10,7 +10,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraftforge.common.util.ITeleporter;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.function.Function;
 
@@ -30,7 +29,6 @@ public final class CBCInteropMethods {
      * @param portalInfo Portal information for the move
      * @return The moved entity
      */
-    @Nullable
     public static Entity changeDimension(Entity entity, ServerLevel level, PortalInfo portalInfo) {
         return entity.changeDimension(level, new EntityTeleport(portalInfo));
     }

@@ -15,7 +15,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -43,7 +42,6 @@ public abstract class BaseSpawnChunkBlock extends Block {
 
     public abstract BlockState getTriggeredBlockState();
 
-    @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         if (Level.OVERWORLD.equals(context.getLevel().dimension())) {

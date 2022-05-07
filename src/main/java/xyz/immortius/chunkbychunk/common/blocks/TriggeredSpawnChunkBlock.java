@@ -7,7 +7,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
 import xyz.immortius.chunkbychunk.common.blockEntities.TriggeredSpawnChunkBlockEntity;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -25,7 +24,6 @@ public class TriggeredSpawnChunkBlock extends AbstractTriggeredSpawnChunkBlock {
         return new ChunkPos(targetChunkPos.x, targetChunkPos.z);
     }
 
-    @Nullable
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new TriggeredSpawnChunkBlockEntity(pos, state);
