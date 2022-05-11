@@ -101,7 +101,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
         CRYSTAL_STEPS = ImmutableMap.<Item, Item>builder()
                 .put(ChunkByChunkConstants.worldFragmentItem(), ChunkByChunkConstants.worldShardItem())
                 .put(ChunkByChunkConstants.worldShardItem(), ChunkByChunkConstants.worldCrystalItem())
-                .put(ChunkByChunkConstants.worldCrystalItem(), ChunkByChunkConstants.worldCrystalItem()).build();
+                .put(ChunkByChunkConstants.worldCrystalItem(), ChunkByChunkConstants.worldCoreBlockItem()).build();
     }
 
     public WorldForgeBlockEntity(BlockPos pos, BlockState state) {
