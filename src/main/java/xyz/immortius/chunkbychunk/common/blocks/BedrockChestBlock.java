@@ -2,8 +2,7 @@ package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TextComponent;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -49,7 +48,7 @@ public class BedrockChestBlock extends BaseEntityBlock {
                 if (blockCount <= ChunkByChunkConfig.get().getBedrockChest().getBedrockChestBlocksRemainingThreshold()) {
                     player.openMenu(bedrockChestBlockEntity);
                 } else {
-                    player.displayClientMessage(new TranslatableComponent("ui.chunkbychunk.bedrockchest.sealedmessage", new TextComponent(Integer.toString(blockCount - ChunkByChunkConfig.get().getBedrockChest().getBedrockChestBlocksRemainingThreshold())).withStyle(ChatFormatting.RED)), true);
+                    player.displayClientMessage(Component.translatable("ui.chunkbychunk.bedrockchest.sealedmessage", Component.literal(Integer.toString(blockCount - ChunkByChunkConfig.get().getBedrockChest().getBedrockChestBlocksRemainingThreshold())).withStyle(ChatFormatting.RED)), true);
                 }
 
                 return InteractionResult.CONSUME;

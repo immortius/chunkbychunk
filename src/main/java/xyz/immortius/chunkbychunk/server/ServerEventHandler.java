@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.MappedRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.WritableRegistry;
 import net.minecraft.resources.ResourceKey;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.dimension.BuiltinDimensionTypes;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
@@ -79,17 +81,18 @@ public final class ServerEventHandler {
         WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
         LevelStem overworldStem = worldGenSettings.dimensions().get(Level.OVERWORLD.location());
         LevelStem generationStem = worldGenSettings.dimensions().get(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
-        WritableRegistry<LevelStem> dimensions = (WritableRegistry<LevelStem>) worldGenSettings.dimensions();
+        MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) worldGenSettings.dimensions();
+        dimensions.frozen = false;
         if (!(overworldStem.generator() instanceof SkyChunkGenerator)) {
             Registry<DimensionType> dimensionTypeRegistry = server.registryAccess().registryOrThrow(Registry.DIMENSION_TYPE_REGISTRY);
 
             if (generationStem == null) {
                 ResourceKey<LevelStem> skychunkgeneration = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL.location());
-                generationStem = new LevelStem(dimensionTypeRegistry.getOrCreateHolder(DimensionType.OVERWORLD_LOCATION), overworldStem.generator());
+                generationStem = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD), overworldStem.generator());
                 dimensions.register(skychunkgeneration, generationStem, Lifecycle.stable());
             }
 
-            LevelStem newOverworldStem = new LevelStem(dimensionTypeRegistry.getOrCreateHolder(DimensionType.OVERWORLD_LOCATION), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld()));
+            LevelStem newOverworldStem = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD), new SkyChunkGenerator(overworldStem.generator(), ChunkByChunkConfig.get().getGeneration().sealWorld()));
             dimensions.registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.OVERWORLD.location()), newOverworldStem, Lifecycle.stable());
         }
         if (ChunkByChunkConfig.get().getGeneration().isSynchNether()) {
@@ -100,14 +103,15 @@ public final class ServerEventHandler {
 
                 if (netherGenerationStem == null) {
                     ResourceKey<LevelStem> netherchunkgeneration = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, ChunkByChunkConstants.NETHER_CHUNK_GENERATION_LEVEL.location());
-                    netherGenerationStem = new LevelStem(dimensionTypeRegistry.getOrCreateHolder(DimensionType.NETHER_LOCATION), netherStem.generator());
+                    netherGenerationStem = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.NETHER), netherStem.generator());
                     dimensions.register(netherchunkgeneration, netherGenerationStem, Lifecycle.stable());
                 }
 
-                LevelStem newNetherStem = new LevelStem(dimensionTypeRegistry.getOrCreateHolder(DimensionType.NETHER_LOCATION), new NetherChunkByChunkGenerator(netherStem.generator()));
+                LevelStem newNetherStem = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.NETHER), new NetherChunkByChunkGenerator(netherStem.generator()));
                 dimensions.registerOrOverride(OptionalInt.empty(), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, Level.NETHER.location()), newNetherStem, Lifecycle.stable());
             }
         }
+        dimensions.frozen = true;
     }
 
     /**

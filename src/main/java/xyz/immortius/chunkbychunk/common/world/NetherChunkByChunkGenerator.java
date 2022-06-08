@@ -4,10 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
@@ -38,13 +39,8 @@ public class NetherChunkByChunkGenerator extends BaseSkyChunkGenerator {
     }
 
     @Override
-    public ChunkGenerator withSeed(long seed) {
-        return new NetherChunkByChunkGenerator(parent.withSeed(seed));
-    }
-
-    @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, StructureFeatureManager structureFeatureManager, ChunkAccess chunk) {
-        return super.fillFromNoise(executor, blender, structureFeatureManager, chunk).whenCompleteAsync((chunkAccess, throwable) -> {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
+        return super.fillFromNoise(executor, blender, randomState, structureManager, chunk).whenCompleteAsync((chunkAccess, throwable) -> {
             BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(0, 0, 0);
             for (blockPos.setZ(0); blockPos.getZ() < 16; blockPos.setZ(blockPos.getZ() + 1)) {
                 for (blockPos.setX(0); blockPos.getX() < 16; blockPos.setX(blockPos.getX() + 1)) {

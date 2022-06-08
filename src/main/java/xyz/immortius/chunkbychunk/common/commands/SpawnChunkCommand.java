@@ -9,7 +9,7 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -21,9 +21,9 @@ import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 
 public class SpawnChunkCommand {
 
-    private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.invalidPosition"));
-    private static final SimpleCommandExceptionType INVALID_LEVEL = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.invalidlevel"));
-    private static final SimpleCommandExceptionType NON_EMPTY_CHUNK = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.nonemptychunk"));
+    private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.invalidPosition"));
+    private static final SimpleCommandExceptionType INVALID_LEVEL = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.invalidlevel"));
+    private static final SimpleCommandExceptionType NON_EMPTY_CHUNK = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.nonemptychunk"));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralCommandNode<CommandSourceStack> spawnChunkCommand = dispatcher.register(Commands.literal("chunkbychunk:spawnChunk")

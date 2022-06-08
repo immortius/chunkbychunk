@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.world;
 
 import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -13,13 +14,16 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -52,23 +56,52 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public Climate.Sampler climateSampler() {
-        return parent.climateSampler();
+    public Stream<Holder<StructureSet>> possibleStructureSets() {
+        return parent.possibleStructureSets();
     }
 
     @Override
-    public void applyCarvers(WorldGenRegion region, long seed, BiomeManager biomeManager, StructureFeatureManager structureManager, ChunkAccess chunk, GenerationStep.Carving step) {
+    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> biomes, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunk) {
+        return parent.createBiomes(biomes, executor, randomState, blender, structureManager, chunk);
+    }
+
+    @Override
+    public void applyCarvers(WorldGenRegion region, long p_223044_, RandomState randomState, BiomeManager biomeManager, StructureManager structureManager, ChunkAccess chunk, GenerationStep.Carving carving) {
 
     }
 
     @Override
-    public void buildSurface(WorldGenRegion region, StructureFeatureManager structureFeatureManager, ChunkAccess chunk) {
+    public Pair<BlockPos, Holder<Structure>> findNearestMapStructure(ServerLevel level, HolderSet<Structure> structure, BlockPos pos, int p_223041_, boolean p_223042_) {
+        return parent.findNearestMapStructure(level, structure, pos, p_223041_, p_223042_);
+    }
+
+    @Override
+    public void applyBiomeDecoration(WorldGenLevel p_223087_, ChunkAccess p_223088_, StructureManager p_223089_) {
+    }
+
+    @Override
+    public boolean hasStructureChunkInRange(Holder<StructureSet> structureSet, RandomState randomState, long p_223144_, int p_223145_, int p_223146_, int p_223147_) {
+        return parent.hasStructureChunkInRange(structureSet, randomState, p_223144_, p_223145_, p_223146_, p_223147_);
+    }
+
+
+    @Override
+    public void buildSurface(WorldGenRegion worldGenRegion, StructureManager structureManager, RandomState randomState, ChunkAccess chunk) {
 
     }
 
     @Override
     public void spawnOriginalMobs(WorldGenRegion region) {
+    }
 
+    @Override
+    public int getSpawnHeight(LevelHeightAccessor heightAccessor) {
+        return parent.getSpawnHeight(heightAccessor);
+    }
+
+    @Override
+    public BiomeSource getBiomeSource() {
+        return parent.getBiomeSource();
     }
 
     @Override
@@ -77,7 +110,22 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, StructureFeatureManager structureFeatureManager, ChunkAccess chunk) {
+    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> biome, StructureManager structureManager, MobCategory mobCategory, BlockPos pos) {
+        return parent.getMobsAt(biome, structureManager, mobCategory, pos);
+    }
+
+    @Override
+    public void createStructures(RegistryAccess registry, RandomState randomState, StructureManager structureManager, ChunkAccess chunk, StructureTemplateManager structureTemplateManager, long seed) {
+
+    }
+
+    @Override
+    public void createReferences(WorldGenLevel level, StructureManager structureManager, ChunkAccess chunk) {
+
+    }
+
+    @Override
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
         return CompletableFuture.completedFuture(chunk);
     }
 
@@ -92,87 +140,44 @@ public abstract class BaseSkyChunkGenerator extends ChunkGenerator {
     }
 
     @Override
-    public int getBaseHeight(int x, int z, Heightmap.Types heightMapType, LevelHeightAccessor heightAccessor) {
-        return parent.getBaseHeight(x, z, heightMapType, heightAccessor);
+    public int getBaseHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor, RandomState randomState) {
+        return parent.getBaseHeight(x, z, type, heightAccessor, randomState);
     }
 
     @Override
-    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor heightAccessor) {
-        return parent.getBaseColumn(x, z, heightAccessor);
+    public NoiseColumn getBaseColumn(int x, int z, LevelHeightAccessor heightAccessor, RandomState randomState) {
+        return parent.getBaseColumn(x, z, heightAccessor, randomState);
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> biomes, Executor executor, Blender blender, StructureFeatureManager structureFeatureManager, ChunkAccess chunk) {
-        return parent.createBiomes(biomes, executor, blender, structureFeatureManager, chunk);
+    public int getFirstFreeHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor, RandomState randomState) {
+        return parent.getBaseHeight(x, z, type, heightAccessor, randomState);
     }
 
     @Override
-    public Holder<Biome> getNoiseBiome(int p_204416_, int p_204417_, int p_204418_) {
-        return parent.getNoiseBiome(p_204416_, p_204417_, p_204418_);
+    public int getFirstOccupiedHeight(int x, int z, Heightmap.Types type, LevelHeightAccessor heightAccessor, RandomState randomState) {
+        return parent.getBaseHeight(x, z, type, heightAccessor, randomState) - 1;
     }
 
     @Override
-    public Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>> findNearestMapFeature(ServerLevel level, HolderSet<ConfiguredStructureFeature<?, ?>> structures, BlockPos pos, int p_207974_, boolean p_207975_) {
-        return parent.findNearestMapFeature(level, structures, pos, p_207974_, p_207975_);
+    public void ensureStructuresGenerated(RandomState randomState) {
+        parent.ensureStructuresGenerated(randomState);
     }
 
     @Override
-    public void applyBiomeDecoration(WorldGenLevel level, ChunkAccess chunk, StructureFeatureManager structureFeatureManager) {
-
+    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement placement, RandomState randomState) {
+        return parent.getRingPositionsFor(placement, randomState);
     }
 
     @Override
-    public int getSpawnHeight(LevelHeightAccessor heightAccessor) {
-        return parent.getSpawnHeight(heightAccessor);
+    public void addDebugScreenInfo(List<String> outDebugInfo, RandomState randomState, BlockPos pos) {
+        parent.addDebugScreenInfo(outDebugInfo, randomState, pos);
     }
 
+    /** @deprecated */
+    @Deprecated
     @Override
-    public BiomeSource getBiomeSource() {
-        return parent.getBiomeSource();
+    public BiomeGenerationSettings getBiomeGenerationSettings(Holder<Biome> biome) {
+        return parent.getBiomeGenerationSettings(biome);
     }
-
-    @Override
-    public WeightedRandomList<MobSpawnSettings.SpawnerData> getMobsAt(Holder<Biome> biome, StructureFeatureManager structures, MobCategory mobCategory, BlockPos pos) {
-        return parent.getMobsAt(biome, structures, mobCategory, pos);
-    }
-
-    @Override
-    public void createStructures(RegistryAccess registryAccess, StructureFeatureManager structureFeatureManager, ChunkAccess chunk, StructureManager structureManager, long seed) {
-
-    }
-
-    @Override
-    public void createReferences(WorldGenLevel level, StructureFeatureManager structureFeatureManager, ChunkAccess chunk) {
-
-    }
-
-    @Override
-    public int getFirstFreeHeight(int x, int z, Heightmap.Types heightMapType, LevelHeightAccessor heightAccessor) {
-        return parent.getFirstFreeHeight(x, z, heightMapType, heightAccessor);
-    }
-
-    @Override
-    public int getFirstOccupiedHeight(int x, int z, Heightmap.Types heightMapType, LevelHeightAccessor heightAccessor) {
-        return parent.getFirstOccupiedHeight(x, z, heightMapType, heightAccessor);
-    }
-
-    @Override
-    public boolean hasFeatureChunkInRange(ResourceKey<StructureSet> structures, long p_212267_, int p_212268_, int p_212269_, int p_212270_) {
-        return parent.hasFeatureChunkInRange(structures, p_212267_, p_212268_, p_212269_, p_212270_);
-    }
-
-    @Override
-    public void addDebugScreenInfo(List<String> p_208054_, BlockPos p_208055_) {
-    }
-
-    @Override
-    public Stream<Holder<StructureSet>> possibleStructureSets() {
-        return parent.possibleStructureSets();
-    }
-
-    @Override
-    public void ensureStructuresGenerated() {
-        parent.ensureStructuresGenerated();
-    }
-
 }
