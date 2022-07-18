@@ -22,7 +22,7 @@ This mod starts the overworld with a single chunk, but provides the tools to exp
 [[dependencies.chunkbychunk]]
     modId="forge"
     mandatory=true
-    versionRange="[41,)"
+    versionRange="[41.0.94,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.chunkbychunk]]
