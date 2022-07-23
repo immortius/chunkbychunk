@@ -186,8 +186,8 @@ public final class SpawnChunkHelper {
      * @param chunkPos    The position of the chunk
      */
     private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
-        int minPos = ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth();
-        int maxPos = ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth();
+        int minPos = Math.min(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());
+        int maxPos = Math.max(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());;
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {
             maxPos--;
         }
