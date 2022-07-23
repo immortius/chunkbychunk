@@ -1,13 +1,18 @@
 package xyz.immortius.chunkbychunk.interop;
 
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.Registry;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.level.chunk.ChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
+import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraftforge.common.util.ITeleporter;
@@ -81,5 +86,29 @@ public final class CBCInteropMethods {
      */
     public static Optional<HolderSet<StructureSet>> getStructureOverrides(ChunkGenerator generator) {
         return generator.structureOverrides;
+    }
+
+    /**
+     * @param parent
+     * @return The NoiseGeneratorSettings from a chunk generator
+     */
+    public static Holder<NoiseGeneratorSettings> getNoiseGeneratorSettings(ChunkGenerator parent) {
+        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
+            return noiseParent.generatorSettings();
+        } else {
+            return new Holder.Direct<>(NoiseGeneratorSettings.dummy());
+        }
+    }
+
+    /**
+     * @param parent
+     * @return The NoiseParameters from a chunk generator
+     */
+    public static Registry<NormalNoise.NoiseParameters> getNoiseParamsRegistry(ChunkGenerator parent) {
+        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
+            return noiseParent.noises;
+        } else {
+            return BuiltinRegistries.NOISE;
+        }
     }
 }

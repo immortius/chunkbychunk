@@ -1,9 +1,7 @@
 package xyz.immortius.chunkbychunk.common.world;
 
 import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import net.minecraft.core.*;
-import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.WorldGenRegion;
@@ -19,7 +17,6 @@ import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import net.minecraft.world.level.levelgen.synth.NormalNoise;
 import xyz.immortius.chunkbychunk.interop.CBCInteropMethods;
 
 import java.util.List;
@@ -41,25 +38,9 @@ public abstract class BaseSkyChunkGenerator extends NoiseBasedChunkGenerator {
      * @param parent The chunkGenerator this generator is based on
      */
     public BaseSkyChunkGenerator(ChunkGenerator parent, ResourceKey<Level> generationLevel) {
-        super(CBCInteropMethods.getStructureSets(parent), getRegistryFromParent(parent), parent.getBiomeSource(), getNoiseGeneratorSettingsFromParent(parent));
+        super(CBCInteropMethods.getStructureSets(parent), CBCInteropMethods.getNoiseParamsRegistry(parent), parent.getBiomeSource(), CBCInteropMethods.getNoiseGeneratorSettings(parent));
         this.parent = parent;
         this.generationLevel = generationLevel;
-    }
-
-    private static Holder<NoiseGeneratorSettings> getNoiseGeneratorSettingsFromParent(ChunkGenerator parent) {
-        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
-            return noiseParent.generatorSettings();
-        } else {
-            return new Holder.Direct<>(NoiseGeneratorSettings.dummy());
-        }
-    }
-
-    private static Registry<NormalNoise.NoiseParameters> getRegistryFromParent(ChunkGenerator parent) {
-        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
-            return noiseParent.noises;
-        } else {
-            return BuiltinRegistries.NOISE;
-        }
     }
 
     public ChunkGenerator getParent() {
