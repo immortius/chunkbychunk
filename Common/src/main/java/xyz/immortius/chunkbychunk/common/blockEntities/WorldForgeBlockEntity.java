@@ -17,7 +17,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.Map;

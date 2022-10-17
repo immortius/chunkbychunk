@@ -12,11 +12,9 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.ArrayList;
@@ -37,11 +35,12 @@ public abstract class BaseSpawnChunkBlock extends Block {
 
     private static final EnumSet<Direction> HORIZONTAL_DIR = EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
-    public BaseSpawnChunkBlock(Properties blockProperties) {
-        super(blockProperties);
-    }
+    private BlockState triggeredBlockState;
 
-    public abstract BlockState getTriggeredBlockState();
+    public BaseSpawnChunkBlock(BlockState triggeredBlockState, Properties blockProperties) {
+        super(blockProperties);
+        this.triggeredBlockState = triggeredBlockState;
+    }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
@@ -73,7 +72,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
                 for (BlockPos targetPos : targetPositions) {
                     ChunkPos targetChunkPos = new ChunkPos(targetPos);
                     if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
-                        serverLevel.setBlock(targetPos, getTriggeredBlockState(), Block.UPDATE_ALL);
+                        serverLevel.setBlock(targetPos, triggeredBlockState, Block.UPDATE_ALL);
                         if (!pos.equals(targetPos)) {
                             serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
                         }

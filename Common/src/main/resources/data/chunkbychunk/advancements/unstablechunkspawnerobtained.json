@@ -1,5 +1,5 @@
 {
-  "parent": "chunkbychunk:worldforgeobtained",
+  "parent": "chunkbychunk:chunkspawnerobtained",
   "display": {
     "icon": {
       "item": "chunkbychunk:unstablechunkspawner"
@@ -24,12 +24,5 @@
         ]
       }
     }
-  },
-  "rewards": {
-    "recipes": [
-      "chunkbychunk:chunkspawnerstablefromunstable",
-      "chunkbychunk:unstablechunkspawner",
-      "chunkbychunk:chunkspawnerunstablefromstable"
-    ]
   }
 }

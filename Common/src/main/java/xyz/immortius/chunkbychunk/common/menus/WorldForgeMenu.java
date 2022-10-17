@@ -8,7 +8,6 @@ import net.minecraft.world.inventory.ContainerData;
 import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.ItemStack;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 /**

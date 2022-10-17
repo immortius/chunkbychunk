@@ -1,5 +1,7 @@
 package xyz.immortius.chunkbychunk.interop;
 
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
+
 import java.util.ServiceLoader;
 
 public class Services {

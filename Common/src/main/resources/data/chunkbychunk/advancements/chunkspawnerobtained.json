@@ -1,5 +1,5 @@
 {
-  "parent": "chunkbychunk:unstablechunkspawnerobtained",
+  "parent": "chunkbychunk:worldcoreobtained",
   "display": {
     "icon": {
       "item": "chunkbychunk:chunkspawner"
@@ -27,8 +27,17 @@
   },
   "rewards": {
     "recipes": [
-      "chunkbychunk:chunkspawnerunstablefromstable",
-      "chunkbychunk:chunkspawnerstablefromunstable"
+      "chunkbychunk:unstablechunkspawner",
+      "chunkbychunk:badlandschunkspawner",
+      "chunkbychunk:desertchunkspawner",
+      "chunkbychunk:forestchunkspawner",
+      "chunkbychunk:junglechunkspawner",
+      "chunkbychunk:mushroomchunkspawner",
+      "chunkbychunk:plainschunkspawner",
+      "chunkbychunk:rockychunkspawner",
+      "chunkbychunk:savannachunkspawner",
+      "chunkbychunk:snowchunkspawner",
+      "chunkbychunk:swampchunkspawner"
     ]
   }
 }

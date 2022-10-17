@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
@@ -23,10 +24,16 @@ import java.util.function.Function;
 public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
 
     private Function<BlockPos, ChunkPos> sourceChunkFunc;
+    private ResourceKey<Level> sourceLevelKey;
 
-    public AbstractTriggeredSpawnChunkBlock(Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
+    public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
         super(blockProperties);
         this.sourceChunkFunc = sourceChunkFunc;
+        this.sourceLevelKey = sourceLevel;
+    }
+
+    public ResourceKey<Level> getSourceLevel() {
+        return sourceLevelKey;
     }
 
     @Override
@@ -44,8 +51,9 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
         super.onPlace(state, level, pos, prevState, p_60570_);
         if (!level.isClientSide()) {
             ServerLevel targetLevel = (ServerLevel) level;
+            
             if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator chunkGenerator) {
-                ServerLevel sourceLevel = level.getServer().getLevel(chunkGenerator.getGenerationLevel());
+                ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelKey);
                 if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
                     ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
                     ChunkPos targetChunkPos = new ChunkPos(pos);

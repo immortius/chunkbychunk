@@ -2,7 +2,6 @@ package xyz.immortius.chunkbychunk.fabric;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
-import net.fabricmc.fabric.api.client.screenhandler.v1.ScreenRegistry;
 import net.minecraft.client.gui.screens.MenuScreens;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -10,7 +9,7 @@ import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 /**
  * Client-only mod initialization

@@ -7,5 +7,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(MappedRegistry.class)
 public interface DefrostedRegistry {
     @Accessor("frozen")
-    public void setFrozen(boolean newFrozen);
+    void setFrozen(boolean newFrozen);
 }

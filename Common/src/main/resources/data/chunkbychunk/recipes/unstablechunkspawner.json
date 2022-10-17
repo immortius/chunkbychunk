@@ -1,18 +1,18 @@
 {
   "type" : "minecraft:crafting_shaped",
   "pattern": [
-    "xyx",
-    "ycy",
-    "xyx"
+    "rCr",
+    "CXC",
+    "rCr"
   ],
   "key" : {
-    "x" : {
-      "item" : "minecraft:redstone_block"
+    "r" : {
+      "item": "minecraft:redstone"
     },
-    "y" : {
+    "C" : {
       "item" : "minecraft:copper_block"
     },
-    "c" : {
+    "X" : {
       "item" : "chunkbychunk:worldcore"
     }
   },

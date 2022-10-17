@@ -2,7 +2,6 @@ package xyz.immortius.chunkbychunk.config;
 
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.function.Supplier;

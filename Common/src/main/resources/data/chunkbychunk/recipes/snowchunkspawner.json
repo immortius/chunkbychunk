@@ -1,0 +1,26 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "wCl",
+    "CXC",
+    "lCw"
+  ],
+  "key" : {
+    "w" : {
+      "item": "minecraft:water_bucket"
+    },
+    "l" : {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:snowchunkspawner",
+    "count" : 1
+  }
+}

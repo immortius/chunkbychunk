@@ -1,5 +1,5 @@
 {
-  "parent": "chunkbychunk:chunkspawnerobtained",
+  "parent": "chunkbychunk:worldcoreobtained",
   "display": {
     "icon": {
       "item": "chunkbychunk:worldscanner"

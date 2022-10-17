@@ -11,7 +11,7 @@ import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;

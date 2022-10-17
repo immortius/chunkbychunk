@@ -3,6 +3,7 @@ package xyz.immortius.chunkbychunk.forge;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -47,11 +48,15 @@ import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.IntFunction;
+import java.util.stream.Collectors;
 
 /**
  * The Forge mod, registers all mod elements for forge
@@ -64,15 +69,15 @@ public class ChunkByChunkMod {
     private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ChunkByChunkConstants.MOD_ID);
 
-    public static final RegistryObject<Block> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
+    public static final RegistryObject<Block> TRIGGERED_SPAWN_CHUNK_BLOCK = BLOCKS.register("triggeredchunkspawner", () -> new TriggeredSpawnChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, BlockBehaviour.Properties.of(Material.AIR)));
+    public static final RegistryObject<Block> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = BLOCKS.register("triggeredrandomchunkspawner", () -> new TriggeredSpawnRandomChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, BlockBehaviour.Properties.of(Material.AIR)));
+
+    public static final RegistryObject<Block> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock(TRIGGERED_SPAWN_CHUNK_BLOCK.get(), BlockBehaviour.Properties.of(Material.STONE)));
     public static final RegistryObject<Block> UNSTABLE_SPAWN_CHUNK_BLOCK = BLOCKS.register("unstablechunkspawner", () -> new UnstableSpawnChunkBlock(BlockBehaviour.Properties.of(Material.STONE)));
     public static final RegistryObject<Block> BEDROCK_CHEST_BLOCK = BLOCKS.register("bedrockchest", () -> new BedrockChestBlock(BlockBehaviour.Properties.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((p_61031_, p_61032_, p_61033_, p_61034_) -> false))));
     public static final RegistryObject<Block> WORLD_CORE_BLOCK = BLOCKS.register("worldcore", () -> new Block(BlockBehaviour.Properties.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7)));
     public static final RegistryObject<Block> WORLD_FORGE_BLOCK = BLOCKS.register("worldforge", () -> new WorldForgeBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7)));
     public static final RegistryObject<Block> WORLD_SCANNER_BLOCK = BLOCKS.register("worldscanner", () -> new WorldScannerBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
-
-    public static final RegistryObject<Block> TRIGGERED_SPAWN_CHUNK_BLOCK = BLOCKS.register("triggeredchunkspawner", () -> new TriggeredSpawnChunkBlock(BlockBehaviour.Properties.of(Material.AIR)));
-    public static final RegistryObject<Block> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = BLOCKS.register("triggeredrandomchunkspawner", () -> new TriggeredSpawnRandomChunkBlock(BlockBehaviour.Properties.of(Material.AIR)));
 
     public static final RegistryObject<Item> SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("chunkspawner", () -> new BlockItem(SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("unstablechunkspawner", () -> new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
@@ -88,7 +93,7 @@ public class ChunkByChunkMod {
     public static final RegistryObject<BlockEntityType<?>> BEDROCK_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("bedrockchestentity", () -> BlockEntityType.Builder.of(BedrockChestBlockEntity::new, BEDROCK_CHEST_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_FORGE_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldforgeentity", () -> BlockEntityType.Builder.of(WorldForgeBlockEntity::new, WORLD_FORGE_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_SCANNER_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldscannerentity", () -> BlockEntityType.Builder.of(WorldScannerBlockEntity::new, WORLD_SCANNER_BLOCK.get()).build(null));
-    public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, TRIGGERED_SPAWN_CHUNK_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY;
     public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnrandomchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnRandomChunkBlockEntity::new, TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get()).build(null));
 
     public static final RegistryObject<MenuType<BedrockChestMenu>> BEDROCK_CHEST_MENU = CONTAINERS.register("bedrockchestmenu", () -> new MenuType<>(BedrockChestMenu::new));
@@ -99,6 +104,18 @@ public class ChunkByChunkMod {
 
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CONFIG_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "configchannel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+
+    static {
+        List<RegistryObject<Block>> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
+        triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
+        for (ChunkByChunkConstants.BiomeGroup biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_SPAWNERS) {
+            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredSpawnChunkBlock(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)), BlockBehaviour.Properties.of(Material.AIR)));
+            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX, () -> new SpawnChunkBlock(spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
+            ITEMS.register(biomeGroup.name() +  ChunkByChunkConstants.BIOME_CHUNK_BlOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+            triggeredSpawnChunkEntityBlocks.add(spawningBlock);
+        }
+        TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, triggeredSpawnChunkEntityBlocks.stream().map(RegistryObject::get).toArray(Block[]::new)).build(null));
+    }
 
     public ChunkByChunkMod() {
         new ConfigSystem().synchConfig(Paths.get(ChunkByChunkConstants.DEFAULT_CONFIG_PATH, ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());

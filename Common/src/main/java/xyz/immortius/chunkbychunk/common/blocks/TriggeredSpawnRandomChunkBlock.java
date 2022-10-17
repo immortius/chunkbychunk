@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -8,7 +9,6 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blockEntities.TriggeredSpawnRandomChunkBlockEntity;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.Random;
@@ -19,8 +19,8 @@ import java.util.Random;
  */
 public class TriggeredSpawnRandomChunkBlock extends AbstractTriggeredSpawnChunkBlock {
 
-    public TriggeredSpawnRandomChunkBlock(Properties blockProperties) {
-        super(blockProperties, TriggeredSpawnRandomChunkBlock::getSourceChunk);
+    public TriggeredSpawnRandomChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties) {
+        super(sourceLevel, blockProperties, TriggeredSpawnRandomChunkBlock::getSourceChunk);
     }
 
     public static ChunkPos getSourceChunk(BlockPos targetBlockPos) {

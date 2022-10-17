@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 import java.lang.reflect.Field;
 import java.util.List;

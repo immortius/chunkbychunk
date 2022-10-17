@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 /**
  * Screen for the WorldScanner. Renders the scanned map (if any)

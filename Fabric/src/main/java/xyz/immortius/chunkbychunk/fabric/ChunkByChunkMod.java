@@ -14,6 +14,7 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
@@ -37,10 +38,12 @@ import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Common mod initialization
@@ -48,17 +51,19 @@ import java.nio.file.Paths;
 public class ChunkByChunkMod implements ModInitializer {
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
-    public static final Block SPAWN_CHUNK_BLOCK = new SpawnChunkBlock(FabricBlockSettings.of(Material.STONE));
+    public static final Block TRIGGERED_SPAWN_CHUNK_BLOCK = new TriggeredSpawnChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, FabricBlockSettings.of(Material.AIR));
+    public static final Block TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = new TriggeredSpawnRandomChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, FabricBlockSettings.of(Material.AIR));
+
+    public static final Block SPAWN_CHUNK_BLOCK = new SpawnChunkBlock(TRIGGERED_SPAWN_CHUNK_BLOCK, FabricBlockSettings.of(Material.STONE));
     public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new UnstableSpawnChunkBlock(FabricBlockSettings.of(Material.STONE));
     public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((state, getter, pos, arg) -> false)));
     public static final Block WORLD_CORE_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7));
     public static final Block WORLD_FORGE_BLOCK = new WorldForgeBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7));
     public static final Block WORLD_SCANNER_BLOCK = new WorldScannerBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4));
-    public static final Block TRIGGERED_SPAWN_CHUNK_BLOCK = new TriggeredSpawnChunkBlock(FabricBlockSettings.of(Material.AIR));
-    public static final Block TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = new TriggeredSpawnRandomChunkBlock(FabricBlockSettings.of(Material.AIR));
 
     public static Item SPAWN_CHUNK_BLOCK_ITEM;
     public static Item UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM;
+
     public static Item BEDROCK_CHEST_BLOCK_ITEM;
     public static Item WORLD_CORE_BLOCK_ITEM;
     public static Item WORLD_FORGE_BLOCK_ITEM;
@@ -86,17 +91,29 @@ public class ChunkByChunkMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Initializing");
 
+        Registry.register(Registry.BLOCK, createId("triggeredchunkspawner"), TRIGGERED_SPAWN_CHUNK_BLOCK);
+        Registry.register(Registry.BLOCK, createId("triggeredrandomchunkspawner"), TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK);
         Registry.register(Registry.BLOCK, createId("chunkspawner"), SPAWN_CHUNK_BLOCK);
         Registry.register(Registry.BLOCK, createId("unstablechunkspawner"), UNSTABLE_SPAWN_CHUNK_BLOCK);
+
         Registry.register(Registry.BLOCK, createId("bedrockchest"), BEDROCK_CHEST_BLOCK);
         Registry.register(Registry.BLOCK, createId("worldcore"), WORLD_CORE_BLOCK);
         Registry.register(Registry.BLOCK, createId("worldforge"), WORLD_FORGE_BLOCK);
         Registry.register(Registry.BLOCK, createId("worldscanner"), WORLD_SCANNER_BLOCK);
-        Registry.register(Registry.BLOCK, createId("triggeredchunkspawner"), TRIGGERED_SPAWN_CHUNK_BLOCK);
-        Registry.register(Registry.BLOCK, createId("triggeredrandomchunkspawner"), TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK);
 
         SPAWN_CHUNK_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("chunkspawner"), new BlockItem(SPAWN_CHUNK_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
         UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("unstablechunkspawner"), new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
+
+        List<Block> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
+        triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
+        for (ChunkByChunkConstants.BiomeGroup biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_SPAWNERS) {
+            Block spawningBlock = new TriggeredSpawnChunkBlock(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)), FabricBlockSettings.of(Material.AIR));
+            Block spawnBlock = new SpawnChunkBlock(spawningBlock, FabricBlockSettings.of(Material.STONE));
+            Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX), spawnBlock);
+            triggeredSpawnChunkEntityBlocks.add(Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX), spawningBlock));
+            Registry.register(Registry.ITEM, createId(biomeGroup.name() +  ChunkByChunkConstants.BIOME_CHUNK_BlOCK_ITEM_SUFFIX), new BlockItem(spawnBlock, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
+        }
+
         BEDROCK_CHEST_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("bedrockchest"), new BlockItem(BEDROCK_CHEST_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
         WORLD_CORE_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("worldcore"), new BlockItem(WORLD_CORE_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
         WORLD_FORGE_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("worldforge"), new BlockItem(WORLD_FORGE_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
@@ -109,7 +126,7 @@ public class ChunkByChunkMod implements ModInitializer {
         BEDROCK_CHEST_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("bedrockchestentity"), FabricBlockEntityTypeBuilder.create(BedrockChestBlockEntity::new, BEDROCK_CHEST_BLOCK).build(null));
         WORLD_FORGE_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("worldforgeentity"), FabricBlockEntityTypeBuilder.create(WorldForgeBlockEntity::new, WORLD_FORGE_BLOCK).build(null));
         WORLD_SCANNER_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("worldscannerentity"), FabricBlockEntityTypeBuilder.create(WorldScannerBlockEntity::new, WORLD_SCANNER_BLOCK).build(null));
-        TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("triggeredspawnchunkentity"), FabricBlockEntityTypeBuilder.create(TriggeredSpawnChunkBlockEntity::new, TRIGGERED_SPAWN_CHUNK_BLOCK).build(null));
+        TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("triggeredspawnchunkentity"), FabricBlockEntityTypeBuilder.create(TriggeredSpawnChunkBlockEntity::new, triggeredSpawnChunkEntityBlocks.toArray(new Block[triggeredSpawnChunkEntityBlocks.size()])).build(null));
         TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY = Registry.register(Registry.BLOCK_ENTITY_TYPE, createId("triggeredspawnrandomchunkentity"), FabricBlockEntityTypeBuilder.create(TriggeredSpawnRandomChunkBlockEntity::new, TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK).build(null));
 
         BEDROCK_CHEST_MENU = ScreenHandlerRegistry.registerSimple(createId("bedrockchestmenu"), BedrockChestMenu::new);

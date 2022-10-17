@@ -29,8 +29,9 @@ import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
 import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 
@@ -200,7 +201,8 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 int chunkX = entity.scanIterator.getX() + originChunkPos.x - SCAN_CENTER;
                 int chunkZ = entity.scanIterator.getY() + originChunkPos.z - SCAN_CENTER;
                 ServerLevel scanLevel;
-                if (serverLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator) {
+
+                if (serverLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator && SpawnChunkHelper.isEmptyChunk(serverLevel, new ChunkPos(chunkX, chunkZ))) {
                     scanLevel = serverLevel.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
                 } else {
                     scanLevel = serverLevel;

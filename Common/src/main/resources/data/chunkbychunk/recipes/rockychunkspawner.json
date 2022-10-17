@@ -1,0 +1,23 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "rCr",
+    "CXC",
+    "rCr"
+  ],
+  "key" : {
+    "r" : {
+      "tag": "minecraft:stone_crafting_materials"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:rockychunkspawner",
+    "count" : 1
+  }
+}

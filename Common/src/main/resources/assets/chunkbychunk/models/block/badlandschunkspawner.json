@@ -1,0 +1,12 @@
+{
+  "parent" : "block/cube",
+  "textures" : {
+    "up" : "chunkbychunk:block/badlandschunkspawner",
+    "down" : "chunkbychunk:block/badlandschunkspawner",
+    "north" : "chunkbychunk:block/badlandschunkspawner",
+    "east" : "chunkbychunk:block/badlandschunkspawner",
+    "south" : "chunkbychunk:block/badlandschunkspawner",
+    "west" : "chunkbychunk:block/badlandschunkspawner",
+    "particle": "chunkbychunk:block/badlandschunkspawner"
+  }
+}

@@ -2,7 +2,7 @@ package xyz.immortius.chunkbychunk.config.system;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

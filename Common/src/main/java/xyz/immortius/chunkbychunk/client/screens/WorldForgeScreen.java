@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
-import xyz.immortius.chunkbychunk.interop.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 /**
  * Screen for the World Forge - this is a single input/output style furnace with animated progress arrow

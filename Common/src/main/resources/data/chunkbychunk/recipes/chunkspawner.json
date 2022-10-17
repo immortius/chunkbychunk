@@ -1,16 +1,16 @@
 {
   "type" : "minecraft:crafting_shaped",
   "pattern": [
-    " r ",
-    "rSr",
-    " r "
+    " C ",
+    "CXC",
+    " C "
   ],
   "key" : {
-    "r" : {
-      "item" : "chunkbychunk:worldcrystal"
+    "C" : {
+      "item" : "minecraft:copper_block"
     },
-    "S" : {
-      "item" : "chunkbychunk:unstablechunkspawner"
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
     }
   },
   "result" : {
