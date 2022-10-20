@@ -92,7 +92,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
         }
     }
 
-    private static final int[] SCAN_COLOR_THRESHOLD = {0, 1, 8, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
+    private static final int[] SCAN_COLOR_THRESHOLD = {0, 1, 4, 8, 16, 32, 64, 128, 256, 512, 2048, 8192, 16384};
 
     private int map = NO_MAP;
     private int scanCharge = 0;
