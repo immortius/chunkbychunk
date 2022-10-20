@@ -1,12 +1,22 @@
 package xyz.immortius.chunkbychunk.forge;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.PreparableReloadListener;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
@@ -16,6 +26,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -41,6 +53,7 @@ import xyz.immortius.chunkbychunk.common.CommonEventHandler;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.blocks.*;
 import xyz.immortius.chunkbychunk.common.commands.SpawnChunkCommand;
+import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
@@ -51,10 +64,15 @@ import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
 import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
@@ -158,6 +176,33 @@ public class ChunkByChunkMod {
     }
 
     @SubscribeEvent
+    public void registerResourceReloadListeners(AddReloadListenerEvent e) {
+        e.addListener(new ResourceManagerReloadListener() {
+            @Override
+            public void onResourceManagerReload(ResourceManager resourceManager) {
+                WorldScannerBlockEntity.clearItemMappings();
+                Gson gson = new GsonBuilder().create();
+                int count = 0;
+                for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> true).entrySet()) {
+                    try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
+                        ScannerData data = gson.fromJson(reader, ScannerData.class);
+                        data.process(entry.getKey());
+                        count++;
+                    } catch (IOException |RuntimeException e) {
+                        ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", entry.getKey(), e);
+                    }
+                }
+                ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
+            }
+
+            @Override
+            public String getName() {
+                return ChunkByChunkConstants.MOD_ID + ":scanner_data";
+            }
+        });
+    }
+
+    @SubscribeEvent
     public void registerCommands(RegisterCommandsEvent event) {
         SpawnChunkCommand.register(event.getDispatcher());
     }
@@ -184,6 +229,11 @@ public class ChunkByChunkMod {
     @SubscribeEvent
     public void onServerLogin(PlayerEvent.PlayerLoggedInEvent event) {
         CONFIG_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)(event.getEntity())), new ConfigMessage(ChunkByChunkConfig.get().getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks()));
+    }
+
+    @SubscribeEvent
+    public void onGatherData(GatherDataEvent event) {
+        DataGenerator generator = event.getGenerator();
     }
 
     private static class ConfigMessage {

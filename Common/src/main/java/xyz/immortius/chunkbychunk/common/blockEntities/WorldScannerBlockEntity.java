@@ -1,8 +1,6 @@
 package xyz.immortius.chunkbychunk.common.blockEntities;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMultimap;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +23,7 @@ import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.MaterialColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
@@ -81,16 +80,17 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
             MaterialColor.SNOW.getPackedId(MaterialColor.Brightness.HIGH)
     };
 
-    private static final Multimap<Item, Block> SCAN_ITEM_MAPPINGS = ImmutableMultimap.<Item, Block>builder()
-            .putAll(Items.RAW_GOLD, Blocks.GOLD_ORE, Blocks.DEEPSLATE_GOLD_ORE, Blocks.NETHER_GOLD_ORE, Blocks.RAW_GOLD_BLOCK)
-            .putAll(Items.RAW_IRON, Blocks.IRON_ORE, Blocks.DEEPSLATE_IRON_ORE, Blocks.RAW_IRON_BLOCK)
-            .putAll(Items.RAW_COPPER, Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK)
-            .putAll(Items.DIAMOND, Blocks.DIAMOND_ORE, Blocks.DEEPSLATE_DIAMOND_ORE)
-            .putAll(Items.EMERALD, Blocks.EMERALD_ORE, Blocks.DEEPSLATE_EMERALD_ORE)
-            .putAll(Items.COAL, Blocks.COAL_ORE, Blocks.DEEPSLATE_COAL_ORE)
-            .putAll(Items.LAPIS_LAZULI, Blocks.LAPIS_ORE, Blocks.DEEPSLATE_LAPIS_ORE)
-            .putAll(Items.REDSTONE, Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE)
-            .build();
+    private static final Multimap<Item, Block> scanItemMappings = ArrayListMultimap.create();
+
+    public static void clearItemMappings() {
+        scanItemMappings.clear();
+    }
+
+    public static void addItemMappings(Collection<Item> items, Collection<Block> blocks) {
+        for (Item item : items) {
+            scanItemMappings.putAll(item, blocks);
+        }
+    }
 
     private static final int[] SCAN_COLOR_THRESHOLD = {0, 1, 8, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384};
 
@@ -171,7 +171,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
         } else if (Items.SLIME_BALL.equals(targetItem.getItem())) {
             return true;
         }
-        return targetItem.getItem() instanceof BlockItem || SCAN_ITEM_MAPPINGS.keySet().contains(targetItem.getItem());
+        return targetItem.getItem() instanceof BlockItem || scanItemMappings.keySet().contains(targetItem.getItem());
     }
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, WorldScannerBlockEntity entity) {
@@ -219,7 +219,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                     }
                 } else {
                     Set<Block> scanForBlocks = new HashSet<>();
-                    Collection<Block> mappings = SCAN_ITEM_MAPPINGS.get(targetItem.getItem());
+                    Collection<Block> mappings = scanItemMappings.get(targetItem.getItem());
                     if (!mappings.isEmpty()) {
                         scanForBlocks.addAll(mappings);
                     } else if (targetItem.getItem() instanceof BucketFluidAccessor bucket) {

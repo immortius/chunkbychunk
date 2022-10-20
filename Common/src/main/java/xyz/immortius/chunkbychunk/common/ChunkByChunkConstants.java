@@ -28,12 +28,14 @@ public final class ChunkByChunkConstants {
     public static final String DEFAULT_CONFIG_PATH = "defaultconfigs";
     public static final String CONFIG_FILE = MOD_ID + ".toml";
 
+    public static final String SCANNER_DATA_PATH = "scanner_data";
+
     public static final ResourceKey<Level> SKY_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "skychunkgeneration"));
     public static final ResourceKey<Level> NETHER_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "netherchunkgeneration"));
 
     public static final String BIOME_CHUNK_GENERATION_LEVEL_SUFFIX = "biomechunkgeneration";
     public static final String BIOME_CHUNK_BlOCK_SUFFIX = "chunkspawner";
-    public static final String TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX = "trigggeredchunkspawner";
+    public static final String TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX = "triggeredchunkspawner";
     public static final String BIOME_CHUNK_BlOCK_ITEM_SUFFIX = "chunkspawner";
 
     public record BiomeGroup(String name, ResourceKey<Biome>... biomes) {

@@ -1,5 +1,7 @@
 package xyz.immortius.chunkbychunk.fabric;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -10,12 +12,17 @@ import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.inventory.MenuType;
@@ -31,6 +38,7 @@ import xyz.immortius.chunkbychunk.common.CommonEventHandler;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.blocks.*;
 import xyz.immortius.chunkbychunk.common.commands.SpawnChunkCommand;
+import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
@@ -41,9 +49,13 @@ import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Common mod initialization
@@ -86,6 +98,32 @@ public class ChunkByChunkMod implements ModInitializer {
     public static SoundEvent SPAWN_CHUNK_SOUND_EVENT;
 
     public static ResourceLocation CONFIG_PACKET = new ResourceLocation(ChunkByChunkConstants.MOD_ID, "config");
+
+    static {
+        ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
+            @Override
+            public ResourceLocation getFabricId() {
+                return new ResourceLocation(ChunkByChunkConstants.MOD_ID, "scanner_data");
+            }
+
+            @Override
+            public void onResourceManagerReload(ResourceManager resourceManager) {
+                WorldScannerBlockEntity.clearItemMappings();
+                Gson gson = new GsonBuilder().create();
+                int count = 0;
+                for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> true).entrySet()) {
+                    try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
+                        ScannerData data = gson.fromJson(reader, ScannerData.class);
+                        data.process(entry.getKey());
+                        count++;
+                    } catch (IOException|RuntimeException e) {
+                        ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", entry.getKey(), e);
+                    }
+                }
+                ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
+            }
+        });
+    }
 
     @Override
     public void onInitialize() {
