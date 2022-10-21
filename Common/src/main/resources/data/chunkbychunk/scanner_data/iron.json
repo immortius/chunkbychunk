@@ -1,0 +1,4 @@
+{
+  "inputItems" : ["raw_iron", "iron_nugget", "iron_ingot"],
+  "targetBlocks" : ["iron_ore", "deepslate_iron_ore", "raw_iron_block"]
+}

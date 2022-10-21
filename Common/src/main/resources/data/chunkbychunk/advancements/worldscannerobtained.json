@@ -1,0 +1,28 @@
+{
+  "parent": "chunkbychunk:worldcoreobtained",
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:worldscanner"
+    },
+    "title": {
+      "translate": "advancement.chunkbychunk.worldscannerobtained.title"
+    },
+    "description": {
+      "translate": "advancement.chunkbychunk.worldscannerobtained.description"
+    }
+  },
+  "criteria": {
+    "obtainspawnchunkblock": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "chunkbychunk:worldscanner"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

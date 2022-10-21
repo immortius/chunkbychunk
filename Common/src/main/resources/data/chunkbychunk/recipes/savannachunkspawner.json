@@ -1,0 +1,26 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "wCw",
+    "CXC",
+    "dCd"
+  ],
+  "key" : {
+    "w" : {
+      "item": "minecraft:wheat_seeds"
+    },
+    "d" : {
+      "item": "minecraft:dirt"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:savannachunkspawner",
+    "count" : 1
+  }
+}

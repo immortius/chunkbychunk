@@ -1,0 +1,23 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "sCs",
+    "CXC",
+    "sCs"
+  ],
+  "key" : {
+    "s": {
+      "tag": "minecraft:saplings"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:junglechunkspawner",
+    "count" : 1
+  }
+}

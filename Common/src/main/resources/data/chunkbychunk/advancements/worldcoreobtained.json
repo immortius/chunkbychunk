@@ -1,0 +1,27 @@
+{
+  "parent" : "chunkbychunk:root",
+  "display" : {
+    "icon" : {
+      "item": "chunkbychunk:worldcore"
+    },
+    "title" : {
+      "translate": "advancement.chunkbychunk.worldcoreobtained.title"
+    },
+    "description" : {
+      "translate" : "advancement.chunkbychunk.worldcoreobtained.description"
+    }
+  },
+  "criteria" : {
+    "obtainworldcore" : {
+      "trigger" : "minecraft:inventory_changed",
+      "conditions" : {
+        "items" : [{
+          "items" : ["chunkbychunk:worldcore"]
+        }]
+      }
+    }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:chunkspawner","chunkbychunk:disassemble_worldcore","chunkbychunk:worldcore","chunkbychunk:worldforge","chunkbychunk:worldscanner"]
+  }
+}

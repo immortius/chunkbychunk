@@ -1,0 +1,4 @@
+{
+  "inputItems" : ["coal"],
+  "targetBlocks" : ["coal_ore", "deepslate_coal_ore"]
+}

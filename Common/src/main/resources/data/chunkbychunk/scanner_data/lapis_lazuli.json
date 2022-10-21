@@ -1,0 +1,4 @@
+{
+  "inputItems" : ["lapis_lazuli"],
+  "targetBlocks" : ["lapis_ore", "deepslate_lapis_ore"]
+}

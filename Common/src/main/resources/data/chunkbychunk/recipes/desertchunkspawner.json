@@ -1,0 +1,23 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "sCs",
+    "CXC",
+    "sCs"
+  ],
+  "key" : {
+    "s" : {
+      "item": "minecraft:sand"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:desertchunkspawner",
+    "count" : 1
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "parent": "chunkbychunk:chunkspawnerobtained",
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:junglechunkspawner"
+    },
+    "title": {
+      "translate": "advancement.chunkbychunk.biomechunkspawnerobtained.title"
+    },
+    "description": {
+      "translate": "advancement.chunkbychunk.biomechunkspawnerobtained.description"
+    }
+  },
+  "criteria": {
+    "obtainedunstablechunkspawner": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "chunkbychunk:badlandschunkspawner",
+              "chunkbychunk:desertchunkspawner",
+              "chunkbychunk:forestchunkspawner",
+              "chunkbychunk:junglechunkspawner",
+              "chunkbychunk:mushroomchunkspawner",
+              "chunkbychunk:plainschunkspawner",
+              "chunkbychunk:rockychunkspawner",
+              "chunkbychunk:savannachunkspawner",
+              "chunkbychunk:snowchunkspawner",
+              "chunkbychunk:swampchunkspawner"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

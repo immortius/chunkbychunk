@@ -1,0 +1,4 @@
+{
+  "inputItems" : ["redstone"],
+  "targetBlocks" : ["redstone_ore", "deepslate_redstone_ore"]
+}
