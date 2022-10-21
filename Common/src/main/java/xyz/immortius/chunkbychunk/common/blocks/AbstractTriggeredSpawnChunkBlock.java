@@ -23,9 +23,14 @@ import java.util.function.Function;
  */
 public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
 
-    private Function<BlockPos, ChunkPos> sourceChunkFunc;
-    private ResourceKey<Level> sourceLevelKey;
+    private final Function<BlockPos, ChunkPos> sourceChunkFunc;
+    private final ResourceKey<Level> sourceLevelKey;
 
+    /**
+     * @param sourceLevel The level to spawn chunks from
+     * @param blockProperties
+     * @param sourceChunkFunc The function to map from target block pos to source chunk position
+     */
     public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
         super(blockProperties);
         this.sourceChunkFunc = sourceChunkFunc;

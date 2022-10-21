@@ -63,7 +63,7 @@
   "advancement.chunkbychunk.unstablechunkspawnerobtained.title" : "Any Chunk in a Void",
   "advancement.chunkbychunk.unstablechunkspawnerobtained.description" : "Obtain an Unstable Chunk Spawner. Can spawn a chunk from a random location of the true world. Use by placing next to an empty chunk and then interacting with it.",
   "advancement.chunkbychunk.biomechunkspawnerobtained.title" : "Particular Tastes",
-  "advancement.chunkbychunk.biomechunkspawnerobtained.description" : "Obtain a biome-specific Chunk Spawner. Can spawn a chunk with a restricted set of biomes.",
+  "advancement.chunkbychunk.biomechunkspawnerobtained.description" : "Obtain a themed Chunk Spawner. Can spawn a chunk with a restricted set of biomes.",
   "advancement.chunkbychunk.worldscannerobtained.title" : "Look Before You Spawn",
   "advancement.chunkbychunk.worldscannerobtained.description" : "Obtain a Chunk Scanner. These can be used to see reveal the concentration of different blocks, ores or liquids in chunks, spawned or otherwise.",
   "advancement.chunkbychunk.worldcoreobtained.title" : "Score a Core",
@@ -78,6 +78,6 @@
   "advancement.chunkbychunk.worldshardobtained.description" : "Obtain a World Shard. Formed by fusing 4 World Fragments, either through crafting or within the World Forge.",
   "commands.chunkbychunk.spawnchunk.invalidPosition" : "Invalid block position",
   "commands.chunkbychunk.spawnchunk.invalidlevel" :  "Invalid dimension for chunk spawn",
-  "commands.chunkbychunk.spawnchunk.nonemptychunk" : "Cowardly refusing to spawn into existing chunk"
-
+  "commands.chunkbychunk.spawnchunk.nonemptychunk" : "Cowardly refusing to spawn into existing chunk",
+  "commands.chunkbychunk.spawnchunk.invalidtheme" : "Invalid biome theme"
 }

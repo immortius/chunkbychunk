@@ -38,22 +38,22 @@ public final class ChunkByChunkConstants {
     public static final String TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX = "triggeredchunkspawner";
     public static final String BIOME_CHUNK_BlOCK_ITEM_SUFFIX = "chunkspawner";
 
-    public record BiomeGroup(String name, ResourceKey<Biome>... biomes) {
+    public record BiomeTheme(String name, ResourceKey<Biome>... biomes) {
         @SafeVarargs
-        public BiomeGroup {
+        public BiomeTheme {
         }
     }
 
-    public static final List<BiomeGroup> OVERWORLD_BIOME_SPAWNERS = new ArrayList<>(Lists.newArrayList(
-            new BiomeGroup("plains", Biomes.PLAINS, Biomes.MEADOW, Biomes.SUNFLOWER_PLAINS),
-            new BiomeGroup("snow", Biomes.SNOWY_PLAINS, Biomes.SNOWY_BEACH, Biomes.SNOWY_SLOPES, Biomes.GROVE, Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER, Biomes.FROZEN_PEAKS),
-            new BiomeGroup("desert", Biomes.DESERT),
-            new BiomeGroup("swamp", Biomes.SWAMP, Biomes.MANGROVE_SWAMP),
-            new BiomeGroup("badlands", Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS),
-            new BiomeGroup("forest", Biomes.FOREST, Biomes.DARK_FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST, Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.TAIGA),
-            new BiomeGroup("savanna", Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU),
-            new BiomeGroup("rocky", Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_SAVANNA ,Biomes.JAGGED_PEAKS, Biomes.STONY_PEAKS, Biomes.STONY_SHORE),
-            new BiomeGroup("jungle", Biomes.SPARSE_JUNGLE, Biomes.JUNGLE, Biomes.BAMBOO_JUNGLE),
-            new BiomeGroup("mushroom", Biomes.MUSHROOM_FIELDS)
+    public static final List<BiomeTheme> OVERWORLD_BIOME_THEMES = new ArrayList<>(Lists.newArrayList(
+            new BiomeTheme("plains", Biomes.PLAINS, Biomes.MEADOW, Biomes.SUNFLOWER_PLAINS),
+            new BiomeTheme("snow", Biomes.SNOWY_PLAINS, Biomes.SNOWY_BEACH, Biomes.SNOWY_SLOPES, Biomes.GROVE, Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER, Biomes.FROZEN_PEAKS),
+            new BiomeTheme("desert", Biomes.DESERT),
+            new BiomeTheme("swamp", Biomes.SWAMP, Biomes.MANGROVE_SWAMP),
+            new BiomeTheme("badlands", Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS),
+            new BiomeTheme("forest", Biomes.FOREST, Biomes.DARK_FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST, Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.TAIGA),
+            new BiomeTheme("savanna", Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU),
+            new BiomeTheme("rocky", Biomes.WINDSWEPT_GRAVELLY_HILLS, Biomes.WINDSWEPT_HILLS, Biomes.WINDSWEPT_FOREST, Biomes.WINDSWEPT_SAVANNA ,Biomes.JAGGED_PEAKS, Biomes.STONY_PEAKS, Biomes.STONY_SHORE),
+            new BiomeTheme("jungle", Biomes.SPARSE_JUNGLE, Biomes.JUNGLE, Biomes.BAMBOO_JUNGLE),
+            new BiomeTheme("mushroom", Biomes.MUSHROOM_FIELDS)
     ));
 }

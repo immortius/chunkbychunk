@@ -35,7 +35,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
 
     private static final EnumSet<Direction> HORIZONTAL_DIR = EnumSet.of(Direction.NORTH, Direction.EAST, Direction.SOUTH, Direction.WEST);
 
-    private BlockState triggeredBlockState;
+    private final BlockState triggeredBlockState;
 
     public BaseSpawnChunkBlock(BlockState triggeredBlockState, Properties blockProperties) {
         super(blockProperties);

@@ -80,17 +80,10 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
             MaterialColor.SNOW.getPackedId(MaterialColor.Brightness.HIGH)
     };
 
+    /**
+     * The mappings for input items to blocks to scan for. Loaded from {@link ScannerData}
+     */
     private static final Multimap<Item, Block> scanItemMappings = ArrayListMultimap.create();
-
-    public static void clearItemMappings() {
-        scanItemMappings.clear();
-    }
-
-    public static void addItemMappings(Collection<Item> items, Collection<Block> blocks) {
-        for (Item item : items) {
-            scanItemMappings.putAll(item, blocks);
-        }
-    }
 
     private static final int[] SCAN_COLOR_THRESHOLD = {0, 1, 4, 8, 16, 32, 64, 128, 256, 512, 2048, 8192, 16384};
 
@@ -330,6 +323,25 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
         scanIterator.reset(SCAN_CENTER, SCAN_CENTER);
         setChanged();
+    }
+
+
+    /**
+     * Clear all scan item mappings
+     */
+    public static void clearItemMappings() {
+        scanItemMappings.clear();
+    }
+
+    /**
+     * Registers blocks to scan for against the provided input items
+     * @param items Input items
+     * @param blocks Blocks to scan for
+     */
+    public static void addItemMappings(Collection<Item> items, Collection<Block> blocks) {
+        for (Item item : items) {
+            scanItemMappings.putAll(item, blocks);
+        }
     }
 
 }

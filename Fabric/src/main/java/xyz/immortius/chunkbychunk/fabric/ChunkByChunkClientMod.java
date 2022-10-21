@@ -8,8 +8,8 @@ import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
-import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 
 /**
  * Client-only mod initialization
