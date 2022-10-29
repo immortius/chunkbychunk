@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.*;
 
@@ -123,7 +124,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         private final Boolean defaultValue;
 
         public BooleanEntry(Component displayName, Supplier<Boolean> getter, Consumer<Boolean> setter, Boolean defaultValue) {
-            super(new CycleButton.Builder<Boolean>((x) -> Component.translatable((x) ? "gui.yes" : "gui.no"))
+            super(new CycleButton.Builder<Boolean>((x) -> new TranslatableComponent((x) ? "gui.yes" : "gui.no"))
                     .withValues(Boolean.FALSE, Boolean.TRUE)
                     .withInitialValue(getter.get())
                     .create(0, 0, getRowWidth(), 20, displayName, (cycleButton, value) -> setter.accept(value)));
@@ -207,7 +208,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         private Enum<?> defaultValue;
         public EnumEntry(Component displayName, Class<? extends Enum<?>> type, Supplier<Enum<?>> getter, Consumer<Enum<?>> setter, Enum<?> defaultValue) {
-            super(new CycleButton.Builder<Enum<?>>((x) -> Component.translatable("enumvalue.chunkbychunk." + type.getSimpleName() + "." + x.name()))
+            super(new CycleButton.Builder<Enum<?>>((x) -> new TranslatableComponent("enumvalue.chunkbychunk." + type.getSimpleName() + "." + x.name()))
                     .withValues(type.getEnumConstants())
                     .withInitialValue(getter.get())
                     .create(0, 0, getRowWidth(), 20, displayName, (cycleButton, value) -> setter.accept(value)));

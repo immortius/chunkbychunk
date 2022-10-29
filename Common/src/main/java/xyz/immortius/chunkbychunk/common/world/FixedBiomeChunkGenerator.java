@@ -13,7 +13,7 @@ public class FixedBiomeChunkGenerator extends NoiseBasedChunkGenerator {
      * @param parent The chunkGenerator this generator is based on
      */
     public FixedBiomeChunkGenerator(ChunkGenerator parent, Holder<Biome> biome) {
-        super(((ChunkGeneratorStructureAccessor) parent).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(parent), new FixedBiomeSource(biome), ChunkGeneratorAccess.getNoiseGeneratorSettings(parent));
+        super(((ChunkGeneratorStructureAccessor) parent).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(parent), new FixedBiomeSource(biome), ChunkGeneratorAccess.getSeed(parent), ChunkGeneratorAccess.getNoiseGeneratorSettings(parent));
     }
 
 }
