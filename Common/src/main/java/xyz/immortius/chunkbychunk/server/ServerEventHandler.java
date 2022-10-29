@@ -204,7 +204,6 @@ public final class ServerEventHandler {
     private static void findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
-        Set<Block> redstone = ImmutableSet.of(Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE);
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
 
         ChunkPos initialChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
