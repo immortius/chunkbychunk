@@ -3,7 +3,7 @@ package xyz.immortius.chunkbychunk.client.screens;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import xyz.immortius.chunkbychunk.client.uielements.SettingListWidget;
 import xyz.immortius.chunkbychunk.common.util.ConfigUtil;
 
@@ -15,7 +15,7 @@ public class ChunkByChunkConfigScreen extends Screen {
     private Button saveButton;
 
     public ChunkByChunkConfigScreen(Screen lastScreen) {
-        super(Component.translatable("config.chunkbychunk.title"));
+        super(new TranslatableComponent("config.chunkbychunk.title"));
         this.lastScreen = lastScreen;
     }
 
@@ -24,14 +24,14 @@ public class ChunkByChunkConfigScreen extends Screen {
         settingsList = new SettingListWidget(minecraft, this, width, 22, height - 44, (int) (0.9f * width));
 
         int w = (width / 3 - 60) / 2;
-        resetButton = new Button(w, height - 32, 60, 20, Component.translatable("controls.reset"), button -> {
+        resetButton = new Button(w, height - 32, 60, 20, new TranslatableComponent("controls.reset"), button -> {
             settingsList.reset();
         });
-        cancelButton = new Button(width / 3 + w, height - 32, 60, 20, Component.translatable("gui.cancel"), button -> {
+        cancelButton = new Button(width / 3 + w, height - 32, 60, 20, new TranslatableComponent("gui.cancel"), button -> {
             ConfigUtil.loadDefaultConfig();
             this.minecraft.setScreen(lastScreen);
         });
-        saveButton = new Button(2 * width / 3 + w, height - 32, 60, 20, Component.translatable("selectWorld.edit.save"), button -> {
+        saveButton = new Button(2 * width / 3 + w, height - 32, 60, 20, new TranslatableComponent("selectWorld.edit.save"), button -> {
             ConfigUtil.saveDefaultConfig();
             this.minecraft.setScreen(lastScreen);
         });

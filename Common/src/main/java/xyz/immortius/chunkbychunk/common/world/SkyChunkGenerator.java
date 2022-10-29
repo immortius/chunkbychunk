@@ -4,12 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.StructureManager;
+import net.minecraft.world.level.StructureFeatureManager;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.RandomState;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
@@ -45,9 +44,9 @@ public class SkyChunkGenerator extends BaseSkyChunkGenerator {
     }
 
     @Override
-    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
+    public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, StructureFeatureManager featureManager, ChunkAccess chunk) {
         if (generateSealedWorld) {
-            return parent.fillFromNoise(executor, blender, randomState, structureManager, chunk).whenCompleteAsync((chunkAccess, throwable) -> {
+            return parent.fillFromNoise(executor, blender, featureManager, chunk).whenCompleteAsync((chunkAccess, throwable) -> {
                 BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(0,0,0);
                 for (blockPos.setZ(0); blockPos.getZ() < 16; blockPos.setZ(blockPos.getZ() + 1)) {
                     for (blockPos.setX(0); blockPos.getX() < 16; blockPos.setX(blockPos.getX() + 1)) {
@@ -64,7 +63,7 @@ public class SkyChunkGenerator extends BaseSkyChunkGenerator {
                 }
             });
         } else {
-            return super.fillFromNoise(executor, blender, randomState, structureManager, chunk);
+            return super.fillFromNoise(executor, blender, featureManager, chunk);
         }
     }
 }

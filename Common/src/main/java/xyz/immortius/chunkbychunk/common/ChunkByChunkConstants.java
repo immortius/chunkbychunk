@@ -48,7 +48,7 @@ public final class ChunkByChunkConstants {
             new BiomeTheme("plains", Biomes.PLAINS, Biomes.MEADOW, Biomes.SUNFLOWER_PLAINS),
             new BiomeTheme("snow", Biomes.SNOWY_PLAINS, Biomes.SNOWY_BEACH, Biomes.SNOWY_SLOPES, Biomes.GROVE, Biomes.SNOWY_TAIGA, Biomes.ICE_SPIKES, Biomes.FROZEN_RIVER, Biomes.FROZEN_PEAKS),
             new BiomeTheme("desert", Biomes.DESERT),
-            new BiomeTheme("swamp", Biomes.SWAMP, Biomes.MANGROVE_SWAMP),
+            new BiomeTheme("swamp", Biomes.SWAMP),
             new BiomeTheme("badlands", Biomes.BADLANDS, Biomes.ERODED_BADLANDS, Biomes.WOODED_BADLANDS),
             new BiomeTheme("forest", Biomes.FOREST, Biomes.DARK_FOREST, Biomes.FLOWER_FOREST, Biomes.BIRCH_FOREST, Biomes.OLD_GROWTH_BIRCH_FOREST, Biomes.OLD_GROWTH_PINE_TAIGA, Biomes.OLD_GROWTH_SPRUCE_TAIGA, Biomes.TAIGA),
             new BiomeTheme("savanna", Biomes.SAVANNA, Biomes.SAVANNA_PLATEAU),

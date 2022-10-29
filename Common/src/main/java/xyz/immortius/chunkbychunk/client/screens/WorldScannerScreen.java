@@ -8,13 +8,14 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 /**
  * Screen for the WorldScanner. Renders the scanned map (if any)
@@ -79,7 +80,7 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
             }
 
             if (builder.length() > 0) {
-                renderTooltip(stack, Component.literal(builder.toString()), cursorX, cursorY);
+                renderTooltip(stack, new TextComponent(builder.toString()), cursorX, cursorY);
             }
         }
     }
