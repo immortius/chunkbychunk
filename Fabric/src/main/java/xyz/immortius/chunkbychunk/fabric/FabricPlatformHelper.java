@@ -2,14 +2,17 @@ package xyz.immortius.chunkbychunk.fabric;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.interop.CBCPlatformHelper;
+import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 
 /**
  * Static methods whose implementation varies by mod system
@@ -108,4 +111,10 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
     public MenuType<WorldScannerMenu> worldScannerMenu() {
         return ChunkByChunkMod.WORLD_SCANNER_MENU;
     }
+
+    @Override
+    public Fluid getFluidContent(BucketItem bucketItem) {
+        return ((BucketFluidAccessor) bucketItem).getFluidContent();
+    }
+
 }

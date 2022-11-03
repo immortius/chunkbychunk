@@ -17,7 +17,6 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
@@ -160,8 +159,8 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     private boolean validTarget() {
         ItemStack targetItem = getItem(SLOT_INPUT);
-        if (targetItem.getItem() instanceof BucketFluidAccessor bucket) {
-            return bucket.getFluid() instanceof FlowingFluid;
+        if (targetItem.getItem() instanceof BucketItem bucket) {
+            return Services.PLATFORM.getFluidContent(bucket) instanceof FlowingFluid;
         } else if (Items.SLIME_BALL.equals(targetItem.getItem())) {
             return true;
         }
@@ -216,8 +215,8 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                     Collection<Block> mappings = scanItemMappings.get(targetItem.getItem());
                     if (!mappings.isEmpty()) {
                         scanForBlocks.addAll(mappings);
-                    } else if (targetItem.getItem() instanceof BucketFluidAccessor bucket) {
-                        scanForBlocks.add(bucket.getFluid().defaultFluidState().createLegacyBlock().getBlock());
+                    } else if (targetItem.getItem() instanceof BucketItem bucket) {
+                        scanForBlocks.add(Services.PLATFORM.getFluidContent(bucket).defaultFluidState().createLegacyBlock().getBlock());
                     } else if (targetItem.getItem() instanceof BlockItem blockItem) {
                         scanForBlocks.add(blockItem.getBlock());
                     }

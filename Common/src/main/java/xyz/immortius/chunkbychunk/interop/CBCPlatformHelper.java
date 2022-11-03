@@ -2,9 +2,11 @@ package xyz.immortius.chunkbychunk.interop;
 
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
@@ -74,4 +76,8 @@ public interface CBCPlatformHelper {
     MenuType<WorldForgeMenu> worldForgeMenu();
 
     MenuType<WorldScannerMenu> worldScannerMenu();
+
+    // Fluid Access
+
+    Fluid getFluidContent(BucketItem bucketItem);
 }
