@@ -1,0 +1,8 @@
+{
+  "dimensionId": "minecraft:overworld",
+  "genDimensionId" : "chunkbychunk:skychunkgeneration",
+  "generationType": "normal",
+  "allowChunkSpawner" : true,
+  "allowUnstableChunkSpawner" : true,
+  "allowBiomeSpawners": true
+}

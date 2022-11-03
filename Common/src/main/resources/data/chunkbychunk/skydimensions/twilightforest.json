@@ -1,0 +1,7 @@
+{
+  "dimensionId": "twilightforest:twilight_forest",
+  "generationType" : "normal",
+  "allowChunkSpawner" : true,
+  "allowUnstableChunkSpawner" : false,
+  "allowBiomeSpawners": false
+}

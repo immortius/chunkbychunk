@@ -1,6 +1,8 @@
 package xyz.immortius.chunkbychunk.common.blockEntities;
 
-import com.google.common.collect.*;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
@@ -29,9 +31,7 @@ import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
-import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.interop.Services;
-import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 
 import java.util.*;
 
@@ -194,8 +194,8 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 int chunkZ = entity.scanIterator.getY() + originChunkPos.z - SCAN_CENTER;
                 ServerLevel scanLevel;
 
-                if (serverLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator && SpawnChunkHelper.isEmptyChunk(serverLevel, new ChunkPos(chunkX, chunkZ))) {
-                    scanLevel = serverLevel.getServer().getLevel(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL);
+                if (serverLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyGenerator && SpawnChunkHelper.isEmptyChunk(serverLevel, new ChunkPos(chunkX, chunkZ))) {
+                    scanLevel = serverLevel.getServer().getLevel(skyGenerator.getGenerationLevel());
                 } else {
                     scanLevel = serverLevel;
                 }

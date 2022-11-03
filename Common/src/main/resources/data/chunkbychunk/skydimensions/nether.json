@@ -1,0 +1,14 @@
+{
+  "dimensionId": "minecraft:the_nether",
+  "genDimensionId": "chunkbychunk:netherchunkgeneration",
+  "generationType" : "nether",
+  "allowChunkSpawner" : false,
+  "allowUnstableChunkSpawner" : false,
+  "allowBiomeSpawners": false,
+  "synchDimensions" : [
+    {
+      "dimensionId" : "minecraft:overworld",
+      "scale" : 8
+    }
+  ]
+}

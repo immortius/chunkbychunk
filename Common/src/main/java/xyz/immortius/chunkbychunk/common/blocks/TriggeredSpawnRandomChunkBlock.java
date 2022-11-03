@@ -19,8 +19,8 @@ import java.util.Random;
  */
 public class TriggeredSpawnRandomChunkBlock extends AbstractTriggeredSpawnChunkBlock {
 
-    public TriggeredSpawnRandomChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties) {
-        super(sourceLevel, blockProperties, TriggeredSpawnRandomChunkBlock::getSourceChunk);
+    public TriggeredSpawnRandomChunkBlock(Properties blockProperties) {
+        super(AbstractTriggeredSpawnChunkBlock::getSkyGenerationSourceLevel, blockProperties, TriggeredSpawnRandomChunkBlock::getSourceChunk);
     }
 
     public static ChunkPos getSourceChunk(BlockPos targetBlockPos) {

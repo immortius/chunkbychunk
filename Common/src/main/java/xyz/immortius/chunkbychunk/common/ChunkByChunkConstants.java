@@ -1,10 +1,7 @@
 package xyz.immortius.chunkbychunk.common;
 
 import com.google.common.collect.Lists;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import org.apache.logging.log4j.LogManager;
@@ -29,9 +26,7 @@ public final class ChunkByChunkConstants {
     public static final String CONFIG_FILE = MOD_ID + ".toml";
 
     public static final String SCANNER_DATA_PATH = "scanner_data";
-
-    public static final ResourceKey<Level> SKY_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "skychunkgeneration"));
-    public static final ResourceKey<Level> NETHER_CHUNK_GENERATION_LEVEL = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(MOD_ID, "netherchunkgeneration"));
+    public static final String SKY_DIMENSION_DATA_PATH = "skydimensions";
 
     public static final String BIOME_CHUNK_GENERATION_LEVEL_SUFFIX = "biomechunkgeneration";
     public static final String BIOME_CHUNK_BlOCK_SUFFIX = "chunkspawner";

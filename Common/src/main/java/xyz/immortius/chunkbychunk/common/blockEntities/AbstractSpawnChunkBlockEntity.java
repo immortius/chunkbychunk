@@ -52,7 +52,10 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
         if (blockState.getBlock() instanceof AbstractTriggeredSpawnChunkBlock spawnBlock) {
             entity.tickCounter++;
             ChunkPos targetChunkPos = new ChunkPos(blockPos);
-            ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel());
+            ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel(serverLevel));
+            if (sourceLevel == null) {
+                return;
+            }
 
             if (entity.tickCounter == TICKS_TO_SPAWN_CHUNK) {
                 if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {

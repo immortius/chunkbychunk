@@ -1,7 +1,5 @@
 package xyz.immortius.chunkbychunk.fabric;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -18,10 +16,8 @@ import net.fabricmc.fabric.api.screenhandler.v1.ScreenHandlerRegistry;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionResult;
@@ -38,23 +34,19 @@ import xyz.immortius.chunkbychunk.common.CommonEventHandler;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.blocks.*;
 import xyz.immortius.chunkbychunk.common.commands.SpawnChunkCommand;
-import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Common mod initialization
@@ -62,8 +54,8 @@ import java.util.Map;
 public class ChunkByChunkMod implements ModInitializer {
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
-    public static final Block TRIGGERED_SPAWN_CHUNK_BLOCK = new TriggeredSpawnChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, FabricBlockSettings.of(Material.AIR));
-    public static final Block TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = new TriggeredSpawnRandomChunkBlock(ChunkByChunkConstants.SKY_CHUNK_GENERATION_LEVEL, FabricBlockSettings.of(Material.AIR));
+    public static final Block TRIGGERED_SPAWN_CHUNK_BLOCK = new TriggeredSpawnChunkBlock(FabricBlockSettings.of(Material.AIR));
+    public static final Block TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK = new TriggeredSpawnRandomChunkBlock(FabricBlockSettings.of(Material.AIR));
 
     public static final Block SPAWN_CHUNK_BLOCK = new SpawnChunkBlock(TRIGGERED_SPAWN_CHUNK_BLOCK, FabricBlockSettings.of(Material.STONE));
     public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new UnstableSpawnChunkBlock(FabricBlockSettings.of(Material.STONE));
@@ -107,19 +99,7 @@ public class ChunkByChunkMod implements ModInitializer {
 
             @Override
             public void onResourceManagerReload(ResourceManager resourceManager) {
-                WorldScannerBlockEntity.clearItemMappings();
-                Gson gson = new GsonBuilder().create();
-                int count = 0;
-                for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> true).entrySet()) {
-                    try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
-                        ScannerData data = gson.fromJson(reader, ScannerData.class);
-                        data.process(entry.getKey());
-                        count++;
-                    } catch (IOException|RuntimeException e) {
-                        ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", entry.getKey(), e);
-                    }
-                }
-                ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
+                ServerEventHandler.onResourceManagerReload(resourceManager);
             }
         });
     }
@@ -144,7 +124,12 @@ public class ChunkByChunkMod implements ModInitializer {
         List<Block> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
         for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            Block spawningBlock = new TriggeredSpawnChunkBlock(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)), FabricBlockSettings.of(Material.AIR));
+            Block spawningBlock = new TriggeredSpawnChunkBlock((level) -> {
+                if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
+                    return generator.getBiomeDimension(biomeGroup.name());
+                }
+                return null;
+            }, FabricBlockSettings.of(Material.AIR));
             Block spawnBlock = new SpawnChunkBlock(spawningBlock, FabricBlockSettings.of(Material.STONE));
             Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX), spawnBlock);
             triggeredSpawnChunkEntityBlocks.add(Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX), spawningBlock));
@@ -173,7 +158,7 @@ public class ChunkByChunkMod implements ModInitializer {
         SPAWN_CHUNK_SOUND_EVENT = Registry.register(Registry.SOUND_EVENT, createId("spawnchunkevent"), new SoundEvent(createId("chunk_spawn_sound")));
 
         Registry.register(Registry.CHUNK_GENERATOR, createId("skychunkgenerator"), SkyChunkGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, createId("netherchunkgenerator"), NetherChunkByChunkGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, createId("netherchunkgenerator"), SkyChunkGenerator.CODEC);
 
         ServerLifecycleEvents.SERVER_STARTED.register(ServerEventHandler::onServerStarted);
         ServerLifecycleEvents.SERVER_STARTING.register(ServerEventHandler::onServerStarting);
