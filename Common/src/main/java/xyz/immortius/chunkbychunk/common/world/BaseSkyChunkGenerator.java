@@ -38,27 +38,11 @@ public abstract class BaseSkyChunkGenerator extends NoiseBasedChunkGenerator {
     protected final ChunkGenerator parent;
     protected final ResourceKey<Level> generationLevel;
 
-    private static Holder<NoiseGeneratorSettings> getNoiseGeneratorSettings(ChunkGenerator generator) {
-        if (generator instanceof NoiseBasedChunkGenerator noiseParent) {
-            return noiseParent.generatorSettings();
-        } else {
-            return new Holder.Direct<>(NoiseGeneratorSettings.dummy());
-        }
-    }
-
-    private static Registry<NormalNoise.NoiseParameters> getNoiseParamsRegistry(ChunkGenerator parent) {
-        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
-            return ((NoiseBasedChunkGeneratorMixin) noiseParent).getNoises();
-        } else {
-            return BuiltinRegistries.NOISE;
-        }
-    }
-
     /**
      * @param parent The chunkGenerator this generator is based on
      */
     public BaseSkyChunkGenerator(ChunkGenerator parent, ResourceKey<Level> generationLevel) {
-        super(((ChunkGeneratorStructureAccessor) parent).getStructureSet(), getNoiseParamsRegistry(parent), parent.getBiomeSource(), getNoiseGeneratorSettings(parent));
+        super(((ChunkGeneratorStructureAccessor) parent).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(parent), parent.getBiomeSource(), ChunkGeneratorAccess.getNoiseGeneratorSettings(parent));
         this.parent = parent;
         this.generationLevel = generationLevel;
     }

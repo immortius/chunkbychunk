@@ -86,22 +86,6 @@ public final class ServerEventHandler {
 
     }
 
-    private static Holder<NoiseGeneratorSettings> getNoiseGeneratorSettings(ChunkGenerator generator) {
-        if (generator instanceof NoiseBasedChunkGenerator noiseParent) {
-            return noiseParent.generatorSettings();
-        } else {
-            return new Holder.Direct<>(NoiseGeneratorSettings.dummy());
-        }
-    }
-
-    private static Registry<NormalNoise.NoiseParameters> getNoiseParamsRegistry(ChunkGenerator parent) {
-        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
-            return ((NoiseBasedChunkGeneratorMixin) noiseParent).getNoises();
-        } else {
-            return BuiltinRegistries.NOISE;
-        }
-    }
-
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
         MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) worldGenSettings.dimensions();
@@ -180,7 +164,7 @@ public final class ServerEventHandler {
                     return new Climate.ParameterList<>(builder.build());
                 }).biomeSource(server.registryAccess().registry(BuiltinRegistries.BIOME.key()).get());
             }
-            biomeLevel = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootOverworldGenerator).getStructureSet(), getNoiseParamsRegistry(rootOverworldGenerator), source, getNoiseGeneratorSettings(rootOverworldGenerator)));
+            biomeLevel = new LevelStem(dimensionTypeRegistry.getHolderOrThrow(BuiltinDimensionTypes.OVERWORLD), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootOverworldGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootOverworldGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootOverworldGenerator)));
 
             dimensions.register(key, biomeLevel, Lifecycle.stable());
         }
@@ -220,7 +204,6 @@ public final class ServerEventHandler {
     private static void findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
-        Set<Block> redstone = ImmutableSet.of(Blocks.REDSTONE_ORE, Blocks.DEEPSLATE_REDSTONE_ORE);
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
 
         ChunkPos initialChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());

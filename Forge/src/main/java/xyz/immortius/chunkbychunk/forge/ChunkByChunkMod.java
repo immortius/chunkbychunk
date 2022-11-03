@@ -223,11 +223,6 @@ public class ChunkByChunkMod {
         CONFIG_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)(event.getEntity())), new ConfigMessage(ChunkByChunkConfig.get().getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks()));
     }
 
-    @SubscribeEvent
-    public void onGatherData(GatherDataEvent event) {
-        DataGenerator generator = event.getGenerator();
-    }
-
     private static class ConfigMessage {
         boolean blockPlacementAllowed;
 
