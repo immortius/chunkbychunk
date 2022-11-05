@@ -48,14 +48,6 @@ public final class SpawnChunkHelper {
     }
 
     /**
-     * @param level The level to check
-     * @return Whether the level is appropriate for spawning chunks - is it a SkyChunkGenerator level.
-     */
-    public static boolean isValidForChunkSpawn(ServerLevel level) {
-        return level != null && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
-    }
-
-    /**
      * Spawns a chunk. This is done by copying information from the associated generation level
      *
      * @param targetLevel The level to spawn the chunk in
@@ -90,8 +82,8 @@ public final class SpawnChunkHelper {
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      */
     public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos targetChunkPos, ServerLevel sourceLevel, ChunkPos sourceChunkPos) {
-        if (!isValidForChunkSpawn(targetLevel)) {
-            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
+        if (targetLevel == null || !(targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
+            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk ");
             return;
         }
         copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);

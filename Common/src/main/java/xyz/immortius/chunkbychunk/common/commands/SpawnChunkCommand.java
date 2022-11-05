@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
@@ -74,7 +75,7 @@ public class SpawnChunkCommand {
         BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (!SpawnChunkHelper.isValidForChunkSpawn(level)) {
+        if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
             throw INVALID_LEVEL.create();
         }
         if (!Level.isInSpawnableBounds(pos)) {
@@ -105,7 +106,7 @@ public class SpawnChunkCommand {
         BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (!SpawnChunkHelper.isValidForChunkSpawn(level)) {
+        if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
             throw INVALID_LEVEL.create();
         }
         if (!Level.isInSpawnableBounds(pos)) {

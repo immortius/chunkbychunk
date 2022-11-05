@@ -47,7 +47,6 @@ import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
@@ -109,12 +108,7 @@ public class ChunkByChunkMod {
         List<RegistryObject<Block>> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
         for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredSpawnChunkBlock((level) -> {
-                if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
-                    return generator.getBiomeDimension(biomeGroup.name());
-                }
-                return null;
-            }, BlockBehaviour.Properties.of(Material.AIR)));
+            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredBiomeSpawnChunkBlock(biomeGroup.name(), BlockBehaviour.Properties.of(Material.AIR)));
             RegistryObject<Block> spawnBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX, () -> new SpawnChunkBlock(spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
             ITEMS.register(biomeGroup.name() +  ChunkByChunkConstants.BIOME_CHUNK_BlOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
             triggeredSpawnChunkEntityBlocks.add(spawningBlock);

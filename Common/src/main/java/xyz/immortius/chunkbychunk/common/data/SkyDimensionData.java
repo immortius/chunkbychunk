@@ -28,27 +28,21 @@ public class SkyDimensionData {
     /** The number of chunks to be spawned initally */
     public int initialChunks = 1;
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
-    public List<SynchDimension> synchDimensions = new ArrayList<>();
+    public List<String> synchToDimensions = new ArrayList<>();
 
-    public static class SynchDimension {
-        /** The id of the dimension to synchronize spawns with */
-        public String dimensionId;
-        /** The scaling of the synchronization. */
-        public int scale;
-    }
 
     public boolean validate(ResourceLocation dataId, MappedRegistry<LevelStem> dimensions) {
         if (!dimensions.containsKey(new ResourceLocation(dimensionId))) {
             ChunkByChunkConstants.LOGGER.error("Invalid dimension '{}' for sky dimension {}", dimensionId, dataId);
             return false;
         }
-        if (synchDimensions == null) {
+        if (synchToDimensions == null) {
             ChunkByChunkConstants.LOGGER.error("Invalid synchDimensions array for sky dimension {}", dataId);
             return false;
         }
-        for (SynchDimension dim : synchDimensions) {
-            if (!dimensions.containsKey(new ResourceLocation(dim.dimensionId))) {
-                ChunkByChunkConstants.LOGGER.error("Invalid dimension '{}' for sky dimension {}", dimensionId, dataId);
+        for (String dim : synchToDimensions) {
+            if (!dimensions.containsKey(new ResourceLocation(dim))) {
+                ChunkByChunkConstants.LOGGER.error("Invalid dimension '{}' for sky dimension {}", dim, dataId);
                 return false;
             }
         }

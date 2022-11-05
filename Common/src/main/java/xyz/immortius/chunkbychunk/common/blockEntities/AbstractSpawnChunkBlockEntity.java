@@ -5,7 +5,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -14,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.dimension.DimensionType;
 import xyz.immortius.chunkbychunk.common.blocks.AbstractTriggeredSpawnChunkBlock;
@@ -53,12 +51,13 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             entity.tickCounter++;
             ChunkPos targetChunkPos = new ChunkPos(blockPos);
             ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel(serverLevel));
-            if (sourceLevel == null) {
+            if (!spawnBlock.validForLevel(serverLevel) || sourceLevel == null) {
+                serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
                 return;
             }
 
             if (entity.tickCounter == TICKS_TO_SPAWN_CHUNK) {
-                if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
+                if (SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
                     ChunkAccess sourceChunk = sourceLevel.getChunk(targetChunkPos.x, targetChunkPos.z);
                     ChunkAccess targetChunk = serverLevel.getChunk(targetChunkPos.x, targetChunkPos.z);
                     for (int i = 0; i < sourceChunk.getSections().length; i++) {
@@ -87,9 +86,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                     netherLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
                 }
             } else if (entity.tickCounter >= TICKS_TO_SPAWN_ENTITIES) {
-                if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel)) {
-                    SpawnChunkHelper.spawnChunkEntities(serverLevel, targetChunkPos, sourceLevel, entity.sourceChunkPosFunc.apply(blockPos));
-                }
+                SpawnChunkHelper.spawnChunkEntities(serverLevel, targetChunkPos, sourceLevel, entity.sourceChunkPosFunc.apply(blockPos));
                 if (serverLevel.getBlockState(blockPos) == blockState) {
                     serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
                 }

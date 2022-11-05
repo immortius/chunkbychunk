@@ -35,10 +35,10 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
 
     /**
      * @param sourceLevel The level to spawn chunks from
-     * @param blockProperties
      * @param sourceChunkFunc The function to map from target block pos to source chunk position
+     * @param blockProperties
      */
-    public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
+    public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Function<BlockPos, ChunkPos> sourceChunkFunc, Properties blockProperties) {
         super(blockProperties);
         this.sourceChunkFunc = sourceChunkFunc;
         this.sourceLevelFunc = (unused) -> sourceLevel;
@@ -46,10 +46,10 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
 
     /**
      * @param sourceLevelFunc A method to determine the level to spawn chunks from
-     * @param blockProperties
      * @param sourceChunkFunc The function to map from target block pos to source chunk position
+     * @param blockProperties
      */
-    public AbstractTriggeredSpawnChunkBlock(Function<ServerLevel, ResourceKey<Level>> sourceLevelFunc, Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
+    public AbstractTriggeredSpawnChunkBlock(Function<ServerLevel, ResourceKey<Level>> sourceLevelFunc, Function<BlockPos, ChunkPos> sourceChunkFunc, Properties blockProperties) {
         super(blockProperties);
         this.sourceChunkFunc = sourceChunkFunc;
         this.sourceLevelFunc = sourceLevelFunc;
@@ -69,20 +69,19 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
         return Shapes.empty();
     }
 
+    public abstract boolean validForLevel(ServerLevel level);
+
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60570_) {
         super.onPlace(state, level, pos, prevState, p_60570_);
         if (!level.isClientSide()) {
             ServerLevel targetLevel = (ServerLevel) level;
-            
-            if (targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator chunkGenerator) {
-                ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelFunc.apply(targetLevel));
-                if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                    ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
-                    ChunkPos targetChunkPos = new ChunkPos(pos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
-                    targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, true);
-                }
+            ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelFunc.apply(targetLevel));
+            if (sourceLevel != null && validForLevel(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                ChunkPos targetChunkPos = new ChunkPos(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
+                targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, true);
             }
         }
     }
@@ -92,14 +91,12 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
         super.onRemove(state, level, pos, prevState, p_60519_);
         if (!level.isClientSide()) {
             ServerLevel targetLevel = (ServerLevel) level;
-            if (targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator chunkGenerator) {
-                ServerLevel sourceLevel = level.getServer().getLevel(chunkGenerator.getGenerationLevel());
-                if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                    ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
-                    ChunkPos targetChunkPos = new ChunkPos(pos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
-                    targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, false);
-                }
+            ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelFunc.apply(targetLevel));
+            if (sourceLevel != null && validForLevel(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                ChunkPos targetChunkPos = new ChunkPos(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
+                targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, false);
             }
         }
     }

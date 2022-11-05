@@ -4,5 +4,6 @@
   "generationType": "normal",
   "allowChunkSpawner" : true,
   "allowUnstableChunkSpawner" : true,
-  "allowBiomeSpawners": true
+  "allowBiomeSpawners": true,
+  "initialChunks" : 1
 }

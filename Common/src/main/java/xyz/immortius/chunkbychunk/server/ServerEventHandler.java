@@ -2,7 +2,9 @@ package xyz.immortius.chunkbychunk.server;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.*;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonDeserializer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.BlockPos;
@@ -18,6 +20,7 @@ import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.*;
@@ -39,7 +42,9 @@ import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.data.SkyDimensionData;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.common.world.*;
+import xyz.immortius.chunkbychunk.common.world.ChunkGeneratorAccess;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -49,7 +54,6 @@ import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -155,7 +159,7 @@ public final class ServerEventHandler {
         } else {
             skyGenerator = (SkyChunkGenerator) level.generator();
         }
-        skyGenerator.configure(ResourceKey.create(Registry.DIMENSION_REGISTRY, genLevelId.location()), config.generationType);
+        skyGenerator.configure(ResourceKey.create(Registry.DIMENSION_REGISTRY, genLevelId.location()), config.generationType, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
         return skyGenerator;
     }
 
@@ -195,16 +199,29 @@ public final class ServerEventHandler {
     }
 
     private static void checkSpawnInitialChunks(MinecraftServer server) {
+
         ServerLevel overworldLevel = server.getLevel(Level.OVERWORLD);
+        BlockPos overworldSpawnPos;
         if (overworldLevel != null && overworldLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyGenerator) {
             ServerLevel generationLevel = server.getLevel(skyGenerator.getGenerationLevel());
-            BlockPos spawnPos = generationLevel.getSharedSpawnPos();
-            ChunkPos chunkSpawnPos = new ChunkPos(spawnPos);
+            overworldSpawnPos = generationLevel.getSharedSpawnPos();
+            ChunkPos chunkSpawnPos = new ChunkPos(overworldSpawnPos);
             if (SpawnChunkHelper.isEmptyChunk(overworldLevel, chunkSpawnPos)) {
-                findAppropriateSpawnChunk(overworldLevel, generationLevel);
-                spawnInitialChunks(overworldLevel);
+                overworldSpawnPos = findAppropriateSpawnChunk(overworldLevel, generationLevel);
+                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos);
+            }
+        } else {
+            overworldSpawnPos = overworldLevel.getSharedSpawnPos();
+        }
+
+        for (ServerLevel level : server.getAllLevels()) {
+            if (level != overworldLevel && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator levelGenerator) {
+                if (levelGenerator.getInitialChunks() > 0) {
+                    spawnInitialChunks(level, levelGenerator.getInitialChunks(), overworldSpawnPos);
+                }
             }
         }
+
     }
 
     /**
@@ -214,12 +231,13 @@ public final class ServerEventHandler {
      * @param overworldLevel
      * @param generationLevel
      */
-    private static void findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
+    private static BlockPos findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
 
-        ChunkPos initialChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
+        BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
+        ChunkPos initialChunkPos = new ChunkPos(spawnPos);
         SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
         int attempts = 0;
         while (attempts < MAX_FIND_CHUNK_ATTEMPTS) {
@@ -229,7 +247,8 @@ public final class ServerEventHandler {
                     && ChunkUtil.countBlocks(chunk, leavesTag) > 3
                     && ChunkUtil.countBlocks(chunk, copper) >= 36) {
                 ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
-                levelData.setSpawn(new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ()), levelData.getSpawnAngle());
+                spawnPos = new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ());
+                levelData.setSpawn(spawnPos, levelData.getSpawnAngle());
                 break;
             }
             iterator.next();
@@ -240,29 +259,34 @@ public final class ServerEventHandler {
         } else {
             LOGGER.info("No appropriate spawn chunk found :(");
         }
+        return spawnPos;
     }
 
     /**
-     * Spawns the initial chunk.
-     * @param overworldLevel
+     * Spawns the initial chunks
      */
-    private static void spawnInitialChunks(ServerLevel overworldLevel) {
-        ChunkPos centerChunkPos = new ChunkPos(overworldLevel.getSharedSpawnPos());
-        List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(ChunkByChunkConfig.get().getGeneration().getInitialChunks() - 1);
-        for (int[] offset : chunkOffsets) {
-            ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-            SpawnChunkHelper.spawnChunkBlocks(overworldLevel, targetPos);
-            overworldLevel.setBlock(new BlockPos(targetPos.getMiddleBlockX(), overworldLevel.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+    private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn) {
+        BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
+        ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
+        if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
+            List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
+            for (int[] offset : chunkOffsets) {
+                ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
+                SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+            }
+        } else {
+            SpiralIterator spiralIterator = new SpiralIterator(centerChunkPos.x, centerChunkPos.z);
+            for (int i = 0; i < initialChunks; i++) {
+                ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
+                level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+                spiralIterator.next();
+            }
         }
     }
 
     public static void onResourceManagerReload(ResourceManager resourceManager) {
-        Gson gson = new GsonBuilder().registerTypeAdapter(SkyChunkGenerator.EmptyGenerationType.class, new JsonDeserializer<SkyChunkGenerator.EmptyGenerationType>() {
-            @Override
-            public SkyChunkGenerator.EmptyGenerationType deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                return SkyChunkGenerator.EmptyGenerationType.getFromString(json.getAsString());
-            }
-        }).create();
+        Gson gson = new GsonBuilder().registerTypeAdapter(SkyChunkGenerator.EmptyGenerationType.class, (JsonDeserializer<SkyChunkGenerator.EmptyGenerationType>) (json, typeOfT, context) -> SkyChunkGenerator.EmptyGenerationType.getFromString(json.getAsString())).create();
         loadScannerData(resourceManager, gson);
         loadSkyDimensionData(resourceManager, gson);
     }

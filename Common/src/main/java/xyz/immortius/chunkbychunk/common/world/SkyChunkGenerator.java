@@ -37,7 +37,7 @@ import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 /**
- * The Base Sky Chunk Generator - Sky Chunk Generators wrap a parent generator but disable actual generation. The
+ * The Sky Chunk Generator - Sky Chunk Generators wrap a parent generator but disable actual generation. The
  * parent generator is retained for biome information and similar. Each sky chunk generator also has a reference
  * to the dimension that generates chunks for this dimension
  */
@@ -50,6 +50,17 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     private final ChunkGenerator parent;
     private ResourceKey<Level> generationLevel;
+    private int initialChunks;
+    private boolean chunkSpawnerAllowed;
+    private boolean randomChunkSpawnerAllowed;
+
+    public boolean isChunkSpawnerAllowed() {
+        return chunkSpawnerAllowed;
+    }
+
+    public boolean isRandomChunkSpawnerAllowed() {
+        return randomChunkSpawnerAllowed;
+    }
 
     public enum EmptyGenerationType {
         Normal,
@@ -83,9 +94,12 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         this.parent = parent;
     }
 
-    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType) {
+    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType, int initialChunks, boolean chunkSpawnerAllowed, boolean randomChunkSpawnerAllowed) {
         this.generationLevel = generationLevel;
         this.generationType = generationType;
+        this.initialChunks = initialChunks;
+        this.chunkSpawnerAllowed = chunkSpawnerAllowed;
+        this.randomChunkSpawnerAllowed = randomChunkSpawnerAllowed;
     }
 
     public void addBiomeDimension(String name, ResourceKey<Level> level) {
@@ -94,6 +108,10 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     public ResourceKey<Level> getBiomeDimension(String name) {
         return biomeDimensions.get(name);
+    }
+
+    public int getInitialChunks() {
+        return initialChunks;
     }
 
     public ChunkGenerator getParent() {

@@ -1,8 +1,8 @@
 package xyz.immortius.chunkbychunk.common.util;
 
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
 import java.nio.file.Paths;
 

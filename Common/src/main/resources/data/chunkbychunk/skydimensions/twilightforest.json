@@ -3,5 +3,6 @@
   "generationType" : "normal",
   "allowChunkSpawner" : true,
   "allowUnstableChunkSpawner" : false,
-  "allowBiomeSpawners": false
+  "allowBiomeSpawners": false,
+  "initialChunks" : 64
 }

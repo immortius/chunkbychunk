@@ -38,7 +38,6 @@ import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.NetherChunkByChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
@@ -124,12 +123,7 @@ public class ChunkByChunkMod implements ModInitializer {
         List<Block> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
         for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            Block spawningBlock = new TriggeredSpawnChunkBlock((level) -> {
-                if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
-                    return generator.getBiomeDimension(biomeGroup.name());
-                }
-                return null;
-            }, FabricBlockSettings.of(Material.AIR));
+            Block spawningBlock = new TriggeredBiomeSpawnChunkBlock(biomeGroup.name(), FabricBlockSettings.of(Material.AIR));
             Block spawnBlock = new SpawnChunkBlock(spawningBlock, FabricBlockSettings.of(Material.STONE));
             Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX), spawnBlock);
             triggeredSpawnChunkEntityBlocks.add(Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX), spawningBlock));
