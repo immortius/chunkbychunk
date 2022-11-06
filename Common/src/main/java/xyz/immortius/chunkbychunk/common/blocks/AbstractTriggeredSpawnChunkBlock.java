@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 
@@ -82,6 +83,8 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
                 ChunkPos targetChunkPos = new ChunkPos(pos);
                 sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
                 targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, true);
+            } else {
+                ChunkByChunkConstants.LOGGER.warn("Invalid triggered spawn chunk block detected at {}:{}", level.dimension(), pos);
             }
         }
     }

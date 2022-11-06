@@ -43,13 +43,15 @@ public abstract class BaseSpawnChunkBlock extends Block {
         this.triggeredBlockState = triggeredBlockState;
     }
 
+    public abstract boolean isValidForLevel(ServerLevel level);
+
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         if (level instanceof ServerLevel serverLevel) {
-            if (triggeredBlockState.getBlock() instanceof AbstractTriggeredSpawnChunkBlock triggeredBlock && triggeredBlock.validForLevel(serverLevel)) {
+            if (isValidForLevel(serverLevel)) {
                 List<BlockPos> targetPositions = new ArrayList<>();
                 BlockPos initialPos = pos.atY(level.getMaxBuildHeight() - 1);
                 targetPositions.add(initialPos);

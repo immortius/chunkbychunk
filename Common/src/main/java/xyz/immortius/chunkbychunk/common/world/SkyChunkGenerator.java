@@ -28,10 +28,7 @@ import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStr
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import xyz.immortius.chunkbychunk.mixins.ChunkGeneratorStructureAccessor;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.stream.Stream;
@@ -50,6 +47,7 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     private final ChunkGenerator parent;
     private ResourceKey<Level> generationLevel;
+    private List<ResourceKey<Level>> synchedLevels = new ArrayList<>();
     private int initialChunks;
     private boolean chunkSpawnerAllowed;
     private boolean randomChunkSpawnerAllowed;
@@ -60,6 +58,14 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     public boolean isRandomChunkSpawnerAllowed() {
         return randomChunkSpawnerAllowed;
+    }
+
+    public void addSynchLevel(ResourceKey<Level> dimension) {
+        synchedLevels.add(dimension);
+    }
+
+    public List<ResourceKey<Level>> getSynchedLevels() {
+        return synchedLevels;
     }
 
     public enum EmptyGenerationType {

@@ -13,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import xyz.immortius.chunkbychunk.common.blocks.AbstractTriggeredSpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -43,7 +44,7 @@ public final class SpawnChunkHelper {
      * @return Whether the chunk is 'empty' and thus ready to be spawned into.
      */
     public static boolean isEmptyChunk(LevelAccessor level, ChunkPos chunkPos) {
-        BlockPos bedrockCheckBlock = chunkPos.getBlockAt(8, level.getMinBuildHeight(), 8);
+        BlockPos bedrockCheckBlock = chunkPos.getMiddleBlockPosition(level.getMinBuildHeight());
         return !Blocks.BEDROCK.equals(level.getBlockState(bedrockCheckBlock).getBlock());
     }
 

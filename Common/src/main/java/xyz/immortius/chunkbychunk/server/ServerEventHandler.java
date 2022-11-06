@@ -78,7 +78,7 @@ public final class ServerEventHandler {
             .add(ImmutableList.of(new int[]{0, 0}, new int[]{1, 0}, new int[]{0, 1}, new int[]{-1, 0}, new int[]{0, -1}, new int[]{1, 1}, new int[]{-1, -1}, new int[]{1, -1}, new int[]{-1, 1}))
             .build();
 
-    private static Map<ResourceLocation, SkyDimensionData> skyDimensions = new LinkedHashMap<>();
+    private static final Map<ResourceLocation, SkyDimensionData> skyDimensions = new LinkedHashMap<>();
 
     private ServerEventHandler() {
 
@@ -105,20 +105,47 @@ public final class ServerEventHandler {
         ((DefrostedRegistry) dimensions).setFrozen(false);
 
         for (Map.Entry<ResourceLocation, SkyDimensionData> entry : skyDimensions.entrySet()) {
-            setupDimension(entry.getKey(), entry.getValue(), worldGenSettings, dimensions, dimensionTypeRegistry, biomeRegistry);
+            setupDimension(entry.getKey(), entry.getValue(), dimensions, dimensionTypeRegistry, biomeRegistry);
         }
+        configureDimensionSynching(dimensions);
 
         ((DefrostedRegistry) dimensions).setFrozen(true);
     }
 
-    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, WorldGenSettings worldGenSettings, MappedRegistry<LevelStem> dimensions,  Registry<DimensionType> dimensionTypes, Registry<Biome> biomeRegistry) {
-        if (!config.validate(skyDimensionId, dimensions) || !config.enabled) {
+    private static void configureDimensionSynching(MappedRegistry<LevelStem> dimensions) {
+        for (SkyDimensionData config : skyDimensions.values()) {
+            if (!config.enabled) {
+                continue;
+            }
+
+            LevelStem dimension = dimensions.get(new ResourceLocation(config.dimensionId));
+            for (String synchDimId : config.synchToDimensions) {
+                LevelStem synchDim =  dimensions.get(new ResourceLocation(synchDimId));
+                if (DimensionType.getTeleportationScale(synchDim.typeHolder().value(), dimension.typeHolder().value()) > 1) {
+                    ChunkByChunkConstants.LOGGER.warn("Cowardly refusing to synch dimension {} with {}, as the coordinate scale would result in a performance issues", config.dimensionId, synchDimId);
+                    continue;
+                }
+                if (synchDim != null && synchDim.generator() instanceof SkyChunkGenerator generator) {
+                    generator.addSynchLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(config.dimensionId)));
+                } else {
+                    ChunkByChunkConstants.LOGGER.warn("Cannot synch dimension {} with {}, as it is not a sky dimension", config.dimensionId, synchDimId);
+                }
+
+            }
+        }
+    }
+
+    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions,  Registry<DimensionType> dimensionTypes, Registry<Biome> biomeRegistry) {
+        if (!config.validate(skyDimensionId, dimensions)) {
+            config.enabled = false;
+        }
+        if (!config.enabled) {
             return;
         }
 
         ChunkByChunkConstants.LOGGER.info("Setting up sky dimension for {}", config.dimensionId);
 
-        LevelStem level = worldGenSettings.dimensions().get(new ResourceLocation(config.dimensionId));
+        LevelStem level = dimensions.get(new ResourceLocation(config.dimensionId));
         ChunkGenerator rootGenerator;
         if (level.generator() instanceof SkyChunkGenerator skyChunkGenerator) {
             rootGenerator = skyChunkGenerator.getParent();

@@ -122,12 +122,12 @@ public class ChunkByChunkMod implements ModInitializer {
 
         List<Block> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
-        for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            Block spawningBlock = new TriggeredBiomeSpawnChunkBlock(biomeGroup.name(), FabricBlockSettings.of(Material.AIR));
-            Block spawnBlock = new SpawnChunkBlock(spawningBlock, FabricBlockSettings.of(Material.STONE));
-            Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX), spawnBlock);
-            triggeredSpawnChunkEntityBlocks.add(Registry.register(Registry.BLOCK, createId(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX), spawningBlock));
-            Registry.register(Registry.ITEM, createId(biomeGroup.name() +  ChunkByChunkConstants.BIOME_CHUNK_BlOCK_ITEM_SUFFIX), new BlockItem(spawnBlock, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
+        for (ChunkByChunkConstants.BiomeTheme biomeTheme : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
+            Block spawningBlock = new TriggeredBiomeSpawnChunkBlock(biomeTheme.name(), FabricBlockSettings.of(Material.AIR));
+            Block spawnBlock = new SpawnBiomeChunkBlock(biomeTheme.name(), spawningBlock, FabricBlockSettings.of(Material.STONE));
+            Registry.register(Registry.BLOCK, createId(biomeTheme.name() + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX), spawnBlock);
+            triggeredSpawnChunkEntityBlocks.add(Registry.register(Registry.BLOCK, createId(biomeTheme.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX), spawningBlock));
+            Registry.register(Registry.ITEM, createId(biomeTheme.name() +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX), new BlockItem(spawnBlock, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));
         }
 
         BEDROCK_CHEST_BLOCK_ITEM = Registry.register(Registry.ITEM, createId("bedrockchest"), new BlockItem(BEDROCK_CHEST_BLOCK, new FabricItemSettings().group(CreativeModeTab.TAB_MISC)));

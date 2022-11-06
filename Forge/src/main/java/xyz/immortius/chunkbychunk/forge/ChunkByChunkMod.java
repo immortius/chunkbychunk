@@ -107,10 +107,10 @@ public class ChunkByChunkMod {
     static {
         List<RegistryObject<Block>> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
-        for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredBiomeSpawnChunkBlock(biomeGroup.name(), BlockBehaviour.Properties.of(Material.AIR)));
-            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeGroup.name() + ChunkByChunkConstants.BIOME_CHUNK_BlOCK_SUFFIX, () -> new SpawnChunkBlock(spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
-            ITEMS.register(biomeGroup.name() +  ChunkByChunkConstants.BIOME_CHUNK_BlOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+        for (ChunkByChunkConstants.BiomeTheme biomeTheme : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
+            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeTheme.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredBiomeSpawnChunkBlock(biomeTheme.name(), BlockBehaviour.Properties.of(Material.AIR)));
+            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme.name() + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnBiomeChunkBlock(biomeTheme.name(), spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
+            ITEMS.register(biomeTheme.name() +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
             triggeredSpawnChunkEntityBlocks.add(spawningBlock);
         }
         TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, triggeredSpawnChunkEntityBlocks.stream().map(RegistryObject::get).toArray(Block[]::new)).build(null));

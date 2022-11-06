@@ -4,5 +4,5 @@
   "allowChunkSpawner" : true,
   "allowUnstableChunkSpawner" : false,
   "allowBiomeSpawners": false,
-  "initialChunks" : 64
+  "initialChunks" : 1
 }

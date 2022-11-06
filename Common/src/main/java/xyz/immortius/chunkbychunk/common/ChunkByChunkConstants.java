@@ -29,9 +29,9 @@ public final class ChunkByChunkConstants {
     public static final String SKY_DIMENSION_DATA_PATH = "skydimensions";
 
     public static final String BIOME_CHUNK_GENERATION_LEVEL_SUFFIX = "biomechunkgeneration";
-    public static final String BIOME_CHUNK_BlOCK_SUFFIX = "chunkspawner";
+    public static final String BIOME_CHUNK_BLOCK_SUFFIX = "chunkspawner";
     public static final String TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX = "triggeredchunkspawner";
-    public static final String BIOME_CHUNK_BlOCK_ITEM_SUFFIX = "chunkspawner";
+    public static final String BIOME_CHUNK_BLOCK_ITEM_SUFFIX = "chunkspawner";
 
     public record BiomeTheme(String name, ResourceKey<Biome>... biomes) {
         @SafeVarargs

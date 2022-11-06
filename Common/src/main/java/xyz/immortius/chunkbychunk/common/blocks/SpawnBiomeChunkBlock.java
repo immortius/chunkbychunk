@@ -7,14 +7,17 @@ import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 /**
  * Spawns a chunk from the equivalent chunk in the source dimension (with configuration offset)
  */
-public class SpawnChunkBlock extends BaseSpawnChunkBlock {
+public class SpawnBiomeChunkBlock extends BaseSpawnChunkBlock {
 
-    public SpawnChunkBlock(Block triggeredSpawnChunkBlock, Properties blockProperties) {
+    private final String biomeTheme;
+
+    public SpawnBiomeChunkBlock(String biomeTheme, Block triggeredSpawnChunkBlock, Properties blockProperties) {
         super(triggeredSpawnChunkBlock.defaultBlockState(), blockProperties);
+        this.biomeTheme = biomeTheme;
     }
 
     @Override
     public boolean isValidForLevel(ServerLevel level) {
-        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator && generator.isChunkSpawnerAllowed();
+        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator && generator.getBiomeDimension(biomeTheme) != null;
     }
 }

@@ -30,7 +30,6 @@ public class SkyDimensionData {
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
     public List<String> synchToDimensions = new ArrayList<>();
 
-
     public boolean validate(ResourceLocation dataId, MappedRegistry<LevelStem> dimensions) {
         if (!dimensions.containsKey(new ResourceLocation(dimensionId))) {
             ChunkByChunkConstants.LOGGER.error("Invalid dimension '{}' for sky dimension {}", dimensionId, dataId);

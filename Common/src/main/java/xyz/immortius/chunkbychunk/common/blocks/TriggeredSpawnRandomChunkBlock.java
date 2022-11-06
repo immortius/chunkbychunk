@@ -36,10 +36,7 @@ public class TriggeredSpawnRandomChunkBlock extends AbstractTriggeredSpawnChunkB
 
     @Override
     public boolean validForLevel(ServerLevel level) {
-        if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
-            return generator.isRandomChunkSpawnerAllowed();
-        }
-        return false;
+        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
     }
 
     @Override
