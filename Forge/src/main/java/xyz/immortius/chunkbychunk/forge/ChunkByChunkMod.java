@@ -39,6 +39,7 @@ import net.minecraftforge.registries.RegistryObject;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.CommonEventHandler;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.blocks.*;
@@ -49,7 +50,6 @@ import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 import java.nio.file.Paths;
@@ -107,10 +107,10 @@ public class ChunkByChunkMod {
     static {
         List<RegistryObject<Block>> triggeredSpawnChunkEntityBlocks = new ArrayList<>();
         triggeredSpawnChunkEntityBlocks.add(TRIGGERED_SPAWN_CHUNK_BLOCK);
-        for (ChunkByChunkConstants.BiomeTheme biomeTheme : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeTheme.name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredBiomeSpawnChunkBlock(biomeTheme.name(), BlockBehaviour.Properties.of(Material.AIR)));
-            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme.name() + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnBiomeChunkBlock(biomeTheme.name(), spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
-            ITEMS.register(biomeTheme.name() +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+        for (String biomeTheme : ChunkByChunkConstants.BIOME_THEMES) {
+            RegistryObject<Block> spawningBlock = BLOCKS.register(biomeTheme + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX, () -> new TriggeredBiomeSpawnChunkBlock(biomeTheme, BlockBehaviour.Properties.of(Material.AIR)));
+            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnBiomeChunkBlock(biomeTheme, spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
+            ITEMS.register(biomeTheme +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
             triggeredSpawnChunkEntityBlocks.add(spawningBlock);
         }
         TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, triggeredSpawnChunkEntityBlocks.stream().map(RegistryObject::get).toArray(Block[]::new)).build(null));
@@ -153,7 +153,7 @@ public class ChunkByChunkMod {
 
     private void commonSetup(FMLCommonSetupEvent event) {
         Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "skychunkgenerator"), SkyChunkGenerator.CODEC);
-        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "netherchunkgenerator"), SkyChunkGenerator.CODEC);
+        Registry.register(Registry.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "netherchunkgenerator"), SkyChunkGenerator.OLD_NETHER_CODEC);
     }
 
     @SubscribeEvent
@@ -167,7 +167,7 @@ public class ChunkByChunkMod {
 
             @Override
             public String getName() {
-                return ChunkByChunkConstants.MOD_ID + ":scanner_data";
+                return ChunkByChunkConstants.MOD_ID + ":server_data";
             }
         });
     }

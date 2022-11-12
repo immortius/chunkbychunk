@@ -44,6 +44,10 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
             encoded.group(ChunkGenerator.CODEC.withLifecycle(Lifecycle.stable()).fieldOf("parent").forGetter(SkyChunkGenerator::getParent))
                     .apply(encoded, encoded.stable(SkyChunkGenerator::new))
     );
+    public static final Codec<SkyChunkGenerator> OLD_NETHER_CODEC = RecordCodecBuilder.create((encoded) ->
+            encoded.group(ChunkGenerator.CODEC.withLifecycle(Lifecycle.stable()).fieldOf("parent").forGetter(SkyChunkGenerator::getParent))
+                    .apply(encoded, encoded.stable(SkyChunkGenerator::new))
+    );
 
     private final ChunkGenerator parent;
     private ResourceKey<Level> generationLevel;

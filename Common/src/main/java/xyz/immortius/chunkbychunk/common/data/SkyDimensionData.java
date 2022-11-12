@@ -7,7 +7,9 @@ import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SkyDimensionData {
 
@@ -21,14 +23,14 @@ public class SkyDimensionData {
     public boolean allowChunkSpawner = true;
     /** Is the unstable chunk spawner block usable in this dimension */
     public boolean allowUnstableChunkSpawner = true;
-    /** Are biome theme spawner blocks usable in this dimension */
-    public boolean allowBiomeSpawners = false;
     /** Type of generation */
     public SkyChunkGenerator.EmptyGenerationType generationType = SkyChunkGenerator.EmptyGenerationType.Normal;
     /** The number of chunks to be spawned initally */
     public int initialChunks = 1;
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
     public List<String> synchToDimensions = new ArrayList<>();
+
+    public Map<String, List<String>> biomeThemes = new LinkedHashMap<>();
 
     public boolean validate(ResourceLocation dataId, MappedRegistry<LevelStem> dimensions) {
         if (!dimensions.containsKey(new ResourceLocation(dimensionId))) {

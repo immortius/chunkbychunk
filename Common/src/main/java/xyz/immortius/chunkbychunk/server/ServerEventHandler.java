@@ -44,6 +44,7 @@ import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.common.world.ChunkGeneratorAccess;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
@@ -78,8 +79,6 @@ public final class ServerEventHandler {
             .add(ImmutableList.of(new int[]{0, 0}, new int[]{1, 0}, new int[]{0, 1}, new int[]{-1, 0}, new int[]{0, -1}, new int[]{1, 1}, new int[]{-1, -1}, new int[]{1, -1}, new int[]{-1, 1}))
             .build();
 
-    private static final Map<ResourceLocation, SkyDimensionData> skyDimensions = new LinkedHashMap<>();
-
     private ServerEventHandler() {
 
     }
@@ -104,7 +103,7 @@ public final class ServerEventHandler {
         Registry<Biome> biomeRegistry = server.registryAccess().registryOrThrow(BuiltinRegistries.BIOME.key());
         ((DefrostedRegistry) dimensions).setFrozen(false);
 
-        for (Map.Entry<ResourceLocation, SkyDimensionData> entry : skyDimensions.entrySet()) {
+        for (Map.Entry<ResourceLocation, SkyDimensionData> entry : SkyDimensions.getSkyDimensions().entrySet()) {
             setupDimension(entry.getKey(), entry.getValue(), dimensions, dimensionTypeRegistry, biomeRegistry);
         }
         configureDimensionSynching(dimensions);
@@ -113,7 +112,7 @@ public final class ServerEventHandler {
     }
 
     private static void configureDimensionSynching(MappedRegistry<LevelStem> dimensions) {
-        for (SkyDimensionData config : skyDimensions.values()) {
+        for (SkyDimensionData config : SkyDimensions.getSkyDimensions().values()) {
             if (!config.enabled) {
                 continue;
             }
@@ -155,10 +154,10 @@ public final class ServerEventHandler {
 
         SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, dimensionTypes, level, rootGenerator);
 
-        if (config.allowBiomeSpawners) {
-            for (ChunkByChunkConstants.BiomeTheme biomeGroup : ChunkByChunkConstants.OVERWORLD_BIOME_THEMES) {
-                ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeGroup, level, dimensions, rootGenerator, biomeRegistry);
-                generator.addBiomeDimension(biomeGroup.name(), biomeDim);
+        for (Map.Entry<String, List<String>> biomeTheme : config.biomeThemes.entrySet()) {
+            ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry);
+            if (biomeDim != null) {
+                generator.addBiomeDimension(biomeTheme.getKey(), biomeDim);
             }
         }
     }
@@ -190,19 +189,30 @@ public final class ServerEventHandler {
         return skyGenerator;
     }
 
-    private static ResourceKey<Level> setupThemeDimension(String dimId, ChunkByChunkConstants.BiomeTheme biomeTheme, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, Registry<Biome> biomeRegistry) {
-        ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + biomeTheme.name() + "_gen");
+    private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, Registry<Biome> biomeRegistry) {
+        ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + themeName + "_gen");
         LevelStem biomeLevel = dimensions.get(biomeDimId);
+
         if (biomeLevel == null) {
-            ResourceKey<LevelStem> key = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, biomeDimId);
+            List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(x))).filter(key -> {
+                boolean valid = biomeRegistry.containsKey(key);
+                if (!valid) {
+                    ChunkByChunkConstants.LOGGER.warn("Could not resolve biome {} for {}", key, dimId);
+                }
+                return valid;
+            }).toList();
+
+            ResourceKey<LevelStem> levelKey = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, biomeDimId);
             BiomeSource source;
-            if (biomeTheme.biomes().length == 1) {
-                source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeTheme.biomes()[0]));
+            if (biomeKeys.size() == 0) {
+                return null;
+            } else if (biomeKeys.size() == 1) {
+                source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
             } else {
-                source = new MultiNoiseBiomeSource.Preset(biomeDimId, biomes -> {
+                source = new MultiNoiseBiomeSource.Preset(biomeDimId, biomeReg -> {
                     ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
                     ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
-                        if (Arrays.asList(biomeTheme.biomes()).contains(pair.getSecond())) {
+                        if (biomeKeys.contains(pair.getSecond())) {
                             builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolderOrThrow));
                         }
                     });
@@ -210,7 +220,7 @@ public final class ServerEventHandler {
                 }).biomeSource(biomeRegistry);
             }
             biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-            dimensions.register(key, biomeLevel, Lifecycle.stable());
+            dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
         }
         return ResourceKey.create(Registry.DIMENSION_REGISTRY, biomeDimId);
     }
@@ -315,22 +325,7 @@ public final class ServerEventHandler {
     public static void onResourceManagerReload(ResourceManager resourceManager) {
         Gson gson = new GsonBuilder().registerTypeAdapter(SkyChunkGenerator.EmptyGenerationType.class, (JsonDeserializer<SkyChunkGenerator.EmptyGenerationType>) (json, typeOfT, context) -> SkyChunkGenerator.EmptyGenerationType.getFromString(json.getAsString())).create();
         loadScannerData(resourceManager, gson);
-        loadSkyDimensionData(resourceManager, gson);
-    }
-
-    private static void loadSkyDimensionData(ResourceManager resourceManager, Gson gson) {
-        int count = 0;
-        skyDimensions.clear();
-        for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SKY_DIMENSION_DATA_PATH, r -> true).entrySet()) {
-            try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
-                SkyDimensionData data = gson.fromJson(reader, SkyDimensionData.class);
-                skyDimensions.put(entry.getKey(), data);
-                count++;
-            } catch (IOException |RuntimeException e) {
-                ChunkByChunkConstants.LOGGER.error("Failed to read sky dimension data '{}'", entry.getKey(), e);
-            }
-        }
-        ChunkByChunkConstants.LOGGER.info("Loaded {} sky dimensions", count);
+        SkyDimensions.loadSkyDimensionData(resourceManager, gson);
     }
 
     private static void loadScannerData(ResourceManager resourceManager, Gson gson) {

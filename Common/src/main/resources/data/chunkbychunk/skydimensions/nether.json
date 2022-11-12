@@ -1,7 +1,7 @@
 {
   "dimensionId": "minecraft:the_nether",
   "genDimensionId": "chunkbychunk:netherchunkgeneration",
-  "generationType" : "nether",
+  "generationType" : "sealed",
   "allowChunkSpawner" : true,
   "allowUnstableChunkSpawner" : false,
   "allowBiomeSpawners": false,
