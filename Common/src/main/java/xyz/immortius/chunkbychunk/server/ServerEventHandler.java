@@ -92,7 +92,26 @@ public final class ServerEventHandler {
         configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
         if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
             ChunkByChunkConstants.LOGGER.info("Setting up sky dimensions");
+            applySkyDimensionConfig();
             applyChunkByChunkWorldGeneration(server);
+        }
+    }
+
+    private static void applySkyDimensionConfig() {
+        if (ChunkByChunkConfig.get().getGeneration().isSynchNether()) {
+            SkyDimensions.getSkyDimensions().values().stream().filter(x -> "minecraft:the_nether".equals(x.dimensionId) || "the_nether".equals(x.dimensionId)).forEach(x -> {
+                x.synchToDimensions.add("minecraft:overworld");
+            });
+        }
+        if (ChunkByChunkConfig.get().getGeneration().sealWorld()) {
+            SkyDimensions.getSkyDimensions().values().stream().filter(x -> "minecraft:overworld".equals(x.dimensionId) || "overworld".equals(x.dimensionId)).forEach(x -> {
+                x.generationType = SkyChunkGenerator.EmptyGenerationType.Sealed;
+            });
+        }
+        if (ChunkByChunkConfig.get().getGeneration().getInitialChunks() != 1) {
+            SkyDimensions.getSkyDimensions().values().stream().filter(x -> "minecraft:overworld".equals(x.dimensionId) || "overworld".equals(x.dimensionId)).forEach(x -> {
+                x.initialChunks = ChunkByChunkConfig.get().getGeneration().getInitialChunks();
+            });
         }
     }
 
