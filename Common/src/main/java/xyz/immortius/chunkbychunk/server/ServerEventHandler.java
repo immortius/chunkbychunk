@@ -210,37 +210,33 @@ public final class ServerEventHandler {
 
     private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, Registry<Biome> biomeRegistry) {
         ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + themeName + "_gen");
-        LevelStem biomeLevel = dimensions.get(biomeDimId);
-
-        if (biomeLevel == null) {
-            List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(x))).filter(key -> {
-                boolean valid = biomeRegistry.containsKey(key);
-                if (!valid) {
-                    ChunkByChunkConstants.LOGGER.warn("Could not resolve biome {} for {}", key, dimId);
-                }
-                return valid;
-            }).toList();
-
-            ResourceKey<LevelStem> levelKey = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, biomeDimId);
-            BiomeSource source;
-            if (biomeKeys.size() == 0) {
-                return null;
-            } else if (biomeKeys.size() == 1) {
-                source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
-            } else {
-                source = new MultiNoiseBiomeSource.Preset(biomeDimId, biomeReg -> {
-                    ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
-                    ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
-                        if (biomeKeys.contains(pair.getSecond())) {
-                            builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolderOrThrow));
-                        }
-                    });
-                    return new Climate.ParameterList<>(builder.build());
-                }).biomeSource(biomeRegistry);
+        List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(x))).filter(key -> {
+            boolean valid = biomeRegistry.containsKey(key);
+            if (!valid) {
+                ChunkByChunkConstants.LOGGER.warn("Could not resolve biome {} for {}", key, dimId);
             }
-            biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-            dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+            return valid;
+        }).toList();
+
+        ResourceKey<LevelStem> levelKey = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, biomeDimId);
+        BiomeSource source;
+        if (biomeKeys.size() == 0) {
+            return null;
+        } else if (biomeKeys.size() == 1) {
+            source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
+        } else {
+            source = new MultiNoiseBiomeSource.Preset(biomeDimId, biomeReg -> {
+                ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
+                ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
+                    if (biomeKeys.contains(pair.getSecond())) {
+                        builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolderOrThrow));
+                    }
+                });
+                return new Climate.ParameterList<>(builder.build());
+            }).biomeSource(biomeRegistry);
         }
+        LevelStem biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        dimensions.registerOrOverride(OptionalInt.empty(), levelKey, biomeLevel, Lifecycle.stable());
         return ResourceKey.create(Registry.DIMENSION_REGISTRY, biomeDimId);
     }
 
