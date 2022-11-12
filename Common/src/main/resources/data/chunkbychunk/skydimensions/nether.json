@@ -1,0 +1,9 @@
+{
+  "dimensionId": "minecraft:the_nether",
+  "genDimensionId": "chunkbychunk:netherchunkgeneration",
+  "generationType" : "nether",
+  "allowChunkSpawner" : true,
+  "allowUnstableChunkSpawner" : true,
+  "allowBiomeSpawners": false,
+  "initialChunks" : 1
+}

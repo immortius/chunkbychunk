@@ -80,4 +80,5 @@ public interface CBCPlatformHelper {
     // Fluid Access
 
     Fluid getFluidContent(BucketItem bucketItem);
+
 }

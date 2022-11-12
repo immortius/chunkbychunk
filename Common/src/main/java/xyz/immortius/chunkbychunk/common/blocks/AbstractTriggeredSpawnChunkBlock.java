@@ -12,7 +12,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import xyz.immortius.chunkbychunk.common.world.BaseSkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 
 import java.util.function.Function;
@@ -24,21 +25,39 @@ import java.util.function.Function;
 public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
 
     private final Function<BlockPos, ChunkPos> sourceChunkFunc;
-    private final ResourceKey<Level> sourceLevelKey;
+    private final Function<ServerLevel, ResourceKey<Level>> sourceLevelFunc;
+
+    public static ResourceKey<Level> getSkyGenerationSourceLevel(ServerLevel target) {
+        if (target.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
+            return generator.getGenerationLevel();
+        }
+        return null;
+    }
 
     /**
      * @param sourceLevel The level to spawn chunks from
-     * @param blockProperties
      * @param sourceChunkFunc The function to map from target block pos to source chunk position
+     * @param blockProperties
      */
-    public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties, Function<BlockPos, ChunkPos> sourceChunkFunc) {
+    public AbstractTriggeredSpawnChunkBlock(ResourceKey<Level> sourceLevel, Function<BlockPos, ChunkPos> sourceChunkFunc, Properties blockProperties) {
         super(blockProperties);
         this.sourceChunkFunc = sourceChunkFunc;
-        this.sourceLevelKey = sourceLevel;
+        this.sourceLevelFunc = (unused) -> sourceLevel;
     }
 
-    public ResourceKey<Level> getSourceLevel() {
-        return sourceLevelKey;
+    /**
+     * @param sourceLevelFunc A method to determine the level to spawn chunks from
+     * @param sourceChunkFunc The function to map from target block pos to source chunk position
+     * @param blockProperties
+     */
+    public AbstractTriggeredSpawnChunkBlock(Function<ServerLevel, ResourceKey<Level>> sourceLevelFunc, Function<BlockPos, ChunkPos> sourceChunkFunc, Properties blockProperties) {
+        super(blockProperties);
+        this.sourceChunkFunc = sourceChunkFunc;
+        this.sourceLevelFunc = sourceLevelFunc;
+    }
+
+    public ResourceKey<Level> getSourceLevel(ServerLevel level) {
+        return sourceLevelFunc.apply(level);
     }
 
     @Override
@@ -51,20 +70,21 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
         return Shapes.empty();
     }
 
+    public abstract boolean validForLevel(ServerLevel level);
+
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState prevState, boolean p_60570_) {
         super.onPlace(state, level, pos, prevState, p_60570_);
         if (!level.isClientSide()) {
             ServerLevel targetLevel = (ServerLevel) level;
-            
-            if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator chunkGenerator) {
-                ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelKey);
-                if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                    ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
-                    ChunkPos targetChunkPos = new ChunkPos(pos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
-                    targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, true);
-                }
+            ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelFunc.apply(targetLevel));
+            if (sourceLevel != null && validForLevel(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                ChunkPos targetChunkPos = new ChunkPos(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, true);
+                targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, true);
+            } else {
+                ChunkByChunkConstants.LOGGER.warn("Invalid triggered spawn chunk block detected at {}:{}", level.dimension(), pos);
             }
         }
     }
@@ -74,14 +94,12 @@ public abstract class AbstractTriggeredSpawnChunkBlock extends BaseEntityBlock {
         super.onRemove(state, level, pos, prevState, p_60519_);
         if (!level.isClientSide()) {
             ServerLevel targetLevel = (ServerLevel) level;
-            if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator chunkGenerator) {
-                ServerLevel sourceLevel = level.getServer().getLevel(chunkGenerator.getGenerationLevel());
-                if (sourceLevel != null && SpawnChunkHelper.isValidForChunkSpawn(targetLevel)) {
-                    ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
-                    ChunkPos targetChunkPos = new ChunkPos(pos);
-                    sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
-                    targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, false);
-                }
+            ServerLevel sourceLevel = level.getServer().getLevel(sourceLevelFunc.apply(targetLevel));
+            if (sourceLevel != null && validForLevel(targetLevel)) {
+                ChunkPos sourceChunkPos = sourceChunkFunc.apply(pos);
+                ChunkPos targetChunkPos = new ChunkPos(pos);
+                sourceLevel.setChunkForced(sourceChunkPos.x, sourceChunkPos.z, false);
+                targetLevel.setChunkForced(targetChunkPos.x, targetChunkPos.z, false);
             }
         }
     }

@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
@@ -60,11 +61,9 @@ public class SpawnChunkCommand {
 
     private static class BiomeThemeSuggestionProvider implements SuggestionProvider<CommandSourceStack> {
 
-        private static final List<String> biomeThemes = ChunkByChunkConstants.OVERWORLD_BIOME_THEMES.stream().map(ChunkByChunkConstants.BiomeTheme::name).toList();
-
         @Override
-        public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) throws CommandSyntaxException {
-            biomeThemes.forEach(builder::suggest);
+        public CompletableFuture<Suggestions> getSuggestions(CommandContext<CommandSourceStack> context, SuggestionsBuilder builder) {
+            ChunkByChunkConstants.BIOME_THEMES.forEach(builder::suggest);
             return builder.buildFuture();
         }
     }
@@ -74,7 +73,7 @@ public class SpawnChunkCommand {
         BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (!SpawnChunkHelper.isValidForChunkSpawn(level)) {
+        if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
             throw INVALID_LEVEL.create();
         }
         if (!Level.isInSpawnableBounds(pos)) {
@@ -96,18 +95,16 @@ public class SpawnChunkCommand {
     }
 
     private static int spawnThemedChunk(CommandSourceStack stack, ServerLevel level, String biome, Coordinates specifiedCoords) throws CommandSyntaxException {
-        Optional<ChunkByChunkConstants.BiomeTheme> group = ChunkByChunkConstants.OVERWORLD_BIOME_THEMES.stream().filter(x -> x.name().equals(biome)).findAny();
-        if (group.isEmpty()) {
-            throw INVALID_THEME.create();
-        }
-
         Vec3 vec3 = specifiedCoords.getPosition(stack);
         BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (!SpawnChunkHelper.isValidForChunkSpawn(level)) {
+        if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
             throw INVALID_LEVEL.create();
         }
+        if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator && generator.getBiomeDimension(biome) == null) {
+        throw INVALID_THEME.create();
+    }
         if (!Level.isInSpawnableBounds(pos)) {
             throw INVALID_POSITION.create();
         }
@@ -115,10 +112,10 @@ public class SpawnChunkCommand {
             throw NON_EMPTY_CHUNK.create();
         }
 
-        ServerLevel sourceLevel = level.getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, group.get().name() + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)));
+        ServerLevel sourceLevel = level.getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)));
 
         SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
-        level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, group.get().name() + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_ALL);
         return 1;
     }
 

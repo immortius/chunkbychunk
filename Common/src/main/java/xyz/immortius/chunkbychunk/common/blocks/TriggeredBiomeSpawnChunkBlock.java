@@ -18,15 +18,26 @@ import java.util.function.Function;
 /**
  * Spawns the corresponding chunk to the chunk the block is in
  */
-public class TriggeredSpawnChunkBlock extends AbstractTriggeredSpawnChunkBlock {
+public class TriggeredBiomeSpawnChunkBlock extends AbstractTriggeredSpawnChunkBlock {
 
-    public TriggeredSpawnChunkBlock(Properties blockProperties) {
-        super(AbstractTriggeredSpawnChunkBlock::getSkyGenerationSourceLevel, TriggeredSpawnChunkBlock::getSourceChunk, blockProperties);
+    private final String biomeTheme;
+
+    public TriggeredBiomeSpawnChunkBlock(String biomeTheme, Properties blockProperties) {
+        super((level) -> {
+            if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
+                return generator.getBiomeDimension(biomeTheme);
+            }
+            return null;
+        }, TriggeredBiomeSpawnChunkBlock::getSourceChunk, blockProperties);
+        this.biomeTheme = biomeTheme;
     }
 
     @Override
     public boolean validForLevel(ServerLevel level) {
-        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
+        if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
+            return generator.getBiomeDimension(biomeTheme) != null;
+        }
+        return false;
     }
 
     public static ChunkPos getSourceChunk(BlockPos targetBlockPos) {

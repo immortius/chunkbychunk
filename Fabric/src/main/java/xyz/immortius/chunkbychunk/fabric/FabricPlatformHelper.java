@@ -11,6 +11,7 @@ import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
+import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 import xyz.immortius.chunkbychunk.interop.CBCPlatformHelper;
 import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 
@@ -113,8 +114,11 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
     }
 
     @Override
-    public Fluid getFluidContent(BucketItem bucketItem) {
-        return ((BucketFluidAccessor) bucketItem).getFluidContent();
+    public Fluid getFluidContent(BucketItem bucket) {
+        if (bucket instanceof BucketFluidAccessor bucketAccess) {
+            return bucketAccess.getFluidContent();
+        }
+        return null;
     }
 
 }

@@ -13,6 +13,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import xyz.immortius.chunkbychunk.common.blocks.AbstractTriggeredSpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -43,16 +44,8 @@ public final class SpawnChunkHelper {
      * @return Whether the chunk is 'empty' and thus ready to be spawned into.
      */
     public static boolean isEmptyChunk(LevelAccessor level, ChunkPos chunkPos) {
-        BlockPos bedrockCheckBlock = chunkPos.getBlockAt(8, level.getMinBuildHeight(), 8);
+        BlockPos bedrockCheckBlock = chunkPos.getMiddleBlockPosition(level.getMinBuildHeight());
         return !Blocks.BEDROCK.equals(level.getBlockState(bedrockCheckBlock).getBlock());
-    }
-
-    /**
-     * @param level The level to check
-     * @return Whether the level is appropriate for spawning chunks - is it a SkyChunkGenerator level.
-     */
-    public static boolean isValidForChunkSpawn(ServerLevel level) {
-        return level != null && level.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator;
     }
 
     /**
@@ -72,7 +65,7 @@ public final class SpawnChunkHelper {
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      */
     public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos targetChunkPos, ChunkPos sourceChunkPos) {
-        if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator generator) {
+        if (targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator) {
             ServerLevel sourceLevel = Objects.requireNonNull(targetLevel.getServer()).getLevel(generator.getGenerationLevel());
             if (sourceLevel != null) {
                 spawnChunkBlocks(targetLevel, targetChunkPos, sourceLevel, sourceChunkPos);
@@ -90,8 +83,8 @@ public final class SpawnChunkHelper {
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      */
     public static void spawnChunkBlocks(ServerLevel targetLevel, ChunkPos targetChunkPos, ServerLevel sourceLevel, ChunkPos sourceChunkPos) {
-        if (!isValidForChunkSpawn(targetLevel)) {
-            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");
+        if (targetLevel == null || !(targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
+            LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk ");
             return;
         }
         copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
@@ -107,7 +100,7 @@ public final class SpawnChunkHelper {
      * @param sourceChunkPos The position of the chunk in the source dimension to pull from
      */
     public static void spawnChunkEntities(ServerLevel targetLevel, ChunkPos targetChunkPos, ServerLevel sourceLevel, ChunkPos sourceChunkPos) {
-        if (targetLevel.getChunkSource().getGenerator() instanceof BaseSkyChunkGenerator) {
+        if (targetLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator) {
             copyEntities(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
         } else {
             LOGGER.warn("Attempted to spawn a chunk in a non-SkyChunk world");

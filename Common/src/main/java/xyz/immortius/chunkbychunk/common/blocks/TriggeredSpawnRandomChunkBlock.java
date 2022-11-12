@@ -1,7 +1,7 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blockEntities.TriggeredSpawnRandomChunkBlockEntity;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.Random;
@@ -19,8 +20,8 @@ import java.util.Random;
  */
 public class TriggeredSpawnRandomChunkBlock extends AbstractTriggeredSpawnChunkBlock {
 
-    public TriggeredSpawnRandomChunkBlock(ResourceKey<Level> sourceLevel, Properties blockProperties) {
-        super(sourceLevel, blockProperties, TriggeredSpawnRandomChunkBlock::getSourceChunk);
+    public TriggeredSpawnRandomChunkBlock(Properties blockProperties) {
+        super(AbstractTriggeredSpawnChunkBlock::getSkyGenerationSourceLevel, TriggeredSpawnRandomChunkBlock::getSourceChunk, blockProperties);
     }
 
     public static ChunkPos getSourceChunk(BlockPos targetBlockPos) {
@@ -31,6 +32,11 @@ public class TriggeredSpawnRandomChunkBlock extends AbstractTriggeredSpawnChunkB
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return new TriggeredSpawnRandomChunkBlockEntity(pos, state);
+    }
+
+    @Override
+    public boolean validForLevel(ServerLevel level) {
+        return level.getChunkSource().getGenerator() instanceof SkyChunkGenerator;
     }
 
     @Override

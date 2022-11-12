@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
@@ -42,13 +43,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
         this.triggeredBlockState = triggeredBlockState;
     }
 
-    @Override
-    public BlockState getStateForPlacement(BlockPlaceContext context) {
-        if (Level.OVERWORLD.equals(context.getLevel().dimension())) {
-            return super.getStateForPlacement(context);
-        }
-        return null;
-    }
+    public abstract boolean isValidForLevel(ServerLevel level);
 
     @Override
     public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
@@ -56,7 +51,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
             return InteractionResult.SUCCESS;
         }
         if (level instanceof ServerLevel serverLevel) {
-            if (Level.OVERWORLD.equals(level.dimension())) {
+            if (isValidForLevel(serverLevel)) {
                 List<BlockPos> targetPositions = new ArrayList<>();
                 BlockPos initialPos = pos.atY(level.getMaxBuildHeight() - 1);
                 targetPositions.add(initialPos);
@@ -71,7 +66,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
 
                 for (BlockPos targetPos : targetPositions) {
                     ChunkPos targetChunkPos = new ChunkPos(targetPos);
-                    if (SpawnChunkHelper.isValidForChunkSpawn(serverLevel) && SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
+                    if (SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
                         serverLevel.setBlock(targetPos, triggeredBlockState, Block.UPDATE_ALL);
                         if (!pos.equals(targetPos)) {
                             serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
