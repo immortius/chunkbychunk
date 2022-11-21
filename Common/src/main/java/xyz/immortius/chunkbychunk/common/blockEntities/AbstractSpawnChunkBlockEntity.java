@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.dimension.DimensionType;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.AbstractTriggeredSpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.world.ControllableChunkMap;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
@@ -95,10 +96,13 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
         if (SpawnChunkHelper.isEmptyChunk(targetLevel, targetChunkPos)) {
             ChunkAccess sourceChunk = sourceLevel.getChunk(sourceChunkPos.x, sourceChunkPos.z);
             ChunkAccess targetChunk = targetLevel.getChunk(targetChunkPos.x, targetChunkPos.z);
+            if (sourceChunk.getSections().length != targetChunk.getSections().length) {
+                ChunkByChunkConstants.LOGGER.warn("Section count mismatch between {} and {} - {} vs {}", sourceLevel.dimension(), targetLevel.dimension(), sourceChunk.getSections().length, targetChunk.getSections().length);
+            }
 
-
-            for (int i = 0; i < sourceChunk.getSections().length; i++) {
-                if (sourceChunk.getSections()[i].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[i].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
+            for (int targetIndex = 0; targetIndex < targetChunk.getSections().length; targetIndex++) {
+                int sourceIndex = (targetIndex < sourceChunk.getSections().length) ? targetIndex : sourceChunk.getSections().length - 1;
+                if (sourceChunk.getSections()[sourceIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[targetIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
                     byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
                     FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
                     friendlyByteBuf.writerIndex(0);
