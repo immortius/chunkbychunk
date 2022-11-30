@@ -53,7 +53,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             entity.tickCounter++;
             ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel(serverLevel));
             if (!spawnBlock.validForLevel(serverLevel) || sourceLevel == null) {
-                serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
+                serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_NONE);
                 return;
             }
 
@@ -69,7 +69,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             } else if (entity.tickCounter >= TICKS_TO_SPAWN_ENTITIES) {
                 SpawnChunkHelper.spawnChunkEntities(serverLevel, targetChunkPos, sourceLevel, entity.sourceChunkPosFunc.apply(blockPos));
                 if (serverLevel.getBlockState(blockPos) == blockState) {
-                    serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
+                    serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_NONE);
                 }
             }
         }
@@ -84,7 +84,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                 ChunkPos synchChunk = new ChunkPos(new BlockPos(pos.getX() * scale, 0, pos.getZ() * scale));
                 if (SpawnChunkHelper.isEmptyChunk(synchLevel, synchChunk) && !(synchLevel.getBlockState(synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1)).getBlock() instanceof AbstractTriggeredSpawnChunkBlock)) {
                     BlockPos genBlockPos = synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1);
-                    synchLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+                    synchLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                     return true;
                 }
             }

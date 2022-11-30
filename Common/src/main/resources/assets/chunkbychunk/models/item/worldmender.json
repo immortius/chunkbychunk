@@ -1,0 +1,12 @@
+{
+  "parent" : "block/cube",
+  "textures" : {
+    "up" : "chunkbychunk:block/worldmender-top",
+    "down" : "chunkbychunk:block/worldforge-bottom",
+    "north" : "chunkbychunk:block/worldforge-side",
+    "east" : "chunkbychunk:block/worldforge-side",
+    "south" : "chunkbychunk:block/worldforge-side",
+    "west" : "chunkbychunk:block/worldforge-side",
+    "particle": "chunkbychunk:block/worldmender-top"
+  }
+}

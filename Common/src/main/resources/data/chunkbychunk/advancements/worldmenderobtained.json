@@ -1,0 +1,28 @@
+{
+  "parent": "chunkbychunk:chunkspawnerobtained",
+  "display": {
+    "icon": {
+      "item": "chunkbychunk:worldmender"
+    },
+    "title": {
+      "translate": "advancement.chunkbychunk.worldmenderobtained.title"
+    },
+    "description": {
+      "translate": "advancement.chunkbychunk.worldmenderobtained.description"
+    }
+  },
+  "criteria": {
+    "obtainmenderblock": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "chunkbychunk:worldmender"
+            ]
+          }
+        ]
+      }
+    }
+  }
+}

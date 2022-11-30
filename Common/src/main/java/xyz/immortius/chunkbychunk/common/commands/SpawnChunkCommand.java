@@ -86,10 +86,10 @@ public class SpawnChunkCommand {
         if (random) {
             ChunkPos sourceChunk = TriggeredSpawnRandomChunkBlock.getSourceChunk(pos);
             SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceChunk);
-            level.setBlock(pos, Services.PLATFORM.triggeredSpawnRandomChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(pos, Services.PLATFORM.triggeredSpawnRandomChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
         } else {
             SpawnChunkHelper.spawnChunkBlocks(level, chunkPos);
-            level.setBlock(pos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+            level.setBlock(pos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
         }
         return 1;
     }
@@ -115,7 +115,7 @@ public class SpawnChunkCommand {
         ServerLevel sourceLevel = level.getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)));
 
         SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
-        level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_ALL);
+        level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
         return 1;
     }
 

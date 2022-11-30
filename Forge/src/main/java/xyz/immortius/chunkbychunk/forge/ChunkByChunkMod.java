@@ -38,6 +38,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
+import xyz.immortius.chunkbychunk.client.screens.WorldMenderScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.CommonEventHandler;
@@ -46,6 +47,7 @@ import xyz.immortius.chunkbychunk.common.blocks.*;
 import xyz.immortius.chunkbychunk.common.commands.SpawnChunkCommand;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
+import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
@@ -77,6 +79,7 @@ public class ChunkByChunkMod {
     public static final RegistryObject<Block> WORLD_CORE_BLOCK = BLOCKS.register("worldcore", () -> new Block(BlockBehaviour.Properties.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7)));
     public static final RegistryObject<Block> WORLD_FORGE_BLOCK = BLOCKS.register("worldforge", () -> new WorldForgeBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7)));
     public static final RegistryObject<Block> WORLD_SCANNER_BLOCK = BLOCKS.register("worldscanner", () -> new WorldScannerBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
+    public static final RegistryObject<Block> WORLD_MENDER_BLOCK = BLOCKS.register("worldmender", () -> new WorldMenderBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
 
     public static final RegistryObject<Item> SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("chunkspawner", () -> new BlockItem(SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("unstablechunkspawner", () -> new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
@@ -84,6 +87,7 @@ public class ChunkByChunkMod {
     public static final RegistryObject<Item> WORLD_CORE_BLOCK_ITEM = ITEMS.register("worldcore", () -> new BlockItem(WORLD_CORE_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> WORLD_FORGE_BLOCK_ITEM = ITEMS.register("worldforge", () -> new BlockItem(WORLD_FORGE_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> WORLD_SCANNER_BLOCK_ITEM = ITEMS.register("worldscanner", () -> new BlockItem(WORLD_SCANNER_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
+    public static final RegistryObject<Item> WORLD_MENDER_BLOCK_ITEM = ITEMS.register("worldmender", () -> new BlockItem(WORLD_MENDER_BLOCK.get(), new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
 
     public static final RegistryObject<Item> WORLD_FRAGMENT_ITEM = ITEMS.register("worldfragment", () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
     public static final RegistryObject<Item> WORLD_SHARD_ITEM = ITEMS.register("worldshard", () -> new Item(new Item.Properties().tab(CreativeModeTab.TAB_MISC)));
@@ -92,12 +96,14 @@ public class ChunkByChunkMod {
     public static final RegistryObject<BlockEntityType<?>> BEDROCK_CHEST_BLOCK_ENTITY = BLOCK_ENTITIES.register("bedrockchestentity", () -> BlockEntityType.Builder.of(BedrockChestBlockEntity::new, BEDROCK_CHEST_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_FORGE_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldforgeentity", () -> BlockEntityType.Builder.of(WorldForgeBlockEntity::new, WORLD_FORGE_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> WORLD_SCANNER_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldscannerentity", () -> BlockEntityType.Builder.of(WorldScannerBlockEntity::new, WORLD_SCANNER_BLOCK.get()).build(null));
+    public static final RegistryObject<BlockEntityType<?>> WORLD_MENDER_BLOCK_ENTITY = BLOCK_ENTITIES.register("worldmenderentity", () -> BlockEntityType.Builder.of(WorldMenderBlockEntity::new, WORLD_MENDER_BLOCK.get()).build(null));
     public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY;
     public static final RegistryObject<BlockEntityType<?>> TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnrandomchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnRandomChunkBlockEntity::new, TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get()).build(null));
 
     public static final RegistryObject<MenuType<BedrockChestMenu>> BEDROCK_CHEST_MENU = CONTAINERS.register("bedrockchestmenu", () -> new MenuType<>(BedrockChestMenu::new));
     public static final RegistryObject<MenuType<WorldForgeMenu>> WORLD_FORGE_MENU = CONTAINERS.register("worldforgemenu", () -> new MenuType<>(WorldForgeMenu::new));
     public static final RegistryObject<MenuType<WorldScannerMenu>> WORLD_SCANNER_MENU = CONTAINERS.register("worldscannermenu", () -> new MenuType<>(WorldScannerMenu::new));
+    public static final RegistryObject<MenuType<WorldMenderMenu>> WORLD_MENDER_MENU = CONTAINERS.register("worldmendermenu", () -> new MenuType<>(WorldMenderMenu::new));
 
     public static final RegistryObject<SoundEvent> SPAWN_CHUNK_SOUND_EVENT = SOUNDS.register("spawnchunkevent", () -> new SoundEvent(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "chunk_spawn_sound")));
 
@@ -148,6 +154,7 @@ public class ChunkByChunkMod {
             MenuScreens.register(BEDROCK_CHEST_MENU.get(), BedrockChestScreen::new);
             MenuScreens.register(WORLD_FORGE_MENU.get(), WorldForgeScreen::new);
             MenuScreens.register(WORLD_SCANNER_MENU.get(), WorldScannerScreen::new);
+            MenuScreens.register(WORLD_MENDER_MENU.get(), WorldMenderScreen::new);
         });
     }
 

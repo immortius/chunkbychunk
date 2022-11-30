@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.client.screens.BedrockChestScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
+import xyz.immortius.chunkbychunk.client.screens.WorldMenderScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
@@ -23,6 +24,7 @@ public class ChunkByChunkClientMod implements ClientModInitializer {
         MenuScreens.register(ChunkByChunkMod.BEDROCK_CHEST_MENU, BedrockChestScreen::new);
         MenuScreens.register(ChunkByChunkMod.WORLD_FORGE_MENU, WorldForgeScreen::new);
         MenuScreens.register(ChunkByChunkMod.WORLD_SCANNER_MENU, WorldScannerScreen::new);
+        MenuScreens.register(ChunkByChunkMod.WORLD_MENDER_MENU, WorldMenderScreen::new);
 
         ClientPlayNetworking.registerGlobalReceiver(ChunkByChunkMod.CONFIG_PACKET, (client, handler, buf, responseSender) -> {
             LOGGER.info("Receiving config from server");

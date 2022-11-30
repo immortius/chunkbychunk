@@ -10,6 +10,7 @@ import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
+import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 
 public interface CBCPlatformHelper {
@@ -45,6 +46,8 @@ public interface CBCPlatformHelper {
 
     Item worldScannerBlockItem();
 
+    Item worldMenderBlockItem();
+
     // Items
 
     Item worldFragmentItem();
@@ -61,6 +64,8 @@ public interface CBCPlatformHelper {
 
     BlockEntityType<WorldScannerBlockEntity> worldScannerEntity();
 
+    BlockEntityType<WorldMenderBlockEntity> worldMenderEntity();
+
     BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity();
 
     BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity();
@@ -76,6 +81,8 @@ public interface CBCPlatformHelper {
     MenuType<WorldForgeMenu> worldForgeMenu();
 
     MenuType<WorldScannerMenu> worldScannerMenu();
+
+    MenuType<WorldMenderMenu> worldMenderMenu();
 
     // Fluid Access
 

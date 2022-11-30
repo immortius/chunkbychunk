@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.util;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.Mth;
 
 /**
  * A spiral iterator in 2 dimensions. Spirals clockwise, starting in the positive x direction
@@ -10,6 +11,8 @@ public class SpiralIterator {
     private static final int[][] SCAN_DIRECTION_OFFSET = {{1, 0}, {0, 1}, {-1, 0}, {0, -1}};
     private static final int[] SCAN_DISTANCE_INCREASE = {0, 1, 0, 1};
 
+    private int startX;
+    private int startY;
     private int currentX;
     private int currentY;
     private int direction = 0;
@@ -28,6 +31,8 @@ public class SpiralIterator {
      * @param startY The initial y coord
      */
     public SpiralIterator(int startX, int startY) {
+        this.startX = startX;
+        this.startY = startY;
         currentX = startX;
         currentY = startY;
     }
@@ -51,6 +56,13 @@ public class SpiralIterator {
      */
     public void reset() {
         reset(0,0);
+    }
+
+    /**
+     * @return How many layers out is the spiral
+     */
+    public int layerDistance() {
+        return Math.max(Mth.abs(currentX - startX), Mth.abs(currentY - startY));
     }
 
     /**
