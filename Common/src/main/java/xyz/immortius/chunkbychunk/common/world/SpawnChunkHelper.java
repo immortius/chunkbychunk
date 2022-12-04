@@ -188,9 +188,9 @@ public final class SpawnChunkHelper {
 
         BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
         if (ChunkByChunkConfig.get().getGeneration().useBedrockChest()) {
-            targetLevel.setBlock(blockPos, Services.PLATFORM.bedrockChestBlock().defaultBlockState(), Block.UPDATE_ALL);
+            targetLevel.setBlock(blockPos, Services.PLATFORM.bedrockChestBlock().defaultBlockState(), Block.UPDATE_CLIENTS);
         } else {
-            targetLevel.setBlock(blockPos, Blocks.CHEST.defaultBlockState(), Block.UPDATE_ALL);
+            targetLevel.setBlock(blockPos, Blocks.CHEST.defaultBlockState(), Block.UPDATE_CLIENTS);
         }
         if (targetLevel.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chestEntity) {
             chestEntity.setItem(0, ChunkByChunkConfig.get().getGeneration().getChestContents().getItem(ChunkByChunkConfig.get().getGeneration().getChestQuantity()));

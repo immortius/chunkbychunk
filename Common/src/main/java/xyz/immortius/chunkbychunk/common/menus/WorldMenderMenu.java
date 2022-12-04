@@ -13,6 +13,8 @@ import net.minecraft.world.item.MapItem;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldMenderBlockEntity;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.blocks.BaseSpawnChunkBlock;
+import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
+import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 /**
@@ -41,14 +43,7 @@ public class WorldMenderMenu extends BaseInventoryContainerMenu {
         return this.moveItemStackToContainerSlot(stack, WorldMenderBlockEntity.SLOT_INPUT, WorldMenderBlockEntity.SLOT_INPUT + 1, false);
     }
 
-    public boolean[] getChunkState() {
-        boolean[] state = new boolean[17*17];
-        state[17 * 13 + 3] = true;
-        return state;
+    public int getChunksSpawned() {
+        return containerData.get(WorldMenderBlockEntity.DATA_CHUNKS_SPAWNED);
     }
-
-    public Integer nextChunk() {
-        return 5;
-    }
-
 }

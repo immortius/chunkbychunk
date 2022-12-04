@@ -1,16 +1,10 @@
 package xyz.immortius.chunkbychunk.common.blockEntities;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Multimap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -22,51 +16,44 @@ import net.minecraft.world.inventory.StackedContentsCompatible;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.levelgen.WorldgenRandom;
-import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.MaterialColor;
-import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import xyz.immortius.chunkbychunk.common.blocks.BaseSpawnChunkBlock;
-import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
-import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
-import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
-
-import java.util.*;
 
 /**
  * World Scanner Block Entity - this consumes crystals in order to scan for a provided block or item hint.
  */
 public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, StackedContentsCompatible {
 
-    public static final int NUM_ITEM_SLOTS = 1;
-    public static final int NUM_DATA_ITEMS = 0;
     public static final int SLOT_INPUT = 0;
+    public static final int NUM_ITEM_SLOTS = 1;
+
+    public static final int DATA_CHUNKS_SPAWNED = 0;
+    public static final int NUM_DATA_ITEMS = 1;
 
     public static final int TICKS_BETWEEN_GENERATION = 120;
+    public static final int SLEEP_TICKS_WHEN_NOTHING_TO_GENERATE = 1200000;
 
     private NonNullList<ItemStack> items;
     private int cooldown;
+    private int chunksSpawned;
 
     protected final ContainerData dataAccess = new ContainerData() {
         public int get(int id) {
             return switch (id) {
+                case DATA_CHUNKS_SPAWNED -> chunksSpawned;
                 default -> 0;
             };
         }
 
         public void set(int id, int value) {
             switch (id) {
+                case DATA_CHUNKS_SPAWNED -> chunksSpawned = value;
             }
         }
 
@@ -90,26 +77,25 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
             entity.cooldown--;
             return;
         }
+        int chunksSpawned = 0;
         if (entity.validInput()) {
             ChunkPos centerPos = new ChunkPos(blockPos);
             SpiralIterator spiralIterator = new SpiralIterator(centerPos.x, centerPos.z);
             while (spiralIterator.layerDistance() <= 8) {
                 ChunkPos chunkPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
                 if (SpawnChunkHelper.isEmptyChunk(level, chunkPos)) {
+                    entity.chunksSpawned = chunksSpawned + 1;
                     BlockPos pos = chunkPos.getMiddleBlockPosition(level.getMaxBuildHeight() - 1);
                     level.setBlock(pos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                     entity.getItem(SLOT_INPUT).shrink(1);
                     entity.cooldown = TICKS_BETWEEN_GENERATION;
-
-                    spiralIterator.next();
-                    if (spiralIterator.layerDistance() <= 8) {
-                        //level.getServer().getLevel(((SkyChunkGenerator) ((ServerLevel)level).getChunkSource().getGenerator()).getGenerationLevel()).setChunkForced(spiralIterator.getX(), spiralIterator.getY(), true);
-                    }
-                    break;
+                    return;
                 }
+                chunksSpawned++;
                 spiralIterator.next();
             }
-
+            entity.cooldown += SLEEP_TICKS_WHEN_NOTHING_TO_GENERATE;
+            entity.chunksSpawned = chunksSpawned;
         }
     }
 
@@ -223,6 +209,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
         super.load(tag);
         this.cooldown = tag.getInt("Cooldown");
         this.items = NonNullList.withSize(this.getContainerSize(), ItemStack.EMPTY);
+        this.chunksSpawned = tag.getInt("ChunksSpawned");
         ContainerHelper.loadAllItems(tag, this.items);
     }
 
@@ -231,6 +218,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
         super.saveAdditional(tag);
         ContainerHelper.saveAllItems(tag, this.items);
         tag.putInt("Cooldown", cooldown);
+        tag.putInt("ChunksSpawned", chunksSpawned);
     }
 
 }

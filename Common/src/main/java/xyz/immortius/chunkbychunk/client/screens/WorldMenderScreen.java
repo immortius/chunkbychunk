@@ -10,6 +10,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
+import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 
 /**
  * Screen for the WorldMender.
@@ -20,6 +21,9 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
     private static final int MAIN_TEXTURE_DIM = 512;
     private static final float TICKS_PER_FRAME = 4f;
     private static final int NUM_FRAMES = 8;
+    private static final int HIGHLIGHT_SIZE = 128;
+    private static final int HIGHLIGHT_INSET_X = 24;
+    private static final int HIGHLIGHT_INSET_Y = 13;
 
     private static final int[][] NODE_OFFSETS = new int[][] {{3},{5,3},{6,5,3},{7,6,5,3},{7,7,7,6,4},{7,8,8,8,7,4},{7,8,9,9,9,7,5}};
 
@@ -73,33 +77,31 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
         int frame = Mth.floor(animCounter / TICKS_PER_FRAME);
 
 
-        int highlightOffsetX = 176 + (frame / 4) * 128;
-        int highlightOffsetY = 128 * (frame % 4);
+        int highlightOffsetX = imageWidth + (frame / 4) * HIGHLIGHT_SIZE;
+        int highlightOffsetY = HIGHLIGHT_SIZE * (frame % 4);
 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
         this.blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
-        this.blit(stack, leftPos + 24, topPos + 13, highlightOffsetX, highlightOffsetY, 128, 128);
 
-        Integer nextChunk = menu.nextChunk();
-        if (nextChunk != null) {
-            Pos renderPos = getChunkPos(nextChunk);
-            this.blit(stack, leftPos + renderPos.x, topPos + renderPos.y, 0, this.imageHeight, 2, 2);
+        SpiralIterator iterator = new SpiralIterator(0,0);
+        for (int i = 0; i < menu.getChunksSpawned(); i++) {
+            Pos blitPos = getChunkPos(iterator.getX(), iterator.getY());
+            this.blit(stack, HIGHLIGHT_INSET_X + leftPos + blitPos.x, HIGHLIGHT_INSET_Y + topPos + blitPos.y, highlightOffsetX + blitPos.x(), highlightOffsetY + blitPos.y(), 2, 2);
+            iterator.next();
         }
     }
 
-    private Pos getChunkPos(int chunk) {
-        int nextChunkX = chunk % 17 - 8;
-        int nextChunkY = chunk / 17 - 8;
+    private Pos getChunkPos(int chunkX, int chunkZ) {
 
-        int absX = Mth.abs(nextChunkX);
-        int absY = Mth.abs(nextChunkY);
-        int sigX = Mth.sign(nextChunkX);
-        int sigY = Mth.sign(nextChunkY);
+        int absX = Mth.abs(chunkX);
+        int absY = Mth.abs(chunkZ);
+        int sigX = Mth.sign(chunkX);
+        int sigY = Mth.sign(chunkZ);
 
-        int xOffset = nextChunkX * 7 + 6 * sigX + 63;
-        int yOffset = nextChunkY * 7 + 6 * sigY + 63;
+        int xOffset = chunkX * 7 + 6 * sigX + 63;
+        int yOffset = chunkZ * 7 + 6 * sigY + 63;
 
         if (absX > 0 && absY > absX) {
             xOffset -= sigX * NODE_OFFSETS[absY - 2][absX - 1];
@@ -107,7 +109,7 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
             yOffset -= sigY * NODE_OFFSETS[absX - 2][absY - 1];
         }
 
-        return new Pos(24 + xOffset, 13 + yOffset);
+        return new Pos(xOffset, yOffset);
     }
 
     @Override
