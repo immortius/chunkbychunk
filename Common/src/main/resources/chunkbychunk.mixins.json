@@ -11,7 +11,8 @@
     "DefrostedRegistry",
     "NoiseBasedChunkGeneratorMixin",
     "ChunkMapMixin",
-    "OverworldBiomeBuilderAccessor"
+    "OverworldBiomeBuilderAccessor",
+    "ChunkGeneratorAccessor"
   ],
   "client": [
   ],

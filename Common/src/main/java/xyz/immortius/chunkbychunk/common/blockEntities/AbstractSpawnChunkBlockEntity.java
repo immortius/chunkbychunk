@@ -23,6 +23,7 @@ import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 /**
@@ -53,7 +54,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             entity.tickCounter++;
             ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel(serverLevel));
             if (!spawnBlock.validForLevel(serverLevel) || sourceLevel == null) {
-                serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
+                serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_NONE);
                 return;
             }
 
@@ -69,7 +70,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             } else if (entity.tickCounter >= TICKS_TO_SPAWN_ENTITIES) {
                 SpawnChunkHelper.spawnChunkEntities(serverLevel, targetChunkPos, sourceLevel, entity.sourceChunkPosFunc.apply(blockPos));
                 if (serverLevel.getBlockState(blockPos) == blockState) {
-                    serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_ALL);
+                    serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_NONE);
                 }
             }
         }
@@ -84,7 +85,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                 ChunkPos synchChunk = new ChunkPos(new BlockPos(pos.getX() * scale, 0, pos.getZ() * scale));
                 if (SpawnChunkHelper.isEmptyChunk(synchLevel, synchChunk) && !(synchLevel.getBlockState(synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1)).getBlock() instanceof AbstractTriggeredSpawnChunkBlock)) {
                     BlockPos genBlockPos = synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1);
-                    synchLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_ALL);
+                    synchLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                     return true;
                 }
             }
@@ -100,20 +101,33 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                 ChunkByChunkConstants.LOGGER.warn("Section count mismatch between {} and {} - {} vs {}", sourceLevel.dimension(), targetLevel.dimension(), sourceChunk.getSections().length, targetChunk.getSections().length);
             }
 
+            boolean biomesUpdated = false;
             for (int targetIndex = 0; targetIndex < targetChunk.getSections().length; targetIndex++) {
                 int sourceIndex = (targetIndex < sourceChunk.getSections().length) ? targetIndex : sourceChunk.getSections().length - 1;
                 if (sourceChunk.getSections()[sourceIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[targetIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
                     byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
+
                     FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
                     friendlyByteBuf.writerIndex(0);
                     sourceBiomes.write(friendlyByteBuf);
-                    friendlyByteBuf.readerIndex(0);
-                    targetBiomes.read(friendlyByteBuf);
-                    targetChunk.setUnsaved(true);
+
+                    byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
+                    FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
+                    targetFriendlyByteBuf.writerIndex(0);
+                    targetBiomes.write(targetFriendlyByteBuf);
+
+                    if (!Arrays.equals(buffer, targetBuffer)) {
+                        targetBiomes.read(friendlyByteBuf);
+                        targetChunk.setUnsaved(true);
+                        biomesUpdated = true;
+                    }
                 }
             }
             SpawnChunkHelper.spawnChunkBlocks(targetLevel, targetChunkPos, sourceLevel, sourceChunkPos);
-            ((ControllableChunkMap) targetLevel.getChunkSource().chunkMap).forceReloadChunk(targetChunkPos);
+            if (biomesUpdated) {
+                ChunkByChunkConstants.LOGGER.info("Biomes changed, forcing reload");
+                ((ControllableChunkMap) targetLevel.getChunkSource().chunkMap).forceReloadChunk(targetChunkPos);
+            }
         }
     }
 }

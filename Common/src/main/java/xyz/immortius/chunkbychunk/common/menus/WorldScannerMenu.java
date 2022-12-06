@@ -13,7 +13,7 @@ import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 /**
- * Menu for interacting with the world forge
+ * Menu for interacting with the world scanner
  */
 public class WorldScannerMenu extends BaseInventoryContainerMenu {
     private final ContainerData containerData;

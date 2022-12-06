@@ -67,7 +67,7 @@ public abstract class BaseSpawnChunkBlock extends Block {
                 for (BlockPos targetPos : targetPositions) {
                     ChunkPos targetChunkPos = new ChunkPos(targetPos);
                     if (SpawnChunkHelper.isEmptyChunk(serverLevel, targetChunkPos)) {
-                        serverLevel.setBlock(targetPos, triggeredBlockState, Block.UPDATE_ALL);
+                        serverLevel.setBlock(targetPos, triggeredBlockState, Block.UPDATE_NONE);
                         if (!pos.equals(targetPos)) {
                             serverLevel.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
                         }
