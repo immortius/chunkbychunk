@@ -25,6 +25,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
 import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import xyz.immortius.chunkbychunk.mixins.ChunkGeneratorStructureAccessor;
 
@@ -292,5 +293,10 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     @Override
     public BiomeGenerationSettings getBiomeGenerationSettings(Holder<Biome> biome) {
         return parent.getBiomeGenerationSettings(biome);
+    }
+
+    @Override
+    protected List<StructurePlacement> getPlacementsForStructure(Holder<Structure> structure, RandomState state) {
+        return ChunkGeneratorAccess.getPlacementsForStructure(parent, structure, state);
     }
 }

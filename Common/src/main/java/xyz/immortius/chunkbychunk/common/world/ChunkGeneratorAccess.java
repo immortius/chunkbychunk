@@ -6,8 +6,14 @@ import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.synth.NormalNoise;
+import xyz.immortius.chunkbychunk.mixins.ChunkGeneratorAccessor;
 import xyz.immortius.chunkbychunk.mixins.NoiseBasedChunkGeneratorMixin;
+
+import java.util.List;
 
 public final class ChunkGeneratorAccess {
     private ChunkGeneratorAccess() {
@@ -22,11 +28,15 @@ public final class ChunkGeneratorAccess {
         }
     }
 
-    public static Registry<NormalNoise.NoiseParameters> getNoiseParamsRegistry(ChunkGenerator parent) {
-        if (parent instanceof NoiseBasedChunkGenerator noiseParent) {
+    public static Registry<NormalNoise.NoiseParameters> getNoiseParamsRegistry(ChunkGenerator generator) {
+        if (generator instanceof NoiseBasedChunkGenerator noiseParent) {
             return ((NoiseBasedChunkGeneratorMixin) noiseParent).getNoises();
         } else {
             return BuiltinRegistries.NOISE;
         }
+    }
+
+    public static List<StructurePlacement> getPlacementsForStructure(ChunkGenerator generator, Holder<Structure> structure, RandomState state) {
+        return ((ChunkGeneratorAccessor) (Object) generator).callGetPlacementsForStructure(structure, state);
     }
 }
