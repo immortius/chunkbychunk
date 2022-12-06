@@ -117,6 +117,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                     targetBiomes.write(targetFriendlyByteBuf);
 
                     if (!Arrays.equals(buffer, targetBuffer)) {
+                        friendlyByteBuf.readerIndex(0);
                         targetBiomes.read(friendlyByteBuf);
                         targetChunk.setUnsaved(true);
                         biomesUpdated = true;
