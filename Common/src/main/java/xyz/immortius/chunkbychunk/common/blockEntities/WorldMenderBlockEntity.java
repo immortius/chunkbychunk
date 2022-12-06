@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -69,7 +70,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
 
     @Override
     protected Component getDefaultName() {
-        return Component.translatable("container.chunkbychunk.worldmender");
+        return new TranslatableComponent("container.chunkbychunk.worldmender");
     }
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, WorldMenderBlockEntity entity) {

@@ -229,13 +229,13 @@ public final class ServerEventHandler {
                 ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
                 ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
                     if (biomeKeys.contains(pair.getSecond())) {
-                        builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolderOrThrow));
+                        builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolder));
                     }
                 });
                 return new Climate.ParameterList<>(builder.build());
             }).biomeSource(biomeRegistry);
         }
-        LevelStem biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        LevelStem biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getSeed(rootGenerator), ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
         dimensions.registerOrOverride(OptionalInt.empty(), levelKey, biomeLevel, Lifecycle.stable());
         return ResourceKey.create(Registry.DIMENSION_REGISTRY, biomeDimId);
     }
@@ -346,13 +346,13 @@ public final class ServerEventHandler {
     private static void loadScannerData(ResourceManager resourceManager, Gson gson) {
         WorldScannerBlockEntity.clearItemMappings();
         int count = 0;
-        for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> true).entrySet()) {
-            try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
+        for (ResourceLocation location : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> !r.isEmpty() && !ChunkByChunkConstants.SCANNER_DATA_PATH.equals(r))) {
+            try (InputStreamReader reader = new InputStreamReader(resourceManager.getResource(location).getInputStream())) {
                 ScannerData data = gson.fromJson(reader, ScannerData.class);
-                data.process(entry.getKey());
+                data.process(location);
                 count++;
             } catch (IOException |RuntimeException e) {
-                ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", entry.getKey(), e);
+                ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", location, e);
             }
         }
         ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);

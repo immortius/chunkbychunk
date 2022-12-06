@@ -1,7 +1,7 @@
 package xyz.immortius.chunkbychunk.fabric;
 
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.command.v1.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.item.v1.FabricItemSettings;
@@ -46,6 +46,7 @@ import xyz.immortius.chunkbychunk.server.ServerEventHandler;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -60,7 +61,7 @@ public class ChunkByChunkMod implements ModInitializer {
 
     public static final Block SPAWN_CHUNK_BLOCK = new SpawnChunkBlock(TRIGGERED_SPAWN_CHUNK_BLOCK, FabricBlockSettings.of(Material.STONE));
     public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new UnstableSpawnChunkBlock(FabricBlockSettings.of(Material.STONE));
-    public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((state, getter, pos, arg) -> false)));
+    public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.of(Material.STONE).strength(-1, 3600000.0F).noDrops().isValidSpawn(((state, getter, pos, arg) -> false)));
     public static final Block WORLD_CORE_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7));
     public static final Block WORLD_FORGE_BLOCK = new WorldForgeBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7));
     public static final Block WORLD_SCANNER_BLOCK = new WorldScannerBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4));
@@ -167,7 +168,7 @@ public class ChunkByChunkMod implements ModInitializer {
         ServerLifecycleEvents.SERVER_STARTED.register(ServerEventHandler::onServerStarted);
         ServerLifecycleEvents.SERVER_STARTING.register(ServerEventHandler::onServerStarting);
 
-        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated, environment) -> {
+        CommandRegistrationCallback.EVENT.register((dispatcher, dedicated) -> {
             SpawnChunkCommand.register(dispatcher);
         });
 
