@@ -7,12 +7,9 @@
   "mixins": [
     "EntityChangeDimensionMixin",
     "BucketFluidAccessor",
-    "ChunkGeneratorStructureAccessor",
     "DefrostedRegistry",
-    "NoiseBasedChunkGeneratorMixin",
     "ChunkMapMixin",
-    "OverworldBiomeBuilderAccessor",
-    "ChunkGeneratorAccessor"
+    "OverworldBiomeBuilderAccessor"
   ],
   "client": [
   ],

@@ -15,6 +15,7 @@ import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -26,6 +27,7 @@ import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
@@ -99,24 +101,28 @@ public class SpawnChunkCommand {
         BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
-        if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
+        if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyChunkGenerator) {
+            ResourceKey<Level> biomeDimension = skyChunkGenerator.getBiomeDimension(biome);
+            if (biomeDimension == null) {
+                throw INVALID_THEME.create();
+            }
+            if (!Level.isInSpawnableBounds(pos)) {
+                throw INVALID_POSITION.create();
+            }
+            if (!SpawnChunkHelper.isEmptyChunk(level, chunkPos)) {
+                throw NON_EMPTY_CHUNK.create();
+            }
+
+            ServerLevel sourceLevel = level.getServer().getLevel(biomeDimension);
+            if (sourceLevel == null) {
+                throw INVALID_THEME.create();
+            }
+            SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
+            level.setBlock(pos, level.getServer().registryAccess().registry(Registries.BLOCK).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
+            return 1;
+        } else {
             throw INVALID_LEVEL.create();
         }
-        if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator generator && generator.getBiomeDimension(biome) == null) {
-        throw INVALID_THEME.create();
-    }
-        if (!Level.isInSpawnableBounds(pos)) {
-            throw INVALID_POSITION.create();
-        }
-        if (!SpawnChunkHelper.isEmptyChunk(level, chunkPos)) {
-            throw NON_EMPTY_CHUNK.create();
-        }
-
-        ServerLevel sourceLevel = level.getServer().getLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.BIOME_CHUNK_GENERATION_LEVEL_SUFFIX)));
-
-        SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
-        level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
-        return 1;
     }
 
 

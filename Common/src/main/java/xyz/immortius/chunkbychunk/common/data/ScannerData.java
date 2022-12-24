@@ -1,6 +1,7 @@
 package xyz.immortius.chunkbychunk.common.data;
 
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
@@ -39,7 +40,7 @@ public class ScannerData {
     private Set<Block> getTargetBlocks(ResourceLocation context) {
         return targetBlocks.stream()
                 .map(x -> {
-                    Optional<Block> block = Registry.BLOCK.getOptional(new ResourceLocation(x));
+                    Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(new ResourceLocation(x));
                     if (block.isEmpty()) {
                         ChunkByChunkConstants.LOGGER.warn("Could not resolve block {} in scanner data {}", x, context);
                     }
@@ -53,7 +54,7 @@ public class ScannerData {
     private Set<Item> getInputItems(ResourceLocation context) {
         return inputItems.stream()
                 .map(x -> {
-                    Optional<Item> item = Registry.ITEM.getOptional(new ResourceLocation(x));
+                    Optional<Item> item = BuiltInRegistries.ITEM.getOptional(new ResourceLocation(x));
                     if (item.isEmpty()) {
                         ChunkByChunkConstants.LOGGER.warn("Could not resolve item {} in scanner data {}", x, context);
                     }
