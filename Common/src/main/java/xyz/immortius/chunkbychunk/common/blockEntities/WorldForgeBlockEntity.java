@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -44,9 +45,9 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_DOWN = new int[]{SLOT_RESULT};
 
-    private static final TagKey<Item> SOIL_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:weakworldforgefuel"));
-    private static final TagKey<Item> STONE_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:worldforgefuel"));
-    private static final TagKey<Item> STRONG_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:strongworldforgefuel"));
+    private static final TagKey<Item> SOIL_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:weakworldforgefuel"));
+    private static final TagKey<Item> STONE_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:worldforgefuel"));
+    private static final TagKey<Item> STRONG_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:strongworldforgefuel"));
 
     private int progress;
     private int goal;

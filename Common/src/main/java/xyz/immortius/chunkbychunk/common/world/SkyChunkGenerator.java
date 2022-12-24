@@ -17,22 +17,15 @@ import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.GenerationStep;
-import net.minecraft.world.level.levelgen.Heightmap;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
-import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
+import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure;
-import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.placement.ConcentricRingsStructurePlacement;
-import net.minecraft.world.level.levelgen.structure.placement.StructurePlacement;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
-import xyz.immortius.chunkbychunk.mixins.ChunkGeneratorStructureAccessor;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
-import java.util.stream.Stream;
 
 /**
  * The Sky Chunk Generator - Sky Chunk Generators wrap a parent generator but disable actual generation. The
@@ -41,11 +34,11 @@ import java.util.stream.Stream;
  */
 public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
-    public static final Codec<SkyChunkGenerator> CODEC = RecordCodecBuilder.create((encoded) ->
+    public static final Codec<? extends SkyChunkGenerator> CODEC = RecordCodecBuilder.create((encoded) ->
             encoded.group(ChunkGenerator.CODEC.withLifecycle(Lifecycle.stable()).fieldOf("parent").forGetter(SkyChunkGenerator::getParent))
                     .apply(encoded, encoded.stable(SkyChunkGenerator::new))
     );
-    public static final Codec<SkyChunkGenerator> OLD_NETHER_CODEC = RecordCodecBuilder.create((encoded) ->
+    public static final Codec<? extends SkyChunkGenerator> OLD_NETHER_CODEC = RecordCodecBuilder.create((encoded) ->
             encoded.group(ChunkGenerator.CODEC.withLifecycle(Lifecycle.stable()).fieldOf("parent").forGetter(SkyChunkGenerator::getParent))
                     .apply(encoded, encoded.stable(SkyChunkGenerator::new))
     );
@@ -101,7 +94,7 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
      * @param parent The chunkGenerator this generator is based on
      */
     public SkyChunkGenerator(ChunkGenerator parent) {
-        super(((ChunkGeneratorStructureAccessor) parent).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(parent), parent.getBiomeSource(), ChunkGeneratorAccess.getNoiseGeneratorSettings(parent));
+        super(parent.getBiomeSource(), ChunkGeneratorAccess.getNoiseGeneratorSettings(parent));
         this.parent = parent;
     }
 
@@ -175,13 +168,8 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     }
 
     @Override
-    public Stream<Holder<StructureSet>> possibleStructureSets() {
-        return parent.possibleStructureSets();
-    }
-
-    @Override
-    public CompletableFuture<ChunkAccess> createBiomes(Registry<Biome> biomes, Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunk) {
-        return parent.createBiomes(biomes, executor, randomState, blender, structureManager, chunk);
+    public CompletableFuture<ChunkAccess> createBiomes(Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunk) {
+        return parent.createBiomes(executor, randomState, blender, structureManager, chunk);
     }
 
     @Override
@@ -198,13 +186,11 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     }
 
     @Override
-    public boolean hasStructureChunkInRange(Holder<StructureSet> structureSet, RandomState randomState, long p_223144_, int p_223145_, int p_223146_, int p_223147_) {
-        return parent.hasStructureChunkInRange(structureSet, randomState, p_223144_, p_223145_, p_223146_, p_223147_);
+    public void buildSurface(WorldGenRegion worldGenRegion, StructureManager structureManager, RandomState randomState, ChunkAccess chunk) {
     }
 
-
     @Override
-    public void buildSurface(WorldGenRegion worldGenRegion, StructureManager structureManager, RandomState randomState, ChunkAccess chunk) {
+    public void buildSurface(ChunkAccess access, WorldGenerationContext context, RandomState state, StructureManager structureManager, BiomeManager biomeManager, Registry<Biome> biomes, Blender blender) {
     }
 
     @Override
@@ -232,8 +218,8 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     }
 
     @Override
-    public void createStructures(RegistryAccess registry, RandomState randomState, StructureManager structureManager, ChunkAccess chunk, StructureTemplateManager structureTemplateManager, long seed) {
-        parent.createStructures(registry, randomState, structureManager, chunk, structureTemplateManager, seed);
+    public void createStructures(RegistryAccess registry, ChunkGeneratorStructureState state, StructureManager structureManager, ChunkAccess chunk, StructureTemplateManager structureTemplateManager) {
+        parent.createStructures(registry, state, structureManager, chunk, structureTemplateManager);
     }
 
     @Override
@@ -272,16 +258,6 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     }
 
     @Override
-    public void ensureStructuresGenerated(RandomState randomState) {
-        parent.ensureStructuresGenerated(randomState);
-    }
-
-    @Override
-    public List<ChunkPos> getRingPositionsFor(ConcentricRingsStructurePlacement placement, RandomState randomState) {
-        return parent.getRingPositionsFor(placement, randomState);
-    }
-
-    @Override
     public void addDebugScreenInfo(List<String> outDebugInfo, RandomState randomState, BlockPos pos) {
         parent.addDebugScreenInfo(outDebugInfo, randomState, pos);
     }
@@ -295,8 +271,4 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         return parent.getBiomeGenerationSettings(biome);
     }
 
-    @Override
-    protected List<StructurePlacement> getPlacementsForStructure(Holder<Structure> structure, RandomState state) {
-        return ChunkGeneratorAccess.getPlacementsForStructure(parent, structure, state);
-    }
 }

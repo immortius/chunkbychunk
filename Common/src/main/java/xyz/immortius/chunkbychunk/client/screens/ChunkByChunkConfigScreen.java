@@ -24,17 +24,17 @@ public class ChunkByChunkConfigScreen extends Screen {
         settingsList = new SettingListWidget(minecraft, this, width, 22, height - 44, (int) (0.9f * width));
 
         int w = (width / 3 - 60) / 2;
-        resetButton = new Button(w, height - 32, 60, 20, Component.translatable("controls.reset"), button -> {
+        resetButton = Button.builder(Component.translatable("controls.reset"), button -> {
             settingsList.reset();
-        });
-        cancelButton = new Button(width / 3 + w, height - 32, 60, 20, Component.translatable("gui.cancel"), button -> {
+        }).pos(w, height - 32).size(60, 20).build();
+        cancelButton = Button.builder(Component.translatable("gui.cancel"), button -> {
             ConfigUtil.loadDefaultConfig();
             this.minecraft.setScreen(lastScreen);
-        });
-        saveButton = new Button(2 * width / 3 + w, height - 32, 60, 20, Component.translatable("selectWorld.edit.save"), button -> {
+        }).pos(width / 3 + w, height - 32).size(60, 20).build();
+        saveButton = Button.builder(Component.translatable("selectWorld.edit.save"), button -> {
             ConfigUtil.saveDefaultConfig();
             this.minecraft.setScreen(lastScreen);
-        });
+        }).pos(2 * width / 3 + w, height - 32).size(60, 20).build();
 
         this.addWidget(settingsList);
         this.addWidget(cancelButton);

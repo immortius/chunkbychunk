@@ -51,4 +51,11 @@ public class SkyDimensionData {
     }
 
 
+    public ResourceLocation getGenDimensionId() {
+        if (genDimensionId == null) {
+            return new ResourceLocation(dimensionId + "_gen");
+        } else {
+            return new ResourceLocation(genDimensionId);
+        }
+    }
 }
