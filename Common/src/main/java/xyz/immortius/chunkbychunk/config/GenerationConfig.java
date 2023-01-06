@@ -24,13 +24,17 @@ public class GenerationConfig {
     @Comment("Should chunks include a chest with materials for generating further chunks?")
     private boolean spawnNewChunkChest = true;
 
+    @Name("spawn_chest_in_initial_chunk_only")
+    @Comment("Should the chest spawn in the initial chunk only?")
+    private boolean spawnChestInInitialChunkOnly = true;
+
     @Name("use_bedrock_chest")
     @Comment("Should the generated chest be a bedrock chest")
     private boolean useBedrockChest = false;
 
     @Name("chest_contents")
     @Comment("The type of items the bedrock chest provides")
-    private ChunkRewardChestContent chestContents = ChunkRewardChestContent.WorldCore;
+    private ChunkRewardChestContent chestContents = ChunkRewardChestContent.WorldForge;
 
     @Name("chest_quantity")
     @Comment("The number of items the bedrock chest provides")
@@ -72,6 +76,14 @@ public class GenerationConfig {
 
     public void setUseBedrockChest(boolean useBedrockChest) {
         this.useBedrockChest = useBedrockChest;
+    }
+
+    public boolean spawnChestInInitialChunkOnly() {
+        return spawnChestInInitialChunkOnly;
+    }
+
+    public void setSpawnChestInInitialChunkOnly(boolean spawnChestInInitialChunkOnly) {
+        this.spawnChestInInitialChunkOnly = spawnChestInInitialChunkOnly;
     }
 
     public int getInitialChunks() {

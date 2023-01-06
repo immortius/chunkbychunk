@@ -257,7 +257,7 @@ public final class ServerEventHandler {
             ChunkPos chunkSpawnPos = new ChunkPos(overworldSpawnPos);
             if (SpawnChunkHelper.isEmptyChunk(overworldLevel, chunkSpawnPos)) {
                 overworldSpawnPos = findAppropriateSpawnChunk(overworldLevel, generationLevel);
-                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos);
+                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos, ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest() && ChunkByChunkConfig.get().getGeneration().spawnChestInInitialChunkOnly());
             }
         } else {
             overworldSpawnPos = overworldLevel.getSharedSpawnPos();
@@ -266,7 +266,7 @@ public final class ServerEventHandler {
         for (ServerLevel level : server.getAllLevels()) {
             if (level != overworldLevel && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator levelGenerator) {
                 if (levelGenerator.getInitialChunks() > 0) {
-                    spawnInitialChunks(level, levelGenerator.getInitialChunks(), overworldSpawnPos);
+                    spawnInitialChunks(level, levelGenerator.getInitialChunks(), overworldSpawnPos, false);
                 }
             }
         }
@@ -314,7 +314,7 @@ public final class ServerEventHandler {
     /**
      * Spawns the initial chunks
      */
-    private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn) {
+    private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn, boolean spawnChest) {
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
         if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
@@ -322,6 +322,9 @@ public final class ServerEventHandler {
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
                 SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                if (spawnChest && offset[0] == 0 && offset[1] == 0) {
+                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                }
                 level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
             }
         } else {
@@ -329,6 +332,9 @@ public final class ServerEventHandler {
             for (int i = 0; i < initialChunks; i++) {
                 ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
                 level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
+                if (spawnChest && i == 0) {
+                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                }
                 spiralIterator.next();
             }
         }
