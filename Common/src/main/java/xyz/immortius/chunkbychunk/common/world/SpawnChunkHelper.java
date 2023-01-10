@@ -140,6 +140,7 @@ public final class SpawnChunkHelper {
                         BlockEntity toBlockEntity = to.getBlockEntity(targetBlock);
                         if (fromBlockEntity != null && toBlockEntity != null) {
                             toBlockEntity.load(fromBlockEntity.saveWithFullMetadata());
+                            to.setBlockEntity(toBlockEntity);
                         }
                     }
                 }

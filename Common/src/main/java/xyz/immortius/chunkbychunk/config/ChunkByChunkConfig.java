@@ -28,8 +28,6 @@ public class ChunkByChunkConfig {
     @Name("BedrockChest")
     private final BedrockChestConfig bedrockChest = new BedrockChestConfig();
 
-
-
     public GenerationConfig getGeneration() {
         return generation;
     }

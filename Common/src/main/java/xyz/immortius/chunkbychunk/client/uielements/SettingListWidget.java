@@ -10,6 +10,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.narration.NarratableEntry;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.*;
 
@@ -58,6 +59,10 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
                                 () -> intField.getValue(configSection),
                                 (x) -> intField.setValue(configSection, x), defaultValue));
                     }
+                } else if (field instanceof StringFieldMetadata stringField) {
+                   this.addEntry(new StringEntry(field.getDisplayName(), () -> stringField.getValue(configSection), (x) -> stringField.setValue(configSection, x), stringField.getValue(defaultSection)));
+                } else {
+                    ChunkByChunkConstants.LOGGER.info("Skipping config option {} as type not supported", field.getName());
                 }
             }
         }
@@ -115,6 +120,55 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         @Override
         public void reset() {
             widget.setValue(defaultValue);
+        }
+    }
+
+    public class StringEntry extends AbstractWidgetEntry<EditBox> {
+
+        private final Component displayName;
+        private final String defaultValue;
+
+        public StringEntry(Component displayName, Supplier<String> getter, Consumer<String> setter, String defaultValue) {
+            super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
+            this.displayName = displayName;
+            this.defaultValue = defaultValue;
+            widget.setValue(getter.get());
+            widget.setEditable(true);
+            widget.setResponder(setter);
+        }
+
+        @Override
+        public void reset() {
+            widget.setValue(defaultValue);
+        }
+
+        @Override
+        public boolean mouseClicked(double x, double y, int mouseButton) {
+            if (super.mouseClicked(x, y, mouseButton)) {
+                lastFocused = widget;
+                return true;
+            }
+            return false;
+        }
+
+        @Override
+        public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+            int labelLength = SettingListWidget.this.minecraft.font.width(this.displayName);
+            SettingListWidget.this.minecraft.font.draw(stack, this.displayName, left, top + 6, 0xFFFFFF);
+            widget.setX(left + labelLength + 6);
+            widget.setWidth(getRowWidth() - labelLength - 6);
+            widget.setY(top);
+            widget.render(stack, mouseX, mouseY, delta);
+        }
+
+        @Override
+        public boolean charTyped(char p_94683_, int p_94684_) {
+            return widget.charTyped(p_94683_, p_94684_);
+        }
+
+        @Override
+        public void tick() {
+            widget.tick();
         }
     }
 
