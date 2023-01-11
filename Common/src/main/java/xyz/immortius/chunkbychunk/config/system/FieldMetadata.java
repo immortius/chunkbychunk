@@ -2,6 +2,7 @@ package xyz.immortius.chunkbychunk.config.system;
 
 import com.google.common.base.Strings;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 
 import java.lang.reflect.Field;
 import java.util.Collections;
@@ -21,7 +22,7 @@ public abstract class FieldMetadata<T> {
         this.field.setAccessible(true);
         this.name = name;
         this.comment = comment;
-        this.displayName = Component.translatable("config.chunkbychunk.option." + field.getName());
+        this.displayName = new TranslatableComponent("config.chunkbychunk.option." + field.getName());
     }
 
     public String getName() {

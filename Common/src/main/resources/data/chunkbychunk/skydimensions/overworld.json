@@ -9,7 +9,7 @@
     "plains" : ["minecraft:plains", "minecraft:meadow", "minecraft:sunflower_plains"],
     "snow" : ["minecraft:snowy_plains", "minecraft:snowy_beach", "minecraft:snowy_slopes", "minecraft:grove", "minecraft:snowy_taiga", "minecraft:ice_spikes", "minecraft:frozen_river", "minecraft:frozen_peaks"],
     "desert" : ["minecraft:desert"],
-    "swamp" : ["minecraft:swamp", "minecraft:mangrove_swamp"],
+    "swamp" : ["minecraft:swamp"],
     "badlands" : ["minecraft:badlands", "minecraft:eroded_badlands", "minecraft:wooded_badlands"],
     "forest" : ["minecraft:forest", "minecraft:dark_forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:old_growth_pine_taiga", "minecraft:old_growth_spruce_taiga", "minecraft:taiga"],
     "savanna" : ["minecraft:savanna", "minecraft:savanna_plateau"],

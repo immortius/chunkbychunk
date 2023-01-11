@@ -94,7 +94,6 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
     }
 
     private static void spawnChunk(ServerLevel sourceLevel, ChunkPos sourceChunkPos, ServerLevel targetLevel, ChunkPos targetChunkPos) {
-        ChunkByChunkConstants.LOGGER.info("Spawning chunk " + targetChunkPos.toString() + " in " + targetLevel.dimensionTypeId().toString());
         if (SpawnChunkHelper.isEmptyChunk(targetLevel, targetChunkPos)) {
             ChunkAccess sourceChunk = sourceLevel.getChunk(sourceChunkPos.x, sourceChunkPos.z);
             ChunkAccess targetChunk = targetLevel.getChunk(targetChunkPos.x, targetChunkPos.z);
@@ -105,24 +104,25 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
             boolean biomesUpdated = false;
             for (int targetIndex = 0; targetIndex < targetChunk.getSections().length; targetIndex++) {
                 int sourceIndex = (targetIndex < sourceChunk.getSections().length) ? targetIndex : sourceChunk.getSections().length - 1;
-                if (sourceChunk.getSections()[sourceIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[targetIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
-                    byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
 
-                    FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
-                    friendlyByteBuf.writerIndex(0);
-                    sourceBiomes.write(friendlyByteBuf);
+                PalettedContainer<Holder<Biome>> sourceBiomes = sourceChunk.getSections()[sourceIndex].getBiomes();
+                PalettedContainer<Holder<Biome>> targetBiomes = targetChunk.getSections()[targetIndex].getBiomes();
 
-                    byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
-                    FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
-                    targetFriendlyByteBuf.writerIndex(0);
-                    targetBiomes.write(targetFriendlyByteBuf);
+                byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
+                FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
+                friendlyByteBuf.writerIndex(0);
+                sourceBiomes.write(friendlyByteBuf);
 
-                    if (!Arrays.equals(buffer, targetBuffer)) {
-                        friendlyByteBuf.readerIndex(0);
-                        targetBiomes.read(friendlyByteBuf);
-                        targetChunk.setUnsaved(true);
-                        biomesUpdated = true;
-                    }
+                byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
+                FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
+                targetFriendlyByteBuf.writerIndex(0);
+                targetBiomes.write(targetFriendlyByteBuf);
+
+                if (!Arrays.equals(buffer, targetBuffer)) {
+                    friendlyByteBuf.readerIndex(0);
+                    targetBiomes.read(friendlyByteBuf);
+                    targetChunk.setUnsaved(true);
+                    biomesUpdated = true;
                 }
             }
             SpawnChunkHelper.spawnChunkBlocks(targetLevel, targetChunkPos, sourceLevel, sourceChunkPos);
