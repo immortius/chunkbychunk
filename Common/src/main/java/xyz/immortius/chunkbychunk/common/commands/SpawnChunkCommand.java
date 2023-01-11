@@ -15,7 +15,6 @@ import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -27,12 +26,9 @@ import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpawnChunkCommand {
@@ -118,7 +114,7 @@ public class SpawnChunkCommand {
                 throw INVALID_THEME.create();
             }
             SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
-            level.setBlock(pos, level.getServer().registryAccess().registry(Registries.BLOCK).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
+            level.setBlock(pos, level.getServer().registryAccess().registry(Registry.BLOCK_REGISTRY).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
             return 1;
         } else {
             throw INVALID_LEVEL.create();
