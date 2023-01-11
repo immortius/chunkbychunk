@@ -6,6 +6,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +19,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
@@ -72,7 +72,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
 
     @Override
     protected Component getDefaultName() {
-        return Component.translatable("container.chunkbychunk.worldmender");
+        return new TranslatableComponent("container.chunkbychunk.worldmender");
     }
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, WorldMenderBlockEntity entity) {
