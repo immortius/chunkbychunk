@@ -168,7 +168,7 @@ public class ChunkSpawnController extends SavedData {
             } else {
                 phase = SpawnPhase.COPY_BIOMES;
             }
-            ChunkByChunkConstants.LOGGER.info("Spawning chunk " + currentSpawnRequest.targetChunkPos.toString() + " in " + targetLevel.dimensionTypeId().toString());
+            ChunkByChunkConstants.LOGGER.info("Spawning chunk " + currentSpawnRequest.targetChunkPos + " in " + targetLevel.dimension());
             setDirty();
         }
     }
@@ -236,24 +236,25 @@ public class ChunkSpawnController extends SavedData {
         boolean biomesUpdated = false;
         for (int targetIndex = 0; targetIndex < targetChunk.getSections().length; targetIndex++) {
             int sourceIndex = (targetIndex < sourceChunk.getSections().length) ? targetIndex : sourceChunk.getSections().length - 1;
-            if (sourceChunk.getSections()[sourceIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[targetIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
-                byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
 
-                FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
-                friendlyByteBuf.writerIndex(0);
-                sourceBiomes.write(friendlyByteBuf);
+            PalettedContainer<Holder<Biome>> sourceBiomes = sourceChunk.getSections()[sourceIndex].getBiomes();
+            PalettedContainer<Holder<Biome>> targetBiomes = targetChunk.getSections()[targetIndex].getBiomes();
 
-                byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
-                FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
-                targetFriendlyByteBuf.writerIndex(0);
-                targetBiomes.write(targetFriendlyByteBuf);
+            byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
+            FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
+            friendlyByteBuf.writerIndex(0);
+            sourceBiomes.write(friendlyByteBuf);
 
-                if (!Arrays.equals(buffer, targetBuffer)) {
-                    friendlyByteBuf.readerIndex(0);
-                    targetBiomes.read(friendlyByteBuf);
-                    targetChunk.setUnsaved(true);
-                    biomesUpdated = true;
-                }
+            byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
+            FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
+            targetFriendlyByteBuf.writerIndex(0);
+            targetBiomes.write(targetFriendlyByteBuf);
+
+            if (!Arrays.equals(buffer, targetBuffer)) {
+                friendlyByteBuf.readerIndex(0);
+                targetBiomes.read(friendlyByteBuf);
+                targetChunk.setUnsaved(true);
+                biomesUpdated = true;
             }
         }
         if (biomesUpdated) {
@@ -337,7 +338,8 @@ public class ChunkSpawnController extends SavedData {
         return currentSpawnRequest != null || !requests.isEmpty();
     }
 
-    private record SpawnRequest(ChunkPos targetChunkPos, ResourceKey<Level> targetLevel, ChunkPos sourceChunkPos, ResourceKey<Level> sourceLevel, boolean immediate) {
+    private record SpawnRequest(ChunkPos targetChunkPos, ResourceKey<Level> targetLevel, ChunkPos sourceChunkPos,
+                                ResourceKey<Level> sourceLevel, boolean immediate) {
 
         public static final String TARGET_POS = "targetPos";
         public static final String TARGET_LEVEL = "targetLevel";
