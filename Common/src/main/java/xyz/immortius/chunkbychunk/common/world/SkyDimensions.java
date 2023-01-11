@@ -21,13 +21,13 @@ public final class SkyDimensions {
     public static void loadSkyDimensionData(ResourceManager resourceManager, Gson gson) {
         int count = 0;
         skyDimensions.clear();
-        for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SKY_DIMENSION_DATA_PATH, r -> true).entrySet()) {
-            try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
+        for (ResourceLocation location : resourceManager.listResources(ChunkByChunkConstants.SKY_DIMENSION_DATA_PATH, r -> !r.isEmpty() && !ChunkByChunkConstants.SKY_DIMENSION_DATA_PATH.equals(r))) {
+            try (InputStreamReader reader = new InputStreamReader(resourceManager.getResource(location).getInputStream())) {
                 SkyDimensionData data = gson.fromJson(reader, SkyDimensionData.class);
-                skyDimensions.put(entry.getKey(), data);
+                skyDimensions.put(location, data);
                 count++;
             } catch (IOException |RuntimeException e) {
-                ChunkByChunkConstants.LOGGER.error("Failed to read sky dimension data '{}'", entry.getKey(), e);
+                ChunkByChunkConstants.LOGGER.error("Failed to read sky dimension data '{}'", location, e);
             }
         }
         ChunkByChunkConstants.LOGGER.info("Loaded {} sky dimensions", count);
