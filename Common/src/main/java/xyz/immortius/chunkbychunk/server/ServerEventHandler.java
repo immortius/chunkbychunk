@@ -7,15 +7,15 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
+import com.sun.jna.Structure;
 import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.tags.StructureTags;
+import net.minecraft.tags.ConfiguredStructureTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -29,7 +29,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.levelgen.WorldGenSettings;
-import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.apache.logging.log4j.LogManager;
@@ -238,15 +238,14 @@ public final class ServerEventHandler {
                 ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
                 ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
                     if (biomeKeys.contains(pair.getSecond())) {
-                        builder.add(pair.mapSecond(biomeRegistry::getHolderOrThrow));
+                        builder.add(pair.mapSecond(biomeRegistry::getOrCreateHolder));
                     }
                 });
                 return new Climate.ParameterList<>(builder.build());
             }).biomeSource(biomeRegistry);
         }
-
-        LevelStem biomeLevel = new LevelStem(themeDimensionType, new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-        dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+        LevelStem biomeLevel = new LevelStem(themeDimensionType, new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getSeed(rootGenerator), ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        dimensions.registerOrOverride(OptionalInt.empty(), levelKey, biomeLevel, Lifecycle.stable());
         return ResourceKey.create(Registry.DIMENSION_REGISTRY, biomeDimId);
     }
 
@@ -302,11 +301,11 @@ public final class ServerEventHandler {
         BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
 
         if (ChunkByChunkConfig.get().getGameplayConfig().getStartInVillage()) {
-            Registry<Structure> structures = registryAccess.registry(Registry.STRUCTURE_REGISTRY).orElseThrow();
-            Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
+            Registry<ConfiguredStructureFeature<?,?>> structures = registryAccess.registry(Registry.CONFIGURED_STRUCTURE_FEATURE_REGISTRY).orElseThrow();
+            Optional<HolderSet.Named<ConfiguredStructureFeature<?,?>>> structuresTag = structures.getTag(ConfiguredStructureTags.VILLAGE);
             if (structuresTag.isPresent()) {
-                HolderSet<Structure> holders = structuresTag.get();
-                Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
+                HolderSet<ConfiguredStructureFeature<?,?>> holders = structuresTag.get();
+                Pair<BlockPos, Holder<ConfiguredStructureFeature<?,?>>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapFeature(generationLevel, holders, spawnPos, 100, false);
                 if (nearest != null) {
                     spawnPos = nearest.getFirst();
                     ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
@@ -319,7 +318,7 @@ public final class ServerEventHandler {
             if (startingBiome.startsWith("#")) {
                 Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registry.BIOME_REGISTRY).orElseThrow().getTag(TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(startingBiome.substring(1))));
                 if (tagSet.isPresent()) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
+                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findNearestBiome(x -> tagSet.get().contains(x), spawnPos, 6400, 8);
                     if (location != null) {
                         spawnPos = location.getFirst();
                         ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
@@ -330,7 +329,7 @@ public final class ServerEventHandler {
             } else {
                 Biome biome = registryAccess.registry(Registry.BIOME_REGISTRY).orElseThrow().get(new ResourceLocation(startingBiome));
                 if (biome != null) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
+                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findNearestBiome(x -> x.value().equals(biome), spawnPos, 6400, 8);
                     if (location != null) {
                         spawnPos = location.getFirst();
                         ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
@@ -409,13 +408,13 @@ public final class ServerEventHandler {
     private static void loadScannerData(ResourceManager resourceManager, Gson gson) {
         WorldScannerBlockEntity.clearItemMappings();
         int count = 0;
-        for (Map.Entry<ResourceLocation, Resource> entry : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> true).entrySet()) {
-            try (InputStreamReader reader = new InputStreamReader(entry.getValue().open())) {
+        for (ResourceLocation location : resourceManager.listResources(ChunkByChunkConstants.SCANNER_DATA_PATH, r -> !r.isEmpty() && !ChunkByChunkConstants.SCANNER_DATA_PATH.equals(r))) {
+            try (InputStreamReader reader = new InputStreamReader(resourceManager.getResource(location).getInputStream())) {
                 ScannerData data = gson.fromJson(reader, ScannerData.class);
-                data.process(entry.getKey());
+                data.process(location);
                 count++;
             } catch (IOException |RuntimeException e) {
-                ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", entry.getKey(), e);
+                ChunkByChunkConstants.LOGGER.error("Failed to read scanner data '{}'", location, e);
             }
         }
         ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
