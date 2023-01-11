@@ -88,7 +88,7 @@ public final class SpawnChunkHelper {
             return;
         }
         copyBlocks(sourceLevel, sourceChunkPos, targetLevel, targetChunkPos);
-        if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest()) {
+        if (ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest() && !ChunkByChunkConfig.get().getGeneration().spawnChestInInitialChunkOnly()) {
             createNextSpawner(targetLevel, targetChunkPos);
         }
     }
@@ -140,6 +140,7 @@ public final class SpawnChunkHelper {
                         BlockEntity toBlockEntity = to.getBlockEntity(targetBlock);
                         if (fromBlockEntity != null && toBlockEntity != null) {
                             toBlockEntity.load(fromBlockEntity.saveWithFullMetadata());
+                            to.setBlockEntity(toBlockEntity);
                         }
                     }
                 }
@@ -173,7 +174,7 @@ public final class SpawnChunkHelper {
      * @param targetLevel The level of the chunk
      * @param chunkPos    The position of the chunk
      */
-    private static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
+    public static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
         int minPos = Math.min(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());
         int maxPos = Math.max(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());;
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {

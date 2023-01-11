@@ -50,24 +50,32 @@ public final class MetadataBuilder {
                 fields.add(processBooleanField(declaredField));
             } else if (Enum.class.isAssignableFrom(fieldType)) {
                 fields.add(processEnumField(declaredField));
+            } else if (String.class.isAssignableFrom(fieldType)) {
+                fields.add(processStringField(declaredField));
             }
         }
         return fields;
     }
 
-    private static FieldMetadata processEnumField(Field field) {
+    private static FieldMetadata<?> processStringField(Field field) {
+        String name = getName(field);
+        String comment = getComment(field);
+        return new StringFieldMetadata(field, name, comment);
+    }
+
+    private static FieldMetadata<?> processEnumField(Field field) {
         String name = getName(field);
         String comment = getComment(field);
         return new EnumFieldMetadata(field, name, comment);
     }
 
-    private static FieldMetadata processBooleanField(Field field) {
+    private static FieldMetadata<?> processBooleanField(Field field) {
         String name = getName(field);
         String comment = getComment(field);
         return new BooleanFieldMetadata(field, name, comment);
     }
 
-    private static FieldMetadata processIntField(Field field) {
+    private static FieldMetadata<?> processIntField(Field field) {
         String name = getName(field);
         String comment = getComment(field);
         int min = Integer.MIN_VALUE;

@@ -31,7 +31,7 @@ public class WorldForgeConfig {
     @Name("fragment_fuel_cost")
     @IntRange(min = 1, max = 256)
     @Comment("The cost in fuel to produce a single world fragment")
-    private int fragmentFuelCost = 64;
+    private int fragmentFuelCost = 32;
 
     public int getFragmentFuelCost() {
         return fragmentFuelCost;

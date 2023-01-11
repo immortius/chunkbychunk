@@ -7,10 +7,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonDeserializer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.MappedRegistry;
-import net.minecraft.core.WritableRegistry;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -19,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.ChunkPos;
@@ -31,8 +29,8 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.storage.LevelResource;
-import net.minecraft.world.level.storage.PrimaryLevelData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -56,6 +54,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -256,8 +255,8 @@ public final class ServerEventHandler {
             overworldSpawnPos = generationLevel.getSharedSpawnPos();
             ChunkPos chunkSpawnPos = new ChunkPos(overworldSpawnPos);
             if (SpawnChunkHelper.isEmptyChunk(overworldLevel, chunkSpawnPos)) {
-                overworldSpawnPos = findAppropriateSpawnChunk(overworldLevel, generationLevel);
-                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos);
+                overworldSpawnPos = findAppropriateSpawnChunk(overworldLevel, generationLevel, server.registryAccess());
+                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos, ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest() && ChunkByChunkConfig.get().getGeneration().spawnChestInInitialChunkOnly());
             }
         } else {
             overworldSpawnPos = overworldLevel.getSharedSpawnPos();
@@ -266,7 +265,7 @@ public final class ServerEventHandler {
         for (ServerLevel level : server.getAllLevels()) {
             if (level != overworldLevel && level.getChunkSource().getGenerator() instanceof SkyChunkGenerator levelGenerator) {
                 if (levelGenerator.getInitialChunks() > 0) {
-                    spawnInitialChunks(level, levelGenerator.getInitialChunks(), overworldSpawnPos);
+                    spawnInitialChunks(level, levelGenerator.getInitialChunks(), overworldSpawnPos, false);
                 }
             }
         }
@@ -279,13 +278,56 @@ public final class ServerEventHandler {
      * player is in trouble, but provides some baseline threshold for an acceptable chunk.
      * @param overworldLevel
      * @param generationLevel
+     * @param registryAccess
      */
-    private static BlockPos findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel) {
+    private static BlockPos findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel, RegistryAccess registryAccess) {
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
 
         BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
+
+        if (ChunkByChunkConfig.get().getGameplayConfig().getStartInVillage()) {
+            Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
+            Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
+            if (structuresTag.isPresent()) {
+                HolderSet<Structure> holders = structuresTag.get();
+                Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
+                if (nearest != null) {
+                    spawnPos = nearest.getFirst();
+                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
+                }
+            } else {
+                ChunkByChunkConstants.LOGGER.warn("Could not find village spawn");
+            }
+        } else if (!ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome().isEmpty()) {
+            String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
+            if (startingBiome.startsWith("#")) {
+                Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
+                if (tagSet.isPresent()) {
+                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
+                    if (location != null) {
+                        spawnPos = location.getFirst();
+                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
+                    }
+                } else {
+                    ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+                }
+            } else {
+                Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
+                if (biome != null) {
+                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
+                    if (location != null) {
+                        spawnPos = location.getFirst();
+                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
+                    } else {
+                        ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+                    }
+                }
+            }
+        }
+
+
         ChunkPos initialChunkPos = new ChunkPos(spawnPos);
         SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
         int attempts = 0;
@@ -295,9 +337,7 @@ public final class ServerEventHandler {
                     && ChunkUtil.countBlocks(chunk, Blocks.WATER) > 0
                     && ChunkUtil.countBlocks(chunk, leavesTag) > 3
                     && ChunkUtil.countBlocks(chunk, copper) >= 36) {
-                ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
                 spawnPos = new BlockPos(chunk.getPos().getMiddleBlockX(), ChunkUtil.getSafeSpawnHeight(chunk, chunk.getPos().getMiddleBlockX(), chunk.getPos().getMiddleBlockZ()), chunk.getPos().getMiddleBlockZ());
-                levelData.setSpawn(spawnPos, levelData.getSpawnAngle());
                 break;
             }
             iterator.next();
@@ -308,13 +348,15 @@ public final class ServerEventHandler {
         } else {
             LOGGER.info("No appropriate spawn chunk found :(");
         }
+        ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
+        levelData.setSpawn(spawnPos, levelData.getSpawnAngle());
         return spawnPos;
     }
 
     /**
      * Spawns the initial chunks
      */
-    private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn) {
+    private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn, boolean spawnChest) {
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
         if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
@@ -322,6 +364,9 @@ public final class ServerEventHandler {
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
                 SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                if (spawnChest && offset[0] == 0 && offset[1] == 0) {
+                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                }
                 level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
             }
         } else {
@@ -329,6 +374,9 @@ public final class ServerEventHandler {
             for (int i = 0; i < initialChunks; i++) {
                 ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
                 level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
+                if (spawnChest && i == 0) {
+                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                }
                 spiralIterator.next();
             }
         }
