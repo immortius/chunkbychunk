@@ -2,6 +2,7 @@ package xyz.immortius.chunkbychunk.client.uielements;
 
 import net.minecraft.client.gui.components.AbstractSliderButton;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TextComponent;
 import net.minecraft.util.Mth;
 
 import java.util.function.Consumer;
@@ -29,7 +30,7 @@ public class IntegerSlider extends AbstractSliderButton {
 
     @Override
     protected void updateMessage() {
-        setMessage(Component.literal(valueName.getString() + ": " + getter.get()));
+        setMessage(new TextComponent(valueName.getString() + ": " + getter.get()));
     }
 
     @Override

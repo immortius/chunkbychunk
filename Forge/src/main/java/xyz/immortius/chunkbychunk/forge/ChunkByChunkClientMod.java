@@ -1,6 +1,6 @@
 package xyz.immortius.chunkbychunk.forge;
 
-import net.minecraftforge.client.ConfigScreenHandler;
+import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.fml.ModLoadingContext;
 import xyz.immortius.chunkbychunk.client.screens.ChunkByChunkConfigScreen;
 
@@ -10,6 +10,6 @@ public final class ChunkByChunkClientMod {
     }
 
     public static void registerConfigScreen() {
-        ModLoadingContext.get().registerExtensionPoint(ConfigScreenHandler.ConfigScreenFactory.class, () -> new ConfigScreenHandler.ConfigScreenFactory((minecraft, screen) -> new ChunkByChunkConfigScreen(screen)));
+        ModLoadingContext.get().registerExtensionPoint(ConfigGuiHandler.ConfigGuiFactory.class, () -> new ConfigGuiHandler.ConfigGuiFactory((minecraft, screen) -> new ChunkByChunkConfigScreen(screen)));
     }
 }
