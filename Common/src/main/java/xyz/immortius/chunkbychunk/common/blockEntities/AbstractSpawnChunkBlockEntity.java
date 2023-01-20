@@ -94,6 +94,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
     }
 
     private static void spawnChunk(ServerLevel sourceLevel, ChunkPos sourceChunkPos, ServerLevel targetLevel, ChunkPos targetChunkPos) {
+        ChunkByChunkConstants.LOGGER.info("Spawning chunk " + targetChunkPos.toString() + " in " + targetLevel.dimensionTypeId().toString());
         if (SpawnChunkHelper.isEmptyChunk(targetLevel, targetChunkPos)) {
             ChunkAccess sourceChunk = sourceLevel.getChunk(sourceChunkPos.x, sourceChunkPos.z);
             ChunkAccess targetChunk = targetLevel.getChunk(targetChunkPos.x, targetChunkPos.z);

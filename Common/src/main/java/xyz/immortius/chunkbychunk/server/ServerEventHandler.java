@@ -363,19 +363,23 @@ public final class ServerEventHandler {
             List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-                SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
-                if (spawnChest && offset[0] == 0 && offset[1] == 0) {
-                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
+                    SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                    if (spawnChest && offset[0] == 0 && offset[1] == 0) {
+                        SpawnChunkHelper.createNextSpawner(level, targetPos);
+                    }
+                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                 }
-                level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
             }
         } else {
             SpiralIterator spiralIterator = new SpiralIterator(centerChunkPos.x, centerChunkPos.z);
             for (int i = 0; i < initialChunks; i++) {
                 ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
-                level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
-                if (spawnChest && i == 0) {
-                    SpawnChunkHelper.createNextSpawner(level, targetPos);
+                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
+                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
+                    if (spawnChest && i == 0) {
+                        SpawnChunkHelper.createNextSpawner(level, targetPos);
+                    }
                 }
                 spiralIterator.next();
             }
