@@ -94,9 +94,14 @@ mixin {
 
 processResources {
     from project(":Common").sourceSets.main.resources
+    from sourceSets.main.resources
 
     filesMatching("${mod_id}.mixins.json") {
         expand "refmap_target": "${mod_id}."
+    }
+
+    filesMatching("${mod_id}-forge.mixins.json") {
+        expand "refmap_target": "${mod_id}-forge."
     }
 }
 
