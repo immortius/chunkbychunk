@@ -8,6 +8,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -135,7 +137,11 @@ public final class SpawnChunkHelper {
                     targetBlock.set(x + xOffset, y, z + zOffset);
                     Block existingBlock = to.getBlockState(targetBlock).getBlock();
                     if (existingBlock instanceof AirBlock || existingBlock instanceof LiquidBlock || existingBlock == Blocks.BEDROCK) {
-                        to.setBlock(targetBlock, from.getBlockState(sourceBlock), Block.UPDATE_ALL);
+                        BlockState newBlock = from.getBlockState(sourceBlock);
+                        if (ChunkByChunkConfig.get().getGameplayConfig().isChunkSpawnLeafDecayDisabled() && newBlock.getBlock() instanceof LeavesBlock) {
+                            newBlock = newBlock.setValue(LeavesBlock.PERSISTENT, true);
+                        }
+                        to.setBlock(targetBlock, newBlock, Block.UPDATE_ALL);
                         BlockEntity fromBlockEntity = from.getBlockEntity(sourceBlock);
                         BlockEntity toBlockEntity = to.getBlockEntity(targetBlock);
                         if (fromBlockEntity != null && toBlockEntity != null) {

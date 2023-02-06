@@ -34,7 +34,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
 
     private static final int TICKS_TO_SPAWN_CHUNK = 1;
     private static final int TICKS_TO_SYNCH_CHUNK = 3;
-    private static final int TICKS_TO_SPAWN_ENTITIES = 20;
+    private static final int TICKS_TO_SPAWN_ENTITIES = 10;
 
     private final Function<BlockPos, ChunkPos> sourceChunkPosFunc;
     private int tickCounter = 0;
@@ -46,13 +46,12 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
 
     public static void serverTick(Level level, BlockPos blockPos, BlockState blockState, AbstractSpawnChunkBlockEntity entity) {
         ServerLevel serverLevel = (ServerLevel) level;
-        // If there are no players, entities won't spawn. So don't tick.
-        if (serverLevel.getPlayers((p) -> true).isEmpty()) {
-            return;
-        }
         if (blockState.getBlock() instanceof AbstractTriggeredSpawnChunkBlock spawnBlock) {
-            entity.tickCounter++;
             ServerLevel sourceLevel = serverLevel.getServer().getLevel(spawnBlock.getSourceLevel(serverLevel));
+            if (sourceLevel.getChunkSource().getPendingTasksCount() == 0) {
+                entity.tickCounter++;
+            }
+
             if (!spawnBlock.validForLevel(serverLevel) || sourceLevel == null) {
                 serverLevel.setBlock(blockPos, serverLevel.getBlockState(blockPos.north()), Block.UPDATE_NONE);
                 return;
@@ -60,6 +59,9 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
 
             ChunkPos targetChunkPos = new ChunkPos(blockPos);
             ChunkPos sourceChunkPos = entity.sourceChunkPosFunc.apply(blockPos);
+
+            sourceLevel.getChunkSource().getChunk(sourceChunkPos.x, sourceChunkPos.z, true);
+
             if (entity.tickCounter == TICKS_TO_SPAWN_CHUNK) {
                 spawnChunk(sourceLevel, sourceChunkPos, serverLevel, targetChunkPos);
             } else if (entity.tickCounter == TICKS_TO_SYNCH_CHUNK) {

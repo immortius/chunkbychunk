@@ -97,11 +97,11 @@ processResources {
     from sourceSets.main.resources
 
     filesMatching("${mod_id}.mixins.json") {
-        expand "refmap_target": "${mod_id}."
+        expand "refmap_target": "${mod_id}.refmap.json"
     }
 
     filesMatching("${mod_id}-forge.mixins.json") {
-        expand "refmap_target": "${mod_id}-forge."
+        expand "refmap_target": "${mod_id}-forge.refmap.json"
     }
 }
 
