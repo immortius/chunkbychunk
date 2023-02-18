@@ -35,12 +35,12 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     public static final int DATA_PROGRESS = 0;
     public static final int DATA_GOAL = 1;
 
-    private static final int GROW_CRYSTAL_AT = 4;
-    private static final Map<Item, FuelValueSupplier> FUEL;
-    private static final Map<TagKey<Item>, FuelValueSupplier> FUEL_TAGS;
+    public static final int GROW_CRYSTAL_AT = 4;
+    public static final Map<Item, FuelValueSupplier> FUEL;
+    public static final Map<TagKey<Item>, FuelValueSupplier> FUEL_TAGS;
     private static final Map<Item, FuelValueSupplier> CRYSTAL_COSTS;
     private static final Item INITIAL_CRYSTAL = Services.PLATFORM.worldFragmentItem();
-    private static final Map<Item, Item> CRYSTAL_STEPS;
+    public static final Map<Item, Item> CRYSTAL_STEPS;
 
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_DOWN = new int[]{SLOT_RESULT};
@@ -121,7 +121,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     }
 
     public static boolean isWorldForgeFuel(ItemStack itemStack) {
-        return FUEL.get(itemStack.getItem()) != null || itemStack.is(SOIL_FUEL_TAG) || itemStack.is(STONE_FUEL_TAG);
+        return FUEL.get(itemStack.getItem()) != null || itemStack.is(SOIL_FUEL_TAG) || itemStack.is(STONE_FUEL_TAG) || itemStack.is(STRONG_FUEL_TAG);
     }
 
     @Override
