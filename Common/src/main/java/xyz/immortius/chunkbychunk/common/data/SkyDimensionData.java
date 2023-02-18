@@ -25,6 +25,8 @@ public class SkyDimensionData {
     public boolean allowUnstableChunkSpawner = true;
     /** Type of generation */
     public SkyChunkGenerator.EmptyGenerationType generationType = SkyChunkGenerator.EmptyGenerationType.Normal;
+    /** Block to seal chunks with for sealed generation */
+    public String sealBlock = "minecraft:bedrock";
     /** The number of chunks to be spawned initally */
     public int initialChunks = 1;
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
@@ -49,7 +51,6 @@ public class SkyDimensionData {
         }
         return true;
     }
-
 
     public ResourceLocation getGenDimensionId() {
         if (genDimensionId == null) {
