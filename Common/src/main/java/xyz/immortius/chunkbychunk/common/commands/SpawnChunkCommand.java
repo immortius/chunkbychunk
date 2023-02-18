@@ -14,7 +14,6 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -27,12 +26,9 @@ import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
 import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 public class SpawnChunkCommand {

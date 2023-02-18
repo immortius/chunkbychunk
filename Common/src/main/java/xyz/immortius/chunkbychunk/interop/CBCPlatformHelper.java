@@ -4,6 +4,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -12,6 +13,8 @@ import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
+
+import java.util.List;
 
 public interface CBCPlatformHelper {
     /// Blocks
@@ -55,6 +58,8 @@ public interface CBCPlatformHelper {
     Item worldShardItem();
 
     Item worldCrystalItem();
+
+    List<ItemStack> biomeThemeBlockItems();
 
     // Block Entities
 

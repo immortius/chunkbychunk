@@ -4,7 +4,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -15,7 +14,6 @@ import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
@@ -23,7 +21,6 @@ import net.minecraftforge.event.CreativeModeTabEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.event.server.ServerAboutToStartEvent;
 import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.Event;
@@ -111,7 +108,7 @@ public class ChunkByChunkMod {
 
     public static final RegistryObject<SoundEvent> SPAWN_CHUNK_SOUND_EVENT = SOUNDS.register("spawnchunkevent", () -> SoundEvent.createVariableRangeEvent(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "chunk_spawn_sound")));
 
-    private static final List<Supplier<ItemStack>> themedSpawnChunkItems = new ArrayList<>();
+    public static final List<Supplier<ItemStack>> THEMED_SPAWN_CHUNK_ITEMS = new ArrayList<>();
 
     private static final String PROTOCOL_VERSION = "1";
     public static final SimpleChannel CONFIG_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "configchannel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
@@ -124,7 +121,7 @@ public class ChunkByChunkMod {
             RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnBiomeChunkBlock(biomeTheme, spawningBlock.get(), BlockBehaviour.Properties.of(Material.STONE)));
             RegistryObject<BlockItem> spawnBlockItem = ITEMS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties()));
             triggeredSpawnChunkEntityBlocks.add(spawningBlock);
-            themedSpawnChunkItems.add(() -> spawnBlockItem.get().getDefaultInstance());
+            THEMED_SPAWN_CHUNK_ITEMS.add(() -> spawnBlockItem.get().getDefaultInstance());
         }
         TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY = BLOCK_ENTITIES.register("triggeredspawnchunkentity", () -> BlockEntityType.Builder.of(TriggeredSpawnChunkBlockEntity::new, triggeredSpawnChunkEntityBlocks.stream().map(RegistryObject::get).toArray(Block[]::new)).build(null));
     }
@@ -183,7 +180,7 @@ public class ChunkByChunkMod {
             e.getEntries().put(SPAWN_CHUNK_BLOCK_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             e.getEntries().put(UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
-        for (Supplier<ItemStack> biomeThemeSpawner : themedSpawnChunkItems) {
+        for (Supplier<ItemStack> biomeThemeSpawner : THEMED_SPAWN_CHUNK_ITEMS) {
             e.getEntries().put(biomeThemeSpawner.get(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
         }
     }

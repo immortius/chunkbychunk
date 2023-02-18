@@ -16,7 +16,7 @@ import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
  * Screen for the WorldMender.
  */
 public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> {
-    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/worldmender.png");
+    public static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/worldmender.png");
 
     private static final int MAIN_TEXTURE_DIM = 512;
     private static final float TICKS_PER_FRAME = 4f;

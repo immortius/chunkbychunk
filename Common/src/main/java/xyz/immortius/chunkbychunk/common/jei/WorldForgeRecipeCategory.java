@@ -58,7 +58,6 @@ public class WorldForgeRecipeCategory implements IRecipeCategory<WorldForgeRecip
         return icon;
     }
 
-
     @Override
     public void draw(WorldForgeRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
         frames.get(frameTimer.getValue()).draw(stack, 30, 12, 0, 0, 0, Math.max(0, 30 - 30 * recipe.getFuelValue() / ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost()));
@@ -68,5 +67,6 @@ public class WorldForgeRecipeCategory implements IRecipeCategory<WorldForgeRecip
     public void setRecipe(IRecipeLayoutBuilder builder, WorldForgeRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 10, 10).setSlotName("Input").addIngredients(VanillaTypes.ITEM_STACK, recipe.getInputItems());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 68, 10).setSlotName("Output").addIngredient(VanillaTypes.ITEM_STACK, recipe.getOutput());
+        builder.addInvisibleIngredients(RecipeIngredientRole.CATALYST).addItemStack(Services.PLATFORM.worldForgeBlockItem().getDefaultInstance());
     }
 }
