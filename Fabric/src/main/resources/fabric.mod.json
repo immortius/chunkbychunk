@@ -24,7 +24,10 @@
     "client": [
       "xyz.immortius.chunkbychunk.fabric.ChunkByChunkClientMod"
     ],
-    "modmenu": [ "xyz.immortius.chunkbychunk.fabric.ModMenuApiImpl" ]
+    "modmenu": [ "xyz.immortius.chunkbychunk.fabric.ModMenuApiImpl" ],
+    "jei_mod_plugin": [
+      "xyz.immortius.chunkbychunk.common.jei.CBCJeiPlugin"
+    ]
   },
   "mixins": [
     "chunkbychunk.mixins.json"
