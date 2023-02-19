@@ -8,7 +8,6 @@ import com.google.gson.JsonDeserializer;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Lifecycle;
 import net.minecraft.core.*;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
@@ -29,6 +28,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.dimension.LevelStem;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
+import net.minecraft.world.level.levelgen.WorldGenSettings;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.storage.LevelResource;
 import net.minecraft.world.level.storage.ServerLevelData;
@@ -47,15 +47,13 @@ import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.Services;
+import xyz.immortius.chunkbychunk.mixins.ChunkGeneratorStructureAccessor;
 import xyz.immortius.chunkbychunk.mixins.DefrostedRegistry;
 import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Server event handlers for events triggered server-side
@@ -116,9 +114,10 @@ public final class ServerEventHandler {
     }
 
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
-        MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
-        MappedRegistry<Biome> biomeRegistry = (MappedRegistry<Biome>) server.registryAccess().registryOrThrow(Registries.BIOME);
-        Registry<Block> blocks = server.registryAccess().registry(Registries.BLOCK).orElseThrow();
+        WorldGenSettings worldGenSettings = server.getWorldData().worldGenSettings();
+        MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) worldGenSettings.dimensions();
+        MappedRegistry<Biome> biomeRegistry = (MappedRegistry<Biome>) server.registryAccess().registryOrThrow(Registry.BIOME_REGISTRY);
+        Registry<Block> blocks = server.registryAccess().registryOrThrow(Registry.BLOCK_REGISTRY);
         ((DefrostedRegistry) dimensions).setFrozen(false);
         ((DefrostedRegistry) biomeRegistry).setFrozen(false);
 
@@ -140,12 +139,12 @@ public final class ServerEventHandler {
             LevelStem dimension = dimensions.get(new ResourceLocation(config.dimensionId));
             for (String synchDimId : config.synchToDimensions) {
                 LevelStem synchDim =  dimensions.get(new ResourceLocation(synchDimId));
-                if (DimensionType.getTeleportationScale(synchDim.type().value(), dimension.type().value()) > 1) {
+                if (DimensionType.getTeleportationScale(synchDim.typeHolder().value(), dimension.typeHolder().value()) > 1) {
                     ChunkByChunkConstants.LOGGER.warn("Cowardly refusing to synch dimension {} with {}, as the coordinate scale would result in a performance issues", config.dimensionId, synchDimId);
                     continue;
                 }
                 if (synchDim.generator() instanceof SkyChunkGenerator generator) {
-                    generator.addSynchLevel(ResourceKey.create(Registries.DIMENSION, new ResourceLocation(config.dimensionId)));
+                    generator.addSynchLevel(ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(config.dimensionId)));
                 } else {
                     ChunkByChunkConstants.LOGGER.warn("Cannot synch dimension {} with {}, as it is not a sky dimension", config.dimensionId, synchDimId);
                 }
@@ -184,19 +183,19 @@ public final class ServerEventHandler {
 
     private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, LevelStem level, ChunkGenerator rootGenerator) {
         ResourceLocation genDimensionId = config.getGenDimensionId();
-        ResourceKey<LevelStem> genLevelId = ResourceKey.create(Registries.LEVEL_STEM, genDimensionId);
+        ResourceKey<LevelStem> genLevelId = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, genDimensionId);
         LevelStem generationLevel = dimensions.get(genDimensionId);
         if (generationLevel == null) {
-            generationLevel = new LevelStem(level.type(), rootGenerator);
+            generationLevel = new LevelStem(level.typeHolder(), rootGenerator);
             dimensions.register(genLevelId, generationLevel, Lifecycle.stable());
         }
 
         SkyChunkGenerator skyGenerator;
         if (!(level.generator() instanceof SkyChunkGenerator)) {
             skyGenerator = new SkyChunkGenerator(rootGenerator);
-            LevelStem newLevelStem = new LevelStem(level.type(), skyGenerator);
+            LevelStem newLevelStem = new LevelStem(level.typeHolder(), skyGenerator);
             int dimensionsId = dimensions.getId(level);
-            dimensions.registerMapping(dimensionsId, ResourceKey.create(Registries.LEVEL_STEM, new ResourceLocation(config.dimensionId)), newLevelStem, Lifecycle.stable());
+            dimensions.registerOrOverride(OptionalInt.of(dimensionsId), ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, new ResourceLocation(config.dimensionId)), newLevelStem, Lifecycle.stable());
         } else {
             skyGenerator = (SkyChunkGenerator) level.generator();
         }
@@ -205,13 +204,13 @@ public final class ServerEventHandler {
             sealBlock = Blocks.BEDROCK;
         }
 
-        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
+        skyGenerator.configure(ResourceKey.create(Registry.DIMENSION_REGISTRY, genLevelId.location()), config.generationType, sealBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
         return skyGenerator;
     }
 
     private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, WritableRegistry<Biome> biomeRegistry) {
         ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + themeName + "_gen");
-        List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registries.BIOME, new ResourceLocation(x))).filter(key -> {
+        List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(x))).filter(key -> {
             boolean valid = biomeRegistry.containsKey(key);
             if (!valid) {
                 ChunkByChunkConstants.LOGGER.warn("Could not resolve biome {} for {}", key, dimId);
@@ -219,7 +218,7 @@ public final class ServerEventHandler {
             return valid;
         }).toList();
 
-        ResourceKey<LevelStem> levelKey = ResourceKey.create(Registries.LEVEL_STEM, biomeDimId);
+        ResourceKey<LevelStem> levelKey = ResourceKey.create(Registry.LEVEL_STEM_REGISTRY, biomeDimId);
         BiomeSource source;
         if (biomeKeys.size() == 0) {
             return null;
@@ -234,12 +233,12 @@ public final class ServerEventHandler {
                     }
                 });
                 return new Climate.ParameterList<>(builder.build());
-            }).biomeSource(biomeRegistry.createRegistrationLookup());
+            }).biomeSource(biomeRegistry);
         }
 
-        LevelStem biomeLevel = new LevelStem(sourceLevel.type(), new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        LevelStem biomeLevel = new LevelStem(sourceLevel.typeHolder(), new NoiseBasedChunkGenerator(((ChunkGeneratorStructureAccessor) rootGenerator).getStructureSet(), ChunkGeneratorAccess.getNoiseParamsRegistry(rootGenerator), source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
         dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
-        return ResourceKey.create(Registries.DIMENSION, biomeDimId);
+        return ResourceKey.create(Registry.DIMENSION_REGISTRY, biomeDimId);
     }
 
     /**
@@ -294,7 +293,7 @@ public final class ServerEventHandler {
         BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
 
         if (ChunkByChunkConfig.get().getGameplayConfig().getStartInVillage()) {
-            Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
+            Registry<Structure> structures = registryAccess.registry(Registry.STRUCTURE_REGISTRY).orElseThrow();
             Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
             if (structuresTag.isPresent()) {
                 HolderSet<Structure> holders = structuresTag.get();
@@ -309,7 +308,7 @@ public final class ServerEventHandler {
         } else if (!ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome().isEmpty()) {
             String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
             if (startingBiome.startsWith("#")) {
-                Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
+                Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registry.BIOME_REGISTRY).orElseThrow().getTag(TagKey.create(Registry.BIOME_REGISTRY, new ResourceLocation(startingBiome.substring(1))));
                 if (tagSet.isPresent()) {
                     Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
                     if (location != null) {
@@ -320,7 +319,7 @@ public final class ServerEventHandler {
                     ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
                 }
             } else {
-                Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
+                Biome biome = registryAccess.registry(Registry.BIOME_REGISTRY).orElseThrow().get(new ResourceLocation(startingBiome));
                 if (biome != null) {
                     Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
                     if (location != null) {
