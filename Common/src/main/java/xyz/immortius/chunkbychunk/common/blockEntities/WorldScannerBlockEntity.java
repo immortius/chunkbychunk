@@ -57,7 +57,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     private static final int TICKS_BETWEEN_REPLICATES = 11;
 
-    private static final Map<Item, FuelValueSupplier> FUEL;
+    public static final Map<Item, FuelValueSupplier> FUEL;
 
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_SIDES = new int[]{SLOT_FUEL};

@@ -15,10 +15,10 @@ import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
  * Screen for the World Forge - this is a single input/output style furnace with animated progress arrow
  */
 public class WorldForgeScreen extends AbstractContainerScreen<WorldForgeMenu> {
-    private static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/worldforge.png");
+    public static final ResourceLocation CONTAINER_TEXTURE = new ResourceLocation(ChunkByChunkConstants.MOD_ID + ":textures/gui/container/worldforge.png");
 
-    private static final float TICKS_PER_FRAME = 4f;
-    private static final int NUM_FRAMES = 8;
+    public static final float TICKS_PER_FRAME = 2f;
+    public static final int NUM_FRAMES = 8;
 
     private float animCounter = 0.f;
 

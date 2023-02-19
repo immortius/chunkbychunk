@@ -1,5 +1,6 @@
 package xyz.immortius.chunkbychunk.fabric;
 
+import com.google.common.collect.ImmutableList;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -96,6 +97,8 @@ public class ChunkByChunkMod implements ModInitializer {
 
     public static ResourceLocation CONFIG_PACKET = new ResourceLocation(ChunkByChunkConstants.MOD_ID, "config");
 
+    public static List<ItemStack> biomeThemedBlockItems;
+
     static {
         ResourceManagerHelper.get(PackType.SERVER_DATA).registerReloadListener(new SimpleSynchronousResourceReloadListener() {
             @Override
@@ -140,6 +143,7 @@ public class ChunkByChunkMod implements ModInitializer {
             Registry.register(BuiltInRegistries.ITEM, createId(biomeTheme +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX), item);
             themeSpawnBlockItems.add(item.getDefaultInstance());
         }
+        biomeThemedBlockItems = ImmutableList.copyOf(themeSpawnBlockItems);
 
         BEDROCK_CHEST_BLOCK_ITEM = Registry.register(BuiltInRegistries.ITEM, createId("bedrockchest"), new BlockItem(BEDROCK_CHEST_BLOCK, new FabricItemSettings()));
         WORLD_CORE_BLOCK_ITEM = Registry.register(BuiltInRegistries.ITEM, createId("worldcore"), new BlockItem(WORLD_CORE_BLOCK, new FabricItemSettings()));

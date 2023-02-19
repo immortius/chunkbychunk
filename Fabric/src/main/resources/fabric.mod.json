@@ -24,7 +24,10 @@
     "client": [
       "xyz.immortius.chunkbychunk.fabric.ChunkByChunkClientMod"
     ],
-    "modmenu": [ "xyz.immortius.chunkbychunk.fabric.ModMenuApiImpl" ]
+    "modmenu": [ "xyz.immortius.chunkbychunk.fabric.ModMenuApiImpl" ],
+    "jei_mod_plugin": [
+      "xyz.immortius.chunkbychunk.common.jei.CBCJeiPlugin"
+    ]
   },
   "mixins": [
     "chunkbychunk.mixins.json"
@@ -37,7 +40,8 @@
     "java": ">=17"
   },
   "suggests" : {
-    "modmenu" : ">=5.0.2"
+    "modmenu" : ">=5.0.2",
+    "jei" : ">=12.1.1.13"
   }
 }
   

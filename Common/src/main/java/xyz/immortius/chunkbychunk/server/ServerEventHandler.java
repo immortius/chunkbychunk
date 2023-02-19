@@ -92,12 +92,12 @@ public final class ServerEventHandler {
         configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
         if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
             ChunkByChunkConstants.LOGGER.info("Setting up sky dimensions");
-            applySkyDimensionConfig();
+            applySkyDimensionConfig(server.registryAccess());
             applyChunkByChunkWorldGeneration(server);
         }
     }
 
-    private static void applySkyDimensionConfig() {
+    private static void applySkyDimensionConfig(RegistryAccess registryAccess) {
         if (ChunkByChunkConfig.get().getGeneration().isSynchNether()) {
             SkyDimensions.getSkyDimensions().values().stream().filter(x -> "minecraft:the_nether".equals(x.dimensionId) || "the_nether".equals(x.dimensionId)).forEach(x -> {
                 x.synchToDimensions.add("minecraft:overworld");
@@ -118,11 +118,12 @@ public final class ServerEventHandler {
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
         MappedRegistry<Biome> biomeRegistry = (MappedRegistry<Biome>) server.registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<Block> blocks = server.registryAccess().registry(Registries.BLOCK).orElseThrow();
         ((DefrostedRegistry) dimensions).setFrozen(false);
         ((DefrostedRegistry) biomeRegistry).setFrozen(false);
 
         for (Map.Entry<ResourceLocation, SkyDimensionData> entry : SkyDimensions.getSkyDimensions().entrySet()) {
-            setupDimension(entry.getKey(), entry.getValue(), dimensions, biomeRegistry);
+            setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry);
         }
         configureDimensionSynching(dimensions);
 
@@ -153,7 +154,7 @@ public final class ServerEventHandler {
         }
     }
 
-    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, WritableRegistry<Biome> biomeRegistry) {
+    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, WritableRegistry<Biome> biomeRegistry) {
         if (!config.validate(skyDimensionId, dimensions)) {
             config.enabled = false;
         }
@@ -171,7 +172,7 @@ public final class ServerEventHandler {
             rootGenerator = level.generator();
         }
 
-        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, level, rootGenerator);
+        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, level, rootGenerator);
 
         for (Map.Entry<String, List<String>> biomeTheme : config.biomeThemes.entrySet()) {
             ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry);
@@ -181,7 +182,7 @@ public final class ServerEventHandler {
         }
     }
 
-    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, LevelStem level, ChunkGenerator rootGenerator) {
+    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, LevelStem level, ChunkGenerator rootGenerator) {
         ResourceLocation genDimensionId = config.getGenDimensionId();
         ResourceKey<LevelStem> genLevelId = ResourceKey.create(Registries.LEVEL_STEM, genDimensionId);
         LevelStem generationLevel = dimensions.get(genDimensionId);
@@ -199,7 +200,12 @@ public final class ServerEventHandler {
         } else {
             skyGenerator = (SkyChunkGenerator) level.generator();
         }
-        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
+        Block sealBlock = blocks.get(new ResourceLocation(config.sealBlock));
+        if (sealBlock == null) {
+            sealBlock = Blocks.BEDROCK;
+        }
+
+        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
         return skyGenerator;
     }
 

@@ -14,6 +14,7 @@ import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.*;
 import net.minecraft.world.level.biome.*;
 import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
@@ -50,21 +51,8 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     private boolean chunkSpawnerAllowed;
     private boolean randomChunkSpawnerAllowed;
 
-    public boolean isChunkSpawnerAllowed() {
-        return chunkSpawnerAllowed;
-    }
-
-    public boolean isRandomChunkSpawnerAllowed() {
-        return randomChunkSpawnerAllowed;
-    }
-
-    public void addSynchLevel(ResourceKey<Level> dimension) {
-        synchedLevels.add(dimension);
-    }
-
-    public List<ResourceKey<Level>> getSynchedLevels() {
-        return synchedLevels;
-    }
+    private EmptyGenerationType generationType = EmptyGenerationType.Normal;
+    private Block sealBlock;
 
     public enum EmptyGenerationType {
         Normal,
@@ -86,10 +74,6 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         }
     }
 
-    private EmptyGenerationType generationType = EmptyGenerationType.Normal;
-
-    private final Map<String, ResourceKey<Level>> biomeDimensions = new HashMap<>();
-
     /**
      * @param parent The chunkGenerator this generator is based on
      */
@@ -98,12 +82,39 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         this.parent = parent;
     }
 
-    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType, int initialChunks, boolean chunkSpawnerAllowed, boolean randomChunkSpawnerAllowed) {
+    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType, Block sealBlock, int initialChunks, boolean chunkSpawnerAllowed, boolean randomChunkSpawnerAllowed) {
         this.generationLevel = generationLevel;
         this.generationType = generationType;
         this.initialChunks = initialChunks;
         this.chunkSpawnerAllowed = chunkSpawnerAllowed;
         this.randomChunkSpawnerAllowed = randomChunkSpawnerAllowed;
+        this.sealBlock = sealBlock;
+    }
+
+    private final Map<String, ResourceKey<Level>> biomeDimensions = new HashMap<>();
+
+    public boolean isChunkSpawnerAllowed() {
+        return chunkSpawnerAllowed;
+    }
+
+    public boolean isRandomChunkSpawnerAllowed() {
+        return randomChunkSpawnerAllowed;
+    }
+
+    public void addSynchLevel(ResourceKey<Level> dimension) {
+        synchedLevels.add(dimension);
+    }
+
+    public List<ResourceKey<Level>> getSynchedLevels() {
+        return synchedLevels;
+    }
+
+    public EmptyGenerationType getGenerationType() {
+        return generationType;
+    }
+
+    public Block getSealBlock() {
+        return sealBlock;
     }
 
     public void addBiomeDimension(String name, ResourceKey<Level> level) {
@@ -135,6 +146,7 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
     public CompletableFuture<ChunkAccess> fillFromNoise(Executor executor, Blender blender, RandomState randomState, StructureManager structureManager, ChunkAccess chunk) {
         return switch (generationType) {
             case Sealed -> parent.fillFromNoise(executor, blender, randomState, structureManager, chunk).whenCompleteAsync((chunkAccess, throwable) -> {
+
                 BlockPos.MutableBlockPos blockPos = new BlockPos.MutableBlockPos(0, 0, 0);
                 for (blockPos.setZ(0); blockPos.getZ() < 16; blockPos.setZ(blockPos.getZ() + 1)) {
                     for (blockPos.setX(0); blockPos.getX() < 16; blockPos.setX(blockPos.getX() + 1)) {
@@ -142,10 +154,12 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
                         while (blockPos.getY() > chunkAccess.getMinBuildHeight() && chunkAccess.getBlockState(blockPos).getBlock() instanceof AirBlock) {
                             blockPos.setY(blockPos.getY() - 1);
                         }
-                        while (blockPos.getY() > chunkAccess.getMinBuildHeight()) {
-                            chunkAccess.setBlockState(blockPos, Blocks.BEDROCK.defaultBlockState(), false);
+                        while (blockPos.getY() > chunkAccess.getMinBuildHeight() + 1) {
+                            chunkAccess.setBlockState(blockPos, sealBlock.defaultBlockState(), false);
                             blockPos.setY(blockPos.getY() - 1);
                         }
+                        chunkAccess.setBlockState(blockPos, Blocks.BEDROCK.defaultBlockState(), false);
+                        blockPos.setY(blockPos.getY() - 1);
                         chunkAccess.setBlockState(blockPos, Blocks.VOID_AIR.defaultBlockState(), false);
                     }
                 }

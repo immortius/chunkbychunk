@@ -8,12 +8,12 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.PortalInfo;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.common.blocks.AbstractTriggeredSpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -128,14 +128,23 @@ public final class SpawnChunkHelper {
                 to.setBlock(targetBlock, Blocks.BEDROCK.defaultBlockState(), Block.UPDATE_ALL);
             }
         }
+        Block sealedBlock = Blocks.BEDROCK;
+        if (to.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyChunkGenerator && skyChunkGenerator.getGenerationType() == SkyChunkGenerator.EmptyGenerationType.Sealed) {
+            sealedBlock = skyChunkGenerator.getSealBlock();
+        }
+
         for (int y = to.getMinBuildHeight() + 1; y < to.getMaxBuildHeight() - 1; y++) {
             for (int z = sourceChunkPos.getMinBlockZ(); z <= sourceChunkPos.getMaxBlockZ(); z++) {
                 for (int x = sourceChunkPos.getMinBlockX(); x <= sourceChunkPos.getMaxBlockX(); x++) {
                     sourceBlock.set(x, y, z);
                     targetBlock.set(x + xOffset, y, z + zOffset);
                     Block existingBlock = to.getBlockState(targetBlock).getBlock();
-                    if (existingBlock instanceof AirBlock || existingBlock instanceof LiquidBlock || existingBlock == Blocks.BEDROCK) {
-                        to.setBlock(targetBlock, from.getBlockState(sourceBlock), Block.UPDATE_ALL);
+                    if (existingBlock instanceof AirBlock || existingBlock instanceof LiquidBlock || existingBlock == Blocks.BEDROCK || existingBlock == sealedBlock) {
+                        BlockState newBlock = from.getBlockState(sourceBlock);
+                        if (ChunkByChunkConfig.get().getGameplayConfig().isChunkSpawnLeafDecayDisabled() && newBlock.getBlock() instanceof LeavesBlock) {
+                            newBlock = newBlock.setValue(LeavesBlock.PERSISTENT, true);
+                        }
+                        to.setBlock(targetBlock, newBlock, Block.UPDATE_ALL);
                         BlockEntity fromBlockEntity = from.getBlockEntity(sourceBlock);
                         BlockEntity toBlockEntity = to.getBlockEntity(targetBlock);
                         if (fromBlockEntity != null && toBlockEntity != null) {

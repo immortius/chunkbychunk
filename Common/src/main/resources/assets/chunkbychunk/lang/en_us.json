@@ -57,6 +57,7 @@
   "config.chunkbychunk.option.fuelRequiredPerChunk" :  "Fuel used per chunk",
   "config.chunkbychunk.option.fuelConsumedPerTick" : "Fuel used per tick",
   "config.chunkbychunk.option.startingBiome" : "Starting biome",
+  "config.chunkbychunk.option.chunkSpawnLeafDecayDisabled" : "Prevent chunk spawned leaf decay",
   "enumvalue.chunkbychunk.ChunkRewardChestContent.ChunkSpawner" : "Chunk Spawner",
   "enumvalue.chunkbychunk.ChunkRewardChestContent.UnstableChunkSpawner" : "Unstable Chunk Spawner",
   "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldCore" : "World Core",

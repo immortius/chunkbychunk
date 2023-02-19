@@ -4,6 +4,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -15,6 +16,8 @@ import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
 import xyz.immortius.chunkbychunk.interop.CBCPlatformHelper;
 import xyz.immortius.chunkbychunk.mixins.BucketFluidAccessor;
+
+import java.util.List;
 
 /**
  * Static methods whose implementation varies by mod system
@@ -93,6 +96,11 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
 
     @Override
     public Item worldCrystalItem() { return ChunkByChunkMod.WORLD_CRYSTAL_ITEM; }
+
+    @Override
+    public List<ItemStack> biomeThemeBlockItems() {
+        return ChunkByChunkMod.biomeThemedBlockItems;
+    }
 
     // Block Entities
 

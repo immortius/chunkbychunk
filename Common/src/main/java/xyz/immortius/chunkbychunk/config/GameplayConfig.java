@@ -20,6 +20,10 @@ public class GameplayConfig {
     @Comment("The tag or name of the biome the starting spawn should be in (if not a village, blank for any")
     private String startingBiome = "#minecraft:is_forest";
 
+    @Name("chunk_spawn_leaf_decay_disabled")
+    @Comment("Prevent leaves spawned by the chunk spawners from decaying")
+    private boolean chunkSpawnLeafDecayDisabled = false;
+
     public boolean isBlockPlacementAllowedOutsideSpawnedChunks() {
         return blockPlacementAllowedOutsideSpawnedChunks;
     }
@@ -42,5 +46,13 @@ public class GameplayConfig {
 
     public void setStartingBiome(String startingBiome) {
         this.startingBiome = startingBiome;
+    }
+
+    public boolean isChunkSpawnLeafDecayDisabled() {
+        return chunkSpawnLeafDecayDisabled;
+    }
+
+    public void setChunkSpawnLeafDecayDisabled(boolean chunkSpawnLeafDecayDisabled) {
+        this.chunkSpawnLeafDecayDisabled = chunkSpawnLeafDecayDisabled;
     }
 }

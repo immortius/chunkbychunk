@@ -4,6 +4,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
@@ -13,6 +14,9 @@ import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.interop.CBCPlatformHelper;
+
+import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Static methods whose implementation varies by mod system
@@ -87,6 +91,11 @@ public final class ForgePlatformHelper implements CBCPlatformHelper {
 
     @Override
     public Item worldCrystalItem() { return ChunkByChunkMod.WORLD_CRYSTAL_ITEM.get(); }
+
+    @Override
+    public List<ItemStack> biomeThemeBlockItems() {
+        return ChunkByChunkMod.THEMED_SPAWN_CHUNK_ITEMS.stream().map(Supplier::get).toList();
+    }
 
     // Block Entities
     @Override

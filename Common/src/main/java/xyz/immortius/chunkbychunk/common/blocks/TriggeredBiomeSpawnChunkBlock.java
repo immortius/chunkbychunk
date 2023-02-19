@@ -1,7 +1,6 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -12,8 +11,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blockEntities.TriggeredSpawnChunkBlockEntity;
 import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.interop.Services;
-
-import java.util.function.Function;
 
 /**
  * Spawns the corresponding chunk to the chunk the block is in
