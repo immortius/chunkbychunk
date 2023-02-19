@@ -62,8 +62,9 @@ public class CBCJeiPlugin implements IModPlugin {
 
     private void registerWorldForgeRecipes(IRecipeRegistration registration) {
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.FUEL_TAGS.entrySet().stream().map(tagInfo -> {
+            int inputSize = determineForgeInput(tagInfo.getValue().get());
             ItemStack output = determineForgeOutput(tagInfo.getValue().get());
-            return new WorldForgeRecipe(registration.getJeiHelpers().getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).toList(), tagInfo.getValue().get(), output);
+            return new WorldForgeRecipe(registration.getJeiHelpers().getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).map(x -> (inputSize > 1) ? x.copyWithCount(inputSize) : x).toList(), tagInfo.getValue().get(), output);
         }).filter(r -> !r.getInputItems().isEmpty()).toList());
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.FUEL.entrySet().stream().map(fuelInfo -> {
             ItemStack output = determineForgeOutput(fuelInfo.getValue().get());
@@ -74,6 +75,10 @@ public class CBCJeiPlugin implements IModPlugin {
             ItemStack output = step.getValue().getDefaultInstance();
             return new WorldForgeRecipe(Collections.singletonList(input), ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost(), output);
         }).toList());
+    }
+
+    private int determineForgeInput(int fuelValue) {
+        return Math.max(1, ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost() / fuelValue);
     }
 
     @NotNull
