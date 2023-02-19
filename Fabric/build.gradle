@@ -55,7 +55,7 @@ processResources {
     }
 
     filesMatching("${mod_id}.mixins.json") {
-        expand "refmap_target": "${mod_name}-fabric-${minecraft_version}-refmap.mixin"
+        expand "refmap_target": "${mod_name}-fabric-${minecraft_version}-refmap.json"
     }
 }
 
