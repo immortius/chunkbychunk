@@ -52,8 +52,8 @@ public class GenerationConfig {
     private int maxChestSpawnDepth = -60;
 
     @Name("initial_chunks")
-    @Comment("The number of chunks to spawn initially (up to 9).")
-    @IntRange(min = 1, max = 9)
+    @Comment("The number of chunks to spawn initially")
+    @IntRange(min = 0, max = 25)
     private int initialChunks = 1;
 
     public boolean isEnabled() {
