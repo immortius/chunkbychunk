@@ -34,14 +34,14 @@
   ],
   "accessWidener" : "chunkbychunk.aw",
   "depends": {
-    "fabricloader": ">=0.14.12",
+    "fabricloader": ">=0.14.19",
     "fabric": "*",
     "minecraft": ">=1.19.3",
     "java": ">=17"
   },
   "suggests" : {
-    "modmenu" : ">=5.0.2",
-    "jei" : ">=12.1.1.13"
+    "modmenu" : ">=6.1.0",
+    "jei" : ">=13.1.0.0"
   }
 }
   

@@ -68,7 +68,7 @@ public class SpawnChunkCommand {
 
     private static int spawnChunk(CommandSourceStack stack, ServerLevel level, Coordinates specifiedCoords, boolean random) throws CommandSyntaxException {
         Vec3 vec3 = specifiedCoords.getPosition(stack);
-        BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
+        BlockPos pos = BlockPos.containing(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
         if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
@@ -94,7 +94,7 @@ public class SpawnChunkCommand {
 
     private static int spawnThemedChunk(CommandSourceStack stack, ServerLevel level, String biome, Coordinates specifiedCoords) throws CommandSyntaxException {
         Vec3 vec3 = specifiedCoords.getPosition(stack);
-        BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
+        BlockPos pos = BlockPos.containing(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
         if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyChunkGenerator) {

@@ -84,7 +84,7 @@ public abstract class AbstractSpawnChunkBlockEntity extends BlockEntity {
                 ServerLevel synchLevel = targetLevel.getServer().getLevel(synchLevelId);
                 double scale = DimensionType.getTeleportationScale(targetLevel.dimensionType(), synchLevel.dimensionType());
                 BlockPos pos = targetChunkPos.getMiddleBlockPosition(0);
-                ChunkPos synchChunk = new ChunkPos(new BlockPos(pos.getX() * scale, 0, pos.getZ() * scale));
+                ChunkPos synchChunk = new ChunkPos(BlockPos.containing(pos.getX() * scale, 0, pos.getZ() * scale));
                 if (SpawnChunkHelper.isEmptyChunk(synchLevel, synchChunk) && !(synchLevel.getBlockState(synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1)).getBlock() instanceof AbstractTriggeredSpawnChunkBlock)) {
                     BlockPos genBlockPos = synchChunk.getMiddleBlockPosition(synchLevel.getMaxBuildHeight() - 1);
                     synchLevel.setBlock(genBlockPos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
