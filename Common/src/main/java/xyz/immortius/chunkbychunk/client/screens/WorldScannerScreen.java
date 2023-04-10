@@ -95,16 +95,16 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        this.blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
         if (menu.getEnergy() > 0) {
             int display = Mth.ceil(7.f * menu.getEnergy() / menu.getMaxEnergy());
-            this.blit(stack, leftPos + 54, topPos + 56, 128 + 12 * display, 166 + 12 * frame, 13, 13);
+            blit(stack, leftPos + 54, topPos + 56, 128 + 12 * display, 166 + 12 * frame, 13, 13, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
         }
         if (menu.isMapAvailable()) {
             renderMap(stack);
         }
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        this.blit(stack, leftPos + 234, topPos + 78, 124, 166 + frame * 4, 4, 4);
+        blit(stack, leftPos + 234, topPos + 78, 124, 166 + frame * 4, 4, 4, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
 
     }
 
@@ -120,9 +120,5 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
         stack.popPose();
     }
 
-    @Override
-    public void blit(PoseStack stack, int screenX, int screenY, int texX, int texY, int pixelWidth, int pixelHeight) {
-        blit(stack, screenX, screenY, getBlitOffset(), (float) texX, (float) texY, pixelWidth, pixelHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
-    }
 
 }
