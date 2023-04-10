@@ -1,5 +1,6 @@
 package xyz.immortius.chunkbychunk.forge.mixins;
 
+import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
@@ -18,7 +19,7 @@ public class LevelStorageSourceMixin {
 
     @ModifyVariable(method = "readWorldGenSettings", argsOnly = true, at = @At("HEAD"))
     private static Dynamic<Tag> fixDynamicData(Dynamic<Tag> dynamicData) {
-        Set<String> presets = MultiNoiseBiomeSource.Preset.getPresets().map(x -> x.getFirst().toString()).collect(Collectors.toSet());
+        Set<String> presets = ImmutableSet.of("nether", "overworld");
 
         Dynamic<Tag> worldGenSettings = dynamicData.get("WorldGenSettings").orElseEmptyMap();
         Dynamic<Tag> dimensions = worldGenSettings.get("dimensions").orElseEmptyMap();

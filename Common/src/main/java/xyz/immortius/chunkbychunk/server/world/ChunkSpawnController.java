@@ -269,7 +269,7 @@ public class ChunkSpawnController extends SavedData {
                 if (synchLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator synchGenerator) {
                     double scale = DimensionType.getTeleportationScale(targetLevel.dimensionType(), synchLevel.dimensionType());
                     BlockPos pos = currentSpawnRequest.targetChunkPos().getMiddleBlockPosition(0);
-                    ChunkPos synchChunk = new ChunkPos(new BlockPos(pos.getX() * scale, 0, pos.getZ() * scale));
+                    ChunkPos synchChunk = new ChunkPos(BlockPos.containing(pos.getX() * scale, 0, pos.getZ() * scale));
                     request(synchChunk, synchLevelId, synchChunk, synchGenerator.getGenerationLevel(), false);
                 }
             }
