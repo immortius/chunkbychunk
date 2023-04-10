@@ -129,8 +129,8 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
     public class StringEntry extends AbstractWidgetEntry<EditBox> {
 
         private final Component displayName;
-        private final String defaultValue;
         private final Consumer<String> setter;
+        private final String defaultValue;
 
         public StringEntry(Component displayName, Supplier<String> getter, Consumer<String> setter, String defaultValue) {
             super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
@@ -309,7 +309,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         @Override
         public boolean mouseClicked(double x, double y, int mouseButton) {
             if (SettingListWidget.this.lastFocused != null && SettingListWidget.this.lastFocused != widget) {
-                SettingListWidget.this.lastFocused.setFocus(false);
+                SettingListWidget.this.lastFocused.setFocused(false);
             }
             dragging = true;
             return this.widget.mouseClicked(x, y, mouseButton);
