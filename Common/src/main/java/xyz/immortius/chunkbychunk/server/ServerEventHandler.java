@@ -232,21 +232,21 @@ public final class ServerEventHandler {
         } else if (biomeKeys.size() == 1) {
             source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
         } else {
-            source = new MultiNoiseBiomeSource.Preset(biomeDimId, biomeReg -> {
-                ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
-                ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
-                    if (biomeKeys.contains(pair.getSecond())) {
-                        builder.add(pair.mapSecond(biomeRegistry::getHolderOrThrow));
-                    }
-                });
-                return new Climate.ParameterList<>(builder.build());
-            }).biomeSource(biomeRegistry.createRegistrationLookup());
+            ImmutableList.Builder<Pair<Climate.ParameterPoint, Holder<Biome>>> builder = ImmutableList.builder();
+            ((OverworldBiomeBuilderAccessor)(Object) new OverworldBiomeBuilder()).callAddBiomes((pair) -> {
+                if (biomeKeys.contains(pair.getSecond())) {
+                    builder.add(pair.mapSecond(biomeRegistry::getHolderOrThrow));
+                }
+            });
+            Climate.ParameterList<Holder<Biome>> holderParameterList = new Climate.ParameterList<>(builder.build());
+            source = MultiNoiseBiomeSource.createFromList(holderParameterList);
         }
 
         LevelStem biomeLevel = new LevelStem(themeDimensionType, new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-        LevelStem existingMapping = dimensions.get(levelKey);
-        if (existingMapping != null) {
-            dimensions.registerMapping(dimensions.getId(existingMapping), levelKey, biomeLevel, Lifecycle.stable());
+        LevelStem existingStem = dimensions.get(levelKey);
+        if (existingStem != null) {
+            int id = dimensions.getId(existingStem);
+            dimensions.registerMapping(id, levelKey, biomeLevel, Lifecycle.stable());
         } else {
             dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
         }
