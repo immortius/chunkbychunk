@@ -238,7 +238,12 @@ public final class ServerEventHandler {
         }
 
         LevelStem biomeLevel = new LevelStem(sourceLevel.type(), new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-        dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+        LevelStem existingMapping = dimensions.get(levelKey);
+        if (existingMapping != null) {
+            dimensions.registerMapping(dimensions.getId(existingMapping), levelKey, biomeLevel, Lifecycle.stable());
+        } else {
+            dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+        }
         return ResourceKey.create(Registries.DIMENSION, biomeDimId);
     }
 
