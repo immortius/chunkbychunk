@@ -27,7 +27,8 @@
               "chunkbychunk:rockychunkspawner",
               "chunkbychunk:savannachunkspawner",
               "chunkbychunk:snowchunkspawner",
-              "chunkbychunk:swampchunkspawner"
+              "chunkbychunk:swampchunkspawner",
+              "chunkbychunk:mountainchunkspawner"
             ]
           }
         ]

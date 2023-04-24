@@ -52,10 +52,7 @@ import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Server event handlers for events triggered server-side
@@ -118,12 +115,13 @@ public final class ServerEventHandler {
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
         MappedRegistry<Biome> biomeRegistry = (MappedRegistry<Biome>) server.registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<DimensionType> dimensionTypeRegistry = server.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE);
         Registry<Block> blocks = server.registryAccess().registry(Registries.BLOCK).orElseThrow();
         ((DefrostedRegistry) dimensions).setFrozen(false);
         ((DefrostedRegistry) biomeRegistry).setFrozen(false);
 
         for (Map.Entry<ResourceLocation, SkyDimensionData> entry : SkyDimensions.getSkyDimensions().entrySet()) {
-            setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry);
+            setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry, dimensionTypeRegistry);
         }
         configureDimensionSynching(dimensions);
 
@@ -154,7 +152,7 @@ public final class ServerEventHandler {
         }
     }
 
-    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, WritableRegistry<Biome> biomeRegistry) {
+    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, WritableRegistry<Biome> biomeRegistry, Registry<DimensionType> dimensionTypeRegistry) {
         if (!config.validate(skyDimensionId, dimensions)) {
             config.enabled = false;
         }
@@ -174,8 +172,16 @@ public final class ServerEventHandler {
 
         SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, level, rootGenerator);
 
+        Holder<DimensionType> themeDimensionType = level.type();
+        if (config.biomeThemeDimensionType != null && !config.biomeThemeDimensionType.isEmpty()) {
+            Optional<Holder.Reference<DimensionType>> holder = dimensionTypeRegistry.getHolder(ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(config.biomeThemeDimensionType)));
+            if (holder.isPresent()) {
+                themeDimensionType = holder.get();
+            }
+        }
+
         for (Map.Entry<String, List<String>> biomeTheme : config.biomeThemes.entrySet()) {
-            ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry);
+            ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry, themeDimensionType);
             if (biomeDim != null) {
                 generator.addBiomeDimension(biomeTheme.getKey(), biomeDim);
             }
@@ -209,7 +215,7 @@ public final class ServerEventHandler {
         return skyGenerator;
     }
 
-    private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, WritableRegistry<Biome> biomeRegistry) {
+    private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, WritableRegistry<Biome> biomeRegistry, Holder<DimensionType> themeDimensionType) {
         ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + themeName + "_gen");
         List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registries.BIOME, new ResourceLocation(x))).filter(key -> {
             boolean valid = biomeRegistry.containsKey(key);
@@ -237,7 +243,7 @@ public final class ServerEventHandler {
             }).biomeSource(biomeRegistry.createRegistrationLookup());
         }
 
-        LevelStem biomeLevel = new LevelStem(sourceLevel.type(), new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        LevelStem biomeLevel = new LevelStem(themeDimensionType, new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
         LevelStem existingMapping = dimensions.get(levelKey);
         if (existingMapping != null) {
             dimensions.registerMapping(dimensions.getId(existingMapping), levelKey, biomeLevel, Lifecycle.stable());

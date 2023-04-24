@@ -6,6 +6,7 @@
   "allowUnstableChunkSpawner" : true,
   "initialChunks" : 1,
   "sealBlock" : "minecraft:bedrock",
+  "biomeThemeDimensionType" : "chunkbychunk:overworld_theme",
   "biomeThemes" : {
     "plains" : ["minecraft:plains", "minecraft:meadow", "minecraft:sunflower_plains"],
     "snow" : ["minecraft:snowy_plains", "minecraft:snowy_beach", "minecraft:snowy_slopes", "minecraft:grove", "minecraft:snowy_taiga", "minecraft:ice_spikes", "minecraft:frozen_river", "minecraft:frozen_peaks"],
@@ -16,6 +17,7 @@
     "savanna" : ["minecraft:savanna", "minecraft:savanna_plateau"],
     "rocky" : ["minecraft:windswept_gravelly_hills", "minecraft:windswept_hills", "minecraft:windswept_forest", "minecraft:windswept_savanna", "minecraft:jagged_peaks", "minecraft:stony_peaks", "minecraft:stony_shore"],
     "jungle" : ["minecraft:sparse_jungle", "minecraft:jungle", "minecraft:bamboo_jungle"],
-    "mushroom" : [ "minecraft:mushroom_fields"]
+    "mushroom" : [ "minecraft:mushroom_fields"],
+    "mountain" : [ "minecraft:windswept_hills", "minecraft:meadow", "minecraft:frozen_peaks", "minecraft:jagged_peaks", "minecraft:stony_peaks", "minecraft:snowy_slopes", "minecraft:grove" ]
   }
 }

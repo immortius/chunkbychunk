@@ -32,6 +32,8 @@ public class SkyDimensionData {
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
     public List<String> synchToDimensions = new ArrayList<>();
 
+    public String biomeThemeDimensionType;
+
     public Map<String, List<String>> biomeThemes = new LinkedHashMap<>();
 
     public boolean validate(ResourceLocation dataId, MappedRegistry<LevelStem> dimensions) {
