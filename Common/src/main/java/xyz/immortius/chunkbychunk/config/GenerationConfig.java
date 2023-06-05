@@ -56,6 +56,10 @@ public class GenerationConfig {
     @IntRange(min = 0, max = 25)
     private int initialChunks = 1;
 
+    @Name("spawn_chunk_strip")
+    @Comment("Whether to spawn a full strip of chunks along an axis")
+    private boolean spawnChunkStrip = false;
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -140,5 +144,13 @@ public class GenerationConfig {
 
     public void setSealWorld(boolean sealWorld) {
         this.sealWorld = sealWorld;
+    }
+
+    public boolean isSpawnChunkStrip() {
+        return spawnChunkStrip;
+    }
+
+    public void setSpawnChunkStrip(boolean spawnChunkStrip) {
+        this.spawnChunkStrip = spawnChunkStrip;
     }
 }
