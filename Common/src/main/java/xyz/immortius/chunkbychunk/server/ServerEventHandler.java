@@ -40,10 +40,7 @@ import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.data.SkyDimensionData;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.common.world.ChunkGeneratorAccess;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
-import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.server.world.*;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -374,26 +371,24 @@ public final class ServerEventHandler {
      * Spawns the initial chunks
      */
     private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn, boolean spawnChest) {
+        ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(level.getServer());
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
         if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
             List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
-                    SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                if (chunkSpawnController.request(level, "", false, targetPos.getMiddleBlockPosition(0), offset[0] == 0 && offset[1] == 0)) {
                     if (spawnChest && offset[0] == 0 && offset[1] == 0) {
                         SpawnChunkHelper.createNextSpawner(level, targetPos);
                     }
-                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                 }
             }
         } else {
             SpiralIterator spiralIterator = new SpiralIterator(centerChunkPos.x, centerChunkPos.z);
             for (int i = 0; i < initialChunks; i++) {
                 ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
-                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
-                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
+                if (chunkSpawnController.request(level, "", false, targetPos.getMiddleBlockPosition(0), i == 0)) {
                     if (spawnChest && i == 0) {
                         SpawnChunkHelper.createNextSpawner(level, targetPos);
                     }
@@ -422,5 +417,12 @@ public final class ServerEventHandler {
             }
         }
         ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
+    }
+
+    public static void onLevelTick(MinecraftServer server) {
+        ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(server);
+        if (chunkSpawnController != null) {
+            chunkSpawnController.tick();
+        }
     }
 }

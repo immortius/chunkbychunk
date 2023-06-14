@@ -9,7 +9,7 @@ import net.minecraft.world.inventory.SimpleContainerData;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import xyz.immortius.chunkbychunk.common.blockEntities.WorldMenderBlockEntity;
-import xyz.immortius.chunkbychunk.common.blocks.BaseSpawnChunkBlock;
+import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 /**
@@ -28,7 +28,7 @@ public class WorldMenderMenu extends BaseInventoryContainerMenu {
         Preconditions.checkArgument(container.getContainerSize() >= WorldMenderBlockEntity.NUM_ITEM_SLOTS, "Expected " + WorldMenderBlockEntity.NUM_ITEM_SLOTS + " item slots, but entity has " + container.getContainerSize());
         Preconditions.checkArgument(containerData.getCount() >= WorldMenderBlockEntity.NUM_DATA_ITEMS, "Expected " + WorldMenderBlockEntity.NUM_DATA_ITEMS + " data items, but entity has " + containerData.getCount());
 
-        addSlot(new FilteredSlot(container, WorldMenderBlockEntity.SLOT_INPUT, 80, 69, x -> x.getItem() instanceof BlockItem bi && (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock()) || bi.getBlock() instanceof BaseSpawnChunkBlock)));
+        addSlot(new FilteredSlot(container, WorldMenderBlockEntity.SLOT_INPUT, 80, 69, x -> x.getItem() instanceof BlockItem bi && (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock()) || bi.getBlock() instanceof SpawnChunkBlock)));
 
         addDataSlots(containerData);
     }

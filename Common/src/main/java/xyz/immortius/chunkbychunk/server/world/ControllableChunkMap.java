@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.common.world;
+package xyz.immortius.chunkbychunk.server.world;
 
 import net.minecraft.world.level.ChunkPos;
 

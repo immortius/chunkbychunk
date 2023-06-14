@@ -5,6 +5,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -20,10 +21,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import xyz.immortius.chunkbychunk.common.blocks.BaseSpawnChunkBlock;
+import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
+import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 /**
@@ -78,6 +80,8 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
             entity.cooldown--;
             return;
         }
+
+        ServerLevel serverLevel = (ServerLevel) level;
         int chunksSpawned = 0;
         if (entity.validInput()) {
             ChunkPos centerPos = new ChunkPos(blockPos);
@@ -87,9 +91,10 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
                 if (SpawnChunkHelper.isEmptyChunk(level, chunkPos)) {
                     entity.chunksSpawned = chunksSpawned + 1;
                     BlockPos pos = chunkPos.getMiddleBlockPosition(level.getMaxBuildHeight() - 1);
-                    level.setBlock(pos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
-                    entity.getItem(SLOT_INPUT).shrink(1);
-                    entity.cooldown = TICKS_BETWEEN_GENERATION;
+                    if (ChunkSpawnController.get(serverLevel.getServer()).request(serverLevel, "", false, pos)) {
+                        entity.getItem(SLOT_INPUT).shrink(1);
+                        entity.cooldown = TICKS_BETWEEN_GENERATION;
+                    }
                     return;
                 }
                 chunksSpawned++;
@@ -102,7 +107,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
 
     private boolean validInput() {
         ItemStack targetItem = getItem(SLOT_INPUT);
-        return targetItem.getItem() instanceof BlockItem bi && (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock()) || bi.getBlock() instanceof BaseSpawnChunkBlock);
+        return targetItem.getItem() instanceof BlockItem bi && (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock()) || bi.getBlock() instanceof SpawnChunkBlock);
     }
 
     // Container methods
@@ -157,7 +162,7 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
         if (Services.PLATFORM.worldCoreBlockItem().equals(item.getItem())) {
             return true;
         } else if (item.getItem() instanceof BlockItem blockItem) {
-            return blockItem.getBlock() instanceof BaseSpawnChunkBlock;
+            return blockItem.getBlock() instanceof SpawnChunkBlock;
         } else {
             return false;
         }

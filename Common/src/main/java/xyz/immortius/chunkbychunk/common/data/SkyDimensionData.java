@@ -4,7 +4,7 @@ import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.dimension.LevelStem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

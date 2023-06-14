@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.common.world;
+package xyz.immortius.chunkbychunk.server.world;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
@@ -24,6 +24,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -121,6 +122,7 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         biomeDimensions.put(name, level);
     }
 
+    @Nullable
     public ResourceKey<Level> getBiomeDimension(String name) {
         return biomeDimensions.get(name);
     }

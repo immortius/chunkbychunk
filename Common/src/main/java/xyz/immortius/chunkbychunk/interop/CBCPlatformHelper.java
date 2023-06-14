@@ -31,10 +31,6 @@ public interface CBCPlatformHelper {
 
     Block worldScannerBlock();
 
-    Block triggeredSpawnChunkBlock();
-
-    Block triggeredSpawnRandomChunkBlock();
-
     // Block Items
 
     Item spawnChunkBlockItem();
@@ -70,10 +66,6 @@ public interface CBCPlatformHelper {
     BlockEntityType<WorldScannerBlockEntity> worldScannerEntity();
 
     BlockEntityType<WorldMenderBlockEntity> worldMenderEntity();
-
-    BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity();
-
-    BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity();
 
     // Sound Events
 

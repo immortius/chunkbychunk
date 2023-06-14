@@ -49,12 +49,6 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
     @Override
     public Block worldScannerBlock() { return ChunkByChunkMod.WORLD_SCANNER_BLOCK; }
 
-    @Override
-    public Block triggeredSpawnChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK; }
-
-    @Override
-    public Block triggeredSpawnRandomChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK; }
-
     // Block Items
 
     @Override
@@ -122,16 +116,6 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
     @Override
     public BlockEntityType<WorldMenderBlockEntity> worldMenderEntity() {
         return (BlockEntityType<WorldMenderBlockEntity>) ChunkByChunkMod.WORLD_MENDER_BLOCK_ENTITY;
-    }
-
-    @Override
-    public BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity() {
-        return (BlockEntityType<TriggeredSpawnChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY;
-    }
-
-    @Override
-    public BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity() {
-        return (BlockEntityType<TriggeredSpawnRandomChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY;
     }
 
     // Sound Events
