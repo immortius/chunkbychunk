@@ -14,7 +14,7 @@ public class GenerationConfig {
 
     @Name("seal_world")
     @Comment("Should empty chunks be generated as bedrock")
-    private boolean sealWorld = false;
+    private boolean sealWorld = true;
 
     @Name("synch_nether_chunk_spawn")
     @Comment("Should the nether start empty with chunks spawning in response to overworld spawns")
@@ -53,12 +53,17 @@ public class GenerationConfig {
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially")
-    @IntRange(min = 0, max = 25)
+    @IntRange(min = 0, max = 100)
     private int initialChunks = 1;
 
     @Name("spawn_chunk_strip")
     @Comment("Whether to spawn a full strip of chunks along an axis")
     private boolean spawnChunkStrip = false;
+
+    @Name("chunk_layer_spawn_rate")
+    @Comment("Number of chunk layers to spawn per tick")
+    @IntRange(min = 1, max = 512)
+    private int chunkLayerSpawnRate = 8;
 
     public boolean isEnabled() {
         return enabled;
@@ -66,6 +71,14 @@ public class GenerationConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public int getChunkLayerSpawnRate() {
+        return chunkLayerSpawnRate;
+    }
+
+    public void setChunkLayerSpawnRate(int chunkLayerSpawnRate) {
+        this.chunkLayerSpawnRate = chunkLayerSpawnRate;
     }
 
     public boolean isSynchNether() {

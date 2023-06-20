@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
+import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
@@ -26,7 +27,7 @@ public final class FabricPlatformHelper implements CBCPlatformHelper {
     /// Blocks
 
     @Override
-    public Block spawnChunkBlock() {
+    public SpawnChunkBlock spawnChunkBlock() {
         return ChunkByChunkMod.SPAWN_CHUNK_BLOCK;
     }
 

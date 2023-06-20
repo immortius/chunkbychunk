@@ -167,7 +167,7 @@ public final class ServerEventHandler {
             rootGenerator = level.generator();
         }
 
-        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, level, rootGenerator);
+        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, biomeRegistry, level, rootGenerator);
 
         Holder<DimensionType> themeDimensionType = level.type();
         if (config.biomeThemeDimensionType != null && !config.biomeThemeDimensionType.isEmpty()) {
@@ -185,7 +185,7 @@ public final class ServerEventHandler {
         }
     }
 
-    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, LevelStem level, ChunkGenerator rootGenerator) {
+    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, Registry<Biome> biomes, LevelStem level, ChunkGenerator rootGenerator) {
         ResourceLocation genDimensionId = config.getGenDimensionId();
         ResourceKey<LevelStem> genLevelId = ResourceKey.create(Registries.LEVEL_STEM, genDimensionId);
         LevelStem generationLevel = dimensions.get(genDimensionId);
@@ -207,8 +207,12 @@ public final class ServerEventHandler {
         if (sealBlock == null) {
             sealBlock = Blocks.BEDROCK;
         }
+        Block coverBlock = blocks.get(new ResourceLocation(config.sealCoverBlock));
+        if (config.unspawnedBiome != null && !config.unspawnedBiome.isEmpty()) {
+            biomes.getHolder(ResourceKey.create(Registries.BIOME, new ResourceLocation(config.unspawnedBiome))).ifPresent(skyGenerator::setUnspawnedBiome);
+        }
 
-        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
+        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, coverBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
         return skyGenerator;
     }
 
@@ -295,6 +299,10 @@ public final class ServerEventHandler {
      * @param registryAccess
      */
     private static BlockPos findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel, RegistryAccess registryAccess) {
+        if (ChunkByChunkConfig.get().getGeneration().isSpawnChunkStrip()) {
+            return overworldLevel.getSharedSpawnPos();
+        }
+
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);

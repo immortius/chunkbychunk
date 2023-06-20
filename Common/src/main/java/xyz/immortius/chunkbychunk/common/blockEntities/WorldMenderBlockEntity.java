@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
+import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
 import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -39,7 +40,6 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
     public static final int DATA_CHUNKS_SPAWNED = 0;
     public static final int NUM_DATA_ITEMS = 1;
 
-    public static final int TICKS_BETWEEN_GENERATION = 120;
     public static final int SLEEP_TICKS_WHEN_NOTHING_TO_GENERATE = 1200000;
 
     private NonNullList<ItemStack> items;
@@ -82,6 +82,10 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
         }
 
         ServerLevel serverLevel = (ServerLevel) level;
+        if (ChunkSpawnController.get(serverLevel.getServer()).isBusy()) {
+            return;
+        }
+
         int chunksSpawned = 0;
         if (entity.validInput()) {
             ChunkPos centerPos = new ChunkPos(blockPos);
@@ -91,10 +95,11 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
                 if (SpawnChunkHelper.isEmptyChunk(level, chunkPos)) {
                     entity.chunksSpawned = chunksSpawned + 1;
                     BlockPos pos = chunkPos.getMiddleBlockPosition(level.getMaxBuildHeight() - 1);
-                    if (ChunkSpawnController.get(serverLevel.getServer()).request(serverLevel, "", false, pos)) {
+                    SpawnChunkBlock spawnChunkBlock = entity.getInputChunkBlock();
+                    if (ChunkSpawnController.get(serverLevel.getServer()).request(serverLevel, spawnChunkBlock.getBiomeTheme(), spawnChunkBlock.isRandom(), pos)) {
                         entity.getItem(SLOT_INPUT).shrink(1);
-                        entity.cooldown = TICKS_BETWEEN_GENERATION;
                     }
+                    entity.cooldown = ChunkByChunkConfig.get().getWorldMenderConfig().getCooldown();
                     return;
                 }
                 chunksSpawned++;
@@ -108,6 +113,18 @@ public class WorldMenderBlockEntity extends BaseContainerBlockEntity implements 
     private boolean validInput() {
         ItemStack targetItem = getItem(SLOT_INPUT);
         return targetItem.getItem() instanceof BlockItem bi && (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock()) || bi.getBlock() instanceof SpawnChunkBlock);
+    }
+
+    private SpawnChunkBlock getInputChunkBlock() {
+        ItemStack targetItem = getItem(SLOT_INPUT);
+        if (targetItem.getItem() instanceof BlockItem bi) {
+            if (bi.getBlock() instanceof SpawnChunkBlock scb) {
+                return scb;
+            } else if (bi.getBlock().equals(Services.PLATFORM.worldCoreBlock())) {
+                return Services.PLATFORM.spawnChunkBlock();
+            }
+        }
+        return null;
     }
 
     // Container methods

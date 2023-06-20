@@ -1,5 +1,5 @@
 {
-  "parent": "chunkbychunk:worldcoreobtained",
+  "parent": "chunkbychunk:root",
   "display": {
     "icon": {
       "item": "chunkbychunk:worldforge"
@@ -24,5 +24,8 @@
         ]
       }
     }
+  },
+  "rewards" : {
+    "recipes" : ["chunkbychunk:worldforge"]
   }
 }

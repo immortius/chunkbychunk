@@ -57,7 +57,7 @@ public class ChunkByChunkMod implements ModInitializer {
 
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
-    public static final Block SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", false, FabricBlockSettings.of(Material.STONE));
+    public static final SpawnChunkBlock SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", false, FabricBlockSettings.of(Material.STONE));
     public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", true, FabricBlockSettings.of(Material.STONE));
     public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((state, getter, pos, arg) -> false)));
     public static final Block WORLD_CORE_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7));

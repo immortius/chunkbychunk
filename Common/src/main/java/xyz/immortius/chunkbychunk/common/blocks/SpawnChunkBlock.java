@@ -78,4 +78,12 @@ public class SpawnChunkBlock extends Block {
         }
         return InteractionResult.PASS;
     }
+
+    public String getBiomeTheme() {
+        return biomeTheme;
+    }
+
+    public boolean isRandom() {
+        return random;
+    }
 }

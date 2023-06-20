@@ -25,6 +25,9 @@ public class ChunkByChunkConfig {
     @Name("WorldScanner")
     private final WorldScannerConfig worldScannerConfig = new WorldScannerConfig();
 
+    @Name("WorldMender")
+    private final WorldMenderConfig worldMenderConfig = new WorldMenderConfig();
+
     @Name("BedrockChest")
     private final BedrockChestConfig bedrockChest = new BedrockChestConfig();
 
@@ -45,4 +48,6 @@ public class ChunkByChunkConfig {
     public WorldScannerConfig getWorldScannerConfig() {
         return worldScannerConfig;
     }
+
+    public WorldMenderConfig getWorldMenderConfig() { return worldMenderConfig; }
 }

@@ -1,5 +1,5 @@
 {
-  "parent" : "chunkbychunk:root",
+  "parent" : "chunkbychunk:worldcrystalobtained",
   "display" : {
     "icon" : {
       "item": "chunkbychunk:worldcore"
@@ -22,6 +22,21 @@
     }
   },
   "rewards" : {
-    "recipes" : ["chunkbychunk:chunkspawner","chunkbychunk:disassemble_worldcore","chunkbychunk:worldcore","chunkbychunk:worldforge","chunkbychunk:worldscanner"]
+    "recipes" : ["chunkbychunk:chunkspawner",
+      "chunkbychunk:disassemble_worldcore",
+      "chunkbychunk:worldcore",
+      "chunkbychunk:worldforge",
+      "chunkbychunk:worldscanner",
+      "chunkbychunk:unstablechunkspawner",
+      "chunkbychunk:badlandschunkspawner",
+      "chunkbychunk:desertchunkspawner",
+      "chunkbychunk:forestchunkspawner",
+      "chunkbychunk:junglechunkspawner",
+      "chunkbychunk:mushroomchunkspawner",
+      "chunkbychunk:plainschunkspawner",
+      "chunkbychunk:rockychunkspawner",
+      "chunkbychunk:savannachunkspawner",
+      "chunkbychunk:snowchunkspawner",
+      "chunkbychunk:swampchunkspawner"]
   }
 }
