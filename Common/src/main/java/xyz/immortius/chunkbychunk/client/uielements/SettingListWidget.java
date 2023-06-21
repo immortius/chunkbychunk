@@ -163,7 +163,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
             SettingListWidget.this.minecraft.font.draw(stack, this.displayName, left, top + 6, 0xFFFFFF);
             widget.setX(left + labelLength + 6);
             widget.setWidth(getRowWidth() - labelLength - 6);
-            widget.setY(top);
+            widget.y = top;
             widget.render(stack, mouseX, mouseY, delta);
         }
 
@@ -254,7 +254,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
             SettingListWidget.this.minecraft.font.draw(stack, this.displayName, left, top + 6, 0xFFFFFF);
             widget.setX(left + labelLength + 6);
             widget.setWidth(getRowWidth() - labelLength - 6);
-            widget.setY(top);
+            widget.y = top;
             widget.render(stack, mouseX, mouseY, delta);
         }
 
@@ -301,8 +301,8 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         @Override
         public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
-            widget.setX(left);
-            widget.setY(top);
+            widget.x = left;
+            widget.y = top;
             widget.render(stack, mouseX, mouseY, delta);
         }
 
