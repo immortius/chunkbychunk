@@ -9,7 +9,10 @@
     "BucketFluidAccessor",
     "DefrostedRegistry",
     "ChunkMapMixin",
-    "OverworldBiomeBuilderAccessor"
+    "OverworldBiomeBuilderAccessor",
+    "ChunkGeneratorStructureAccessor",
+    "ChunkGeneratorAccessor",
+    "NoiseBasedChunkGeneratorMixin"
   ],
   "client": [
   ],
