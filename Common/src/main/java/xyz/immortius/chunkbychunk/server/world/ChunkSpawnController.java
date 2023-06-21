@@ -4,10 +4,9 @@ import com.mojang.datafixers.util.Either;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -348,9 +347,9 @@ public class ChunkSpawnController extends SavedData {
 
         public static SpawnRequest load(CompoundTag tag) {
             ChunkPos targetPos = new ChunkPos(tag.getLong(TARGET_POS));
-            ResourceKey<Level> targetLevel = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString(TARGET_LEVEL)));
+            ResourceKey<Level> targetLevel = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString(TARGET_LEVEL)));
             ChunkPos sourcePos = new ChunkPos(tag.getLong(SOURCE_POS));
-            ResourceKey<Level> sourceLevel = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString(SOURCE_LEVEL)));
+            ResourceKey<Level> sourceLevel = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString(SOURCE_LEVEL)));
             boolean immediate = tag.getBoolean(IMMEDIATE);
             return new SpawnRequest(targetPos, targetLevel, sourcePos, sourceLevel, immediate);
         }
