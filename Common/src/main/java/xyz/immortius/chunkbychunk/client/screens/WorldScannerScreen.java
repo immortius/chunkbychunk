@@ -1,11 +1,9 @@
 package xyz.immortius.chunkbychunk.client.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.MapRenderer;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -48,15 +46,15 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
-        this.renderBackground(stack);
-        super.render(stack, mouseX, mouseY, delta);
-        this.renderTooltip(stack, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, delta);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderTooltip(PoseStack stack, int cursorX, int cursorY) {
-        super.renderTooltip(stack, cursorX, cursorY);
+    protected void renderTooltip(GuiGraphics graphics, int cursorX, int cursorY) {
+        super.renderTooltip(graphics, cursorX, cursorY);
         int mapX = cursorX - 174 - leftPos;
         int mapY = cursorY - 18 - topPos;
         if (mapX >= 0 && mapY >= 0 && mapX < MAP_DIMENSIONS && mapY < MAP_DIMENSIONS) {
@@ -79,45 +77,41 @@ public class WorldScannerScreen extends AbstractContainerScreen<WorldScannerMenu
             }
 
             if (builder.length() > 0) {
-                renderTooltip(stack, Component.literal(builder.toString()), cursorX, cursorY);
+                graphics.renderTooltip(this.font, Component.literal(builder.toString()), cursorX, cursorY);
             }
         }
     }
 
     @Override
-    protected void renderBg(PoseStack stack, float delta, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         animCounter += delta;
         while (animCounter > TICKS_PER_FRAME * NUM_FRAMES) {
             animCounter -= TICKS_PER_FRAME * NUM_FRAMES;
         }
         int frame = Mth.floor(animCounter / TICKS_PER_FRAME);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
+        graphics.blit(CONTAINER_TEXTURE, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
         if (menu.getEnergy() > 0) {
             int display = Mth.ceil(7.f * menu.getEnergy() / menu.getMaxEnergy());
-            blit(stack, leftPos + 54, topPos + 56, 128 + 12 * display, 166 + 12 * frame, 13, 13, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
+            graphics.blit(CONTAINER_TEXTURE, leftPos + 54, topPos + 56, 128 + 12 * display, 166 + 12 * frame, 13, 13, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
         }
         if (menu.isMapAvailable()) {
-            renderMap(stack);
+            renderMap(graphics);
         }
-        RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        blit(stack, leftPos + 234, topPos + 78, 124, 166 + frame * 4, 4, 4, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
+        graphics.blit(CONTAINER_TEXTURE, leftPos + 234, topPos + 78, 124, 166 + frame * 4, 4, 4, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
 
     }
 
-    private void renderMap(PoseStack stack) {
-        stack.pushPose();
-        stack.translate(leftPos + 174, topPos + 18, 1.0D);
+    private void renderMap(GuiGraphics graphics) {
+        graphics.pose().pushPose();
+        graphics.pose().translate(leftPos + 174, topPos + 18, 1.0D);
         MultiBufferSource.BufferSource buffer = MultiBufferSource.immediate(Tesselator.getInstance().getBuilder());
         MapItemSavedData mapData = this.minecraft.level.getMapData(menu.getMapKey());
         if (mapData != null) {
-            mapRenderer.render(stack, buffer, menu.getMapId(), mapData, true, 0xFFFFFF);
+            mapRenderer.render(graphics.pose(), buffer, menu.getMapId(), mapData, true, 0xFFFFFF);
         }
         buffer.endBatch();
-        stack.popPose();
+        graphics.pose().popPose();
     }
 
 

@@ -22,16 +22,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.WorldgenRandom;
 import net.minecraft.world.level.material.FlowingFluid;
-import net.minecraft.world.level.material.MaterialColor;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 
 import java.util.*;
 
@@ -64,19 +64,19 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
     private static final int[] SLOTS_FOR_DOWN = new int[]{SLOT_FUEL};
 
     private static final byte[] SCAN_COLOR_PALETTE = {
-            MaterialColor.COLOR_BLACK.getPackedId(MaterialColor.Brightness.NORMAL),
-            MaterialColor.NETHER.getPackedId(MaterialColor.Brightness.LOWEST),
-            MaterialColor.NETHER.getPackedId(MaterialColor.Brightness.LOW),
-            MaterialColor.NETHER.getPackedId(MaterialColor.Brightness.NORMAL),
-            MaterialColor.NETHER.getPackedId(MaterialColor.Brightness.HIGH),
-            MaterialColor.COLOR_RED.getPackedId(MaterialColor.Brightness.LOWEST),
-            MaterialColor.COLOR_RED.getPackedId(MaterialColor.Brightness.LOW),
-            MaterialColor.COLOR_RED.getPackedId(MaterialColor.Brightness.NORMAL),
-            MaterialColor.COLOR_RED.getPackedId(MaterialColor.Brightness.HIGH),
-            MaterialColor.TERRACOTTA_YELLOW.getPackedId(MaterialColor.Brightness.HIGH),
-            MaterialColor.COLOR_YELLOW.getPackedId(MaterialColor.Brightness.HIGH),
-            MaterialColor.GOLD.getPackedId(MaterialColor.Brightness.HIGH),
-            MaterialColor.SNOW.getPackedId(MaterialColor.Brightness.HIGH)
+            MapColor.COLOR_BLACK.getPackedId(MapColor.Brightness.NORMAL),
+            MapColor.NETHER.getPackedId(MapColor.Brightness.LOWEST),
+            MapColor.NETHER.getPackedId(MapColor.Brightness.LOW),
+            MapColor.NETHER.getPackedId(MapColor.Brightness.NORMAL),
+            MapColor.NETHER.getPackedId(MapColor.Brightness.HIGH),
+            MapColor.COLOR_RED.getPackedId(MapColor.Brightness.LOWEST),
+            MapColor.COLOR_RED.getPackedId(MapColor.Brightness.LOW),
+            MapColor.COLOR_RED.getPackedId(MapColor.Brightness.NORMAL),
+            MapColor.COLOR_RED.getPackedId(MapColor.Brightness.HIGH),
+            MapColor.TERRACOTTA_YELLOW.getPackedId(MapColor.Brightness.HIGH),
+            MapColor.COLOR_YELLOW.getPackedId(MapColor.Brightness.HIGH),
+            MapColor.GOLD.getPackedId(MapColor.Brightness.HIGH),
+            MapColor.SNOW.getPackedId(MapColor.Brightness.HIGH)
     };
 
     /**
@@ -223,7 +223,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
                 }
 
                 // Set the color based on the count
-                byte color = MaterialColor.COLOR_BLACK.getPackedId(MaterialColor.Brightness.NORMAL);
+                byte color = MapColor.COLOR_BLACK.getPackedId(MapColor.Brightness.NORMAL);
                 for (int i = 0; i < SCAN_COLOR_THRESHOLD.length; i++) {
                     color = SCAN_COLOR_PALETTE[i];
                     if (blockCount <= SCAN_COLOR_THRESHOLD[i]) {
@@ -298,7 +298,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
         boolean targetUnchanged = true;
         if (slot == SLOT_INPUT) {
             ItemStack itemStack = this.getItem(slot);
-            targetUnchanged = !newItem.isEmpty() && newItem.sameItem(itemStack);
+            targetUnchanged = !newItem.isEmpty() && ItemStack.isSameItem(itemStack, newItem);
         }
 
         super.setItem(slot, newItem);
@@ -314,7 +314,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
             if (data != null) {
                 for (int x = 0; x < MapItem.IMAGE_WIDTH; x++) {
                     for (int y = 0; y < MapItem.IMAGE_HEIGHT; y++) {
-                        data.setColor(x, y, MaterialColor.NONE.getPackedId(MaterialColor.Brightness.NORMAL));
+                        data.setColor(x, y, MapColor.NONE.getPackedId(MapColor.Brightness.NORMAL));
                     }
                 }
             }

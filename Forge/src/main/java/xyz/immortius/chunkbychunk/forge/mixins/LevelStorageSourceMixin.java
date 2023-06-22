@@ -4,7 +4,6 @@ import com.google.common.collect.ImmutableSet;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.world.level.biome.MultiNoiseBiomeSource;
 import net.minecraft.world.level.storage.LevelStorageSource;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -12,7 +11,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Mixin(LevelStorageSource.class)
 public class LevelStorageSourceMixin {
