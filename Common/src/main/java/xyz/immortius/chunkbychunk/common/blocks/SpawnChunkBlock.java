@@ -2,27 +2,22 @@ package xyz.immortius.chunkbychunk.common.blocks;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
-import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
+import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
 
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import java.util.Random;
 
 /**
  * This is the base for blocks that can be used to trigger spawning an "empty" chunk. Empty in this case is signified by the chunk not having bedrock at the base level.

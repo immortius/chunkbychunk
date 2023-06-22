@@ -1,9 +1,7 @@
 package xyz.immortius.chunkbychunk.client.screens;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -50,25 +48,25 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
-        this.renderBackground(stack);
-        super.render(stack, mouseX, mouseY, delta);
-        this.renderTooltip(stack, mouseX, mouseY);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        this.renderBackground(graphics);
+        super.render(graphics, mouseX, mouseY, delta);
+        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
     @Override
-    protected void renderLabels(PoseStack stack, int mouseX, int mouseY) {
-        this.font.draw(stack, this.title, (float)this.titleLabelX, (float)this.titleLabelY, 4210752);
-        this.font.draw(stack, this.playerInventoryTitle, (float)this.inventoryLabelX, (float)this.inventoryLabelY, 4210752);
+    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
+        graphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+        graphics.drawString(this.font, this.playerInventoryTitle, this.inventoryLabelX, this.inventoryLabelY, 4210752, false);
     }
 
     @Override
-    protected void renderTooltip(PoseStack stack, int cursorX, int cursorY) {
-        super.renderTooltip(stack, cursorX, cursorY);
+    protected void renderTooltip(GuiGraphics graphics, int cursorX, int cursorY) {
+        super.renderTooltip(graphics, cursorX, cursorY);
     }
 
     @Override
-    protected void renderBg(PoseStack stack, float delta, int mouseX, int mouseY) {
+    protected void renderBg(GuiGraphics graphics, float delta, int mouseX, int mouseY) {
         animCounter += delta;
         while (animCounter > TICKS_PER_FRAME * NUM_FRAMES) {
             animCounter -= TICKS_PER_FRAME * NUM_FRAMES;
@@ -80,15 +78,12 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
         int highlightOffsetX = imageWidth + (frame / 4) * HIGHLIGHT_SIZE;
         int highlightOffsetY = HIGHLIGHT_SIZE * (frame % 4);
 
-        RenderSystem.setShader(GameRenderer::getPositionTexShader);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-        RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
+        graphics.blit(CONTAINER_TEXTURE, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
 
         SpiralIterator iterator = new SpiralIterator(0,0);
         for (int i = 0; i < menu.getChunksSpawned(); i++) {
             Pos blitPos = getChunkPos(iterator.getX(), iterator.getY());
-            blit(stack, HIGHLIGHT_INSET_X + leftPos + blitPos.x, HIGHLIGHT_INSET_Y + topPos + blitPos.y, highlightOffsetX + blitPos.x(), highlightOffsetY + blitPos.y(), 2, 2, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
+            graphics.blit(CONTAINER_TEXTURE, HIGHLIGHT_INSET_X + leftPos + blitPos.x, HIGHLIGHT_INSET_Y + topPos + blitPos.y, highlightOffsetX + blitPos.x(), highlightOffsetY + blitPos.y(), 2, 2, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
             iterator.next();
         }
     }

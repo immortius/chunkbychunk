@@ -18,16 +18,15 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.interop.Services;
 import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
 import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
-import xyz.immortius.chunkbychunk.interop.Services;
 
 /**
  * World Scanner Block Entity - this consumes crystals in order to scan for a provided block or item hint.

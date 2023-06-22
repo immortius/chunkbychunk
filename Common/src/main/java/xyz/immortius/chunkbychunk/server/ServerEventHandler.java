@@ -40,17 +40,19 @@ import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.data.SkyDimensionData;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.server.world.*;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
-import xyz.immortius.chunkbychunk.interop.Services;
 import xyz.immortius.chunkbychunk.mixins.DefrostedRegistry;
 import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
+import xyz.immortius.chunkbychunk.server.world.*;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 /**
  * Server event handlers for events triggered server-side

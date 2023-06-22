@@ -13,7 +13,7 @@
     "desert" : ["minecraft:desert"],
     "swamp" : ["minecraft:swamp", "minecraft:mangrove_swamp"],
     "badlands" : ["minecraft:badlands", "minecraft:eroded_badlands", "minecraft:wooded_badlands"],
-    "forest" : ["minecraft:forest", "minecraft:dark_forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:old_growth_pine_taiga", "minecraft:old_growth_spruce_taiga", "minecraft:taiga"],
+    "forest" : ["minecraft:forest", "minecraft:dark_forest", "minecraft:flower_forest", "minecraft:birch_forest", "minecraft:old_growth_birch_forest", "minecraft:old_growth_pine_taiga", "minecraft:old_growth_spruce_taiga", "minecraft:taiga", "minecraft:cherry_grove"],
     "savanna" : ["minecraft:savanna", "minecraft:savanna_plateau"],
     "rocky" : ["minecraft:windswept_gravelly_hills", "minecraft:windswept_hills", "minecraft:windswept_forest", "minecraft:windswept_savanna", "minecraft:jagged_peaks", "minecraft:stony_peaks", "minecraft:stony_shore"],
     "jungle" : ["minecraft:sparse_jungle", "minecraft:jungle", "minecraft:bamboo_jungle"],
