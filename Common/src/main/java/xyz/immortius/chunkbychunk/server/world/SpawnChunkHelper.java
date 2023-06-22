@@ -2,24 +2,15 @@ package xyz.immortius.chunkbychunk.server.world;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.AirBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.PortalInfo;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
 
-import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 /**
