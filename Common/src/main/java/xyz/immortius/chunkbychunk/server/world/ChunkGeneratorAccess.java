@@ -7,7 +7,6 @@ import net.minecraft.world.level.levelgen.NoiseGeneratorSettings;
 
 public final class ChunkGeneratorAccess {
     private ChunkGeneratorAccess() {
-
     }
 
     public static Holder<NoiseGeneratorSettings> getNoiseGeneratorSettings(ChunkGenerator generator) {

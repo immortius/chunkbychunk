@@ -5,22 +5,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.AddReloadListenerEvent;
-import net.minecraftforge.event.CreativeModeTabEvent;
+import net.minecraftforge.event.BuildCreativeModeTabContentsEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
@@ -47,17 +45,20 @@ import xyz.immortius.chunkbychunk.client.screens.WorldMenderScreen;
 import xyz.immortius.chunkbychunk.client.screens.WorldScannerScreen;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.CommonEventHandler;
-import xyz.immortius.chunkbychunk.common.blockEntities.*;
+import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldMenderBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.blocks.*;
-import xyz.immortius.chunkbychunk.server.commands.SpawnChunkCommand;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
+import xyz.immortius.chunkbychunk.server.commands.SpawnChunkCommand;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -76,13 +77,13 @@ public class ChunkByChunkMod {
     private static final DeferredRegister<MenuType<?>> CONTAINERS = DeferredRegister.create(ForgeRegistries.MENU_TYPES, ChunkByChunkConstants.MOD_ID);
     private static final DeferredRegister<SoundEvent> SOUNDS = DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, ChunkByChunkConstants.MOD_ID);
 
-    public static final RegistryObject<SpawnChunkBlock> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock("", false, BlockBehaviour.Properties.of(Material.STONE)));
-    public static final RegistryObject<Block> UNSTABLE_SPAWN_CHUNK_BLOCK = BLOCKS.register("unstablechunkspawner", () -> new SpawnChunkBlock("", true, BlockBehaviour.Properties.of(Material.STONE)));
-    public static final RegistryObject<Block> BEDROCK_CHEST_BLOCK = BLOCKS.register("bedrockchest", () -> new BedrockChestBlock(BlockBehaviour.Properties.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((p_61031_, p_61032_, p_61033_, p_61034_) -> false))));
-    public static final RegistryObject<Block> WORLD_CORE_BLOCK = BLOCKS.register("worldcore", () -> new Block(BlockBehaviour.Properties.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7)));
-    public static final RegistryObject<Block> WORLD_FORGE_BLOCK = BLOCKS.register("worldforge", () -> new WorldForgeBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7)));
-    public static final RegistryObject<Block> WORLD_SCANNER_BLOCK = BLOCKS.register("worldscanner", () -> new WorldScannerBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
-    public static final RegistryObject<Block> WORLD_MENDER_BLOCK = BLOCKS.register("worldmender", () -> new WorldMenderBlock(BlockBehaviour.Properties.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4)));
+    public static final RegistryObject<SpawnChunkBlock> SPAWN_CHUNK_BLOCK = BLOCKS.register("chunkspawner", () -> new SpawnChunkBlock("", false, BlockBehaviour.Properties.copy(Blocks.STONE)));
+    public static final RegistryObject<Block> UNSTABLE_SPAWN_CHUNK_BLOCK = BLOCKS.register("unstablechunkspawner", () -> new SpawnChunkBlock("", true, BlockBehaviour.Properties.copy(Blocks.STONE)));
+    public static final RegistryObject<Block> BEDROCK_CHEST_BLOCK = BLOCKS.register("bedrockchest", () -> new BedrockChestBlock(BlockBehaviour.Properties.copy(Blocks.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((p_61031_, p_61032_, p_61033_, p_61034_) -> false))));
+    public static final RegistryObject<Block> WORLD_CORE_BLOCK = BLOCKS.register("worldcore", () -> new Block(BlockBehaviour.Properties.copy(Blocks.STONE).strength(3.0F).lightLevel((state) -> 7)));
+    public static final RegistryObject<Block> WORLD_FORGE_BLOCK = BLOCKS.register("worldforge", () -> new WorldForgeBlock(BlockBehaviour.Properties.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 7)));
+    public static final RegistryObject<Block> WORLD_SCANNER_BLOCK = BLOCKS.register("worldscanner", () -> new WorldScannerBlock(BlockBehaviour.Properties.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 4)));
+    public static final RegistryObject<Block> WORLD_MENDER_BLOCK = BLOCKS.register("worldmender", () -> new WorldMenderBlock(BlockBehaviour.Properties.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 4)));
 
     public static final RegistryObject<Item> SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("chunkspawner", () -> new BlockItem(SPAWN_CHUNK_BLOCK.get(), new Item.Properties()));
     public static final RegistryObject<Item> UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM = ITEMS.register("unstablechunkspawner", () -> new BlockItem(UNSTABLE_SPAWN_CHUNK_BLOCK.get(), new Item.Properties()));
@@ -115,7 +116,7 @@ public class ChunkByChunkMod {
 
     static {
         for (String biomeTheme : ChunkByChunkConstants.BIOME_THEMES) {
-            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnChunkBlock(biomeTheme, false, BlockBehaviour.Properties.of(Material.STONE)));
+            RegistryObject<Block> spawnBlock = BLOCKS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX, () -> new SpawnChunkBlock(biomeTheme, false, BlockBehaviour.Properties.copy(Blocks.STONE)));
             RegistryObject<BlockItem> spawnBlockItem = ITEMS.register(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX, () -> new BlockItem(spawnBlock.get(), new Item.Properties()));
             THEMED_SPAWN_CHUNK_ITEMS.add(() -> spawnBlockItem.get().getDefaultInstance());
         }
@@ -163,8 +164,8 @@ public class ChunkByChunkMod {
         Registry.register(BuiltInRegistries.CHUNK_GENERATOR, new ResourceLocation(ChunkByChunkConstants.MOD_ID, "netherchunkgenerator"), SkyChunkGenerator.OLD_NETHER_CODEC);
     }
 
-    public void updateCreativeTabs(CreativeModeTabEvent.BuildContents e) {
-        if (e.getTab().getType() == CreativeModeTab.Type.CATEGORY && e.getTab() == CreativeModeTabs.TOOLS_AND_UTILITIES) {
+    public void updateCreativeTabs(BuildCreativeModeTabContentsEvent e) {
+        if (e.getTab().getType() == CreativeModeTab.Type.CATEGORY && e.getTabKey().equals(CreativeModeTabs.TOOLS_AND_UTILITIES)) {
             e.getEntries().put(WORLD_FRAGMENT_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             e.getEntries().put(WORLD_SHARD_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
             e.getEntries().put(WORLD_CRYSTAL_ITEM.get().getDefaultInstance(), CreativeModeTab.TabVisibility.PARENT_AND_SEARCH_TABS);
