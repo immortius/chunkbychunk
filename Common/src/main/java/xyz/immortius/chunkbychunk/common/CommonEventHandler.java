@@ -5,8 +5,8 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 
 /**
  * Event handlers used across both server and client.
@@ -26,7 +26,7 @@ public final class CommonEventHandler {
      */
     public static boolean isBlockPlacementAllowed(BlockPos pos, Entity playerEntity, LevelAccessor level) {
         return ChunkByChunkConfig.get().getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks() ||
-                !playerEntity.getLevel().dimension().equals(Level.OVERWORLD) ||
+                !playerEntity.level().dimension().equals(Level.OVERWORLD) ||
                 !SpawnChunkHelper.isEmptyChunk(level, new ChunkPos(pos));
     }
 }

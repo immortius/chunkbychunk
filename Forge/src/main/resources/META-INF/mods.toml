@@ -1,7 +1,7 @@
 # Find more information on toml format here:  https://github.com/toml-lang/toml
 # ModLoader settings
 modLoader="javafml"
-loaderVersion="[45,)"
+loaderVersion="[47,)"
 license="MIT License"
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/"
 # A list of mods - how many allowed here is determined by the individual mod loader
@@ -22,18 +22,18 @@ This mod starts the overworld with a single chunk, but provides the tools to exp
 [[dependencies.chunkbychunk]]
     modId="forge"
     mandatory=true
-    versionRange="[45.1.0,)"
+    versionRange="[48.0.40,)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.chunkbychunk]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.19.3,1.20)"
+    versionRange="[1.20.2,1.21)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.chunkbychunk]]
     modId="jei"
     mandatory=false
-    versionRange="[13.1.0.0,14)"
+    versionRange="[16.0.0.26 ,17)"
     ordering="NONE"
     side="BOTH"

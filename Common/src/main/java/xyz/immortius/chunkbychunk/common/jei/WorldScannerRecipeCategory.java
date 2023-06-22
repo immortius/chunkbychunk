@@ -1,6 +1,5 @@
 package xyz.immortius.chunkbychunk.common.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -11,6 +10,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
@@ -56,20 +56,20 @@ public class WorldScannerRecipeCategory  implements IRecipeCategory<WorldScanner
     }
 
     @Override
-    public void draw(WorldScannerRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
+    public void draw(WorldScannerRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
         int partValue = recipe.getValue() * 4 / ChunkByChunkConfig.get().getWorldScannerConfig().getFuelRequiredPerChunk();
         int squares = Math.min(partValue / 4, 361);
         int remainder = partValue % 4;
 
         SpiralIterator iterator = new SpiralIterator(0,0);
         for (int i = 0; i < squares; i++) {
-           scanSquare.draw(stack, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4);
+           scanSquare.draw(graphics, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4);
            iterator.next();
         }
         if (remainder > 0 && squares < 361) {
-            scanSquare.draw(stack, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4, 0, 2, 0, (remainder > 1) ? 0 : 2);
+            scanSquare.draw(graphics, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4, 0, 2, 0, (remainder > 1) ? 0 : 2);
             if (remainder == 3) {
-                scanSquare.draw(stack, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4, 2, 0, 0, 2);
+                scanSquare.draw(graphics, 78 + iterator.getX() * 4, 37 + iterator.getY() * 4, 2, 0, 0, 2);
             }
         }
     }
