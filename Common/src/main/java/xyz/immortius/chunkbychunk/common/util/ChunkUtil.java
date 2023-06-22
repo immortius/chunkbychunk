@@ -5,6 +5,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
@@ -40,14 +41,17 @@ public final class ChunkUtil {
         BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x,chunk.getMaxBuildHeight() - 1,z);
         // Find some space first
         while (pos.getY() > chunk.getMinBuildHeight()) {
-            if (chunk.getBlockState(pos).getBlock().isPossibleToRespawnInThis()) {
+            BlockState blockState = chunk.getBlockState(pos);
+            // I full expect isPossibleToRespawnInThis to become a static method in a future version
+            if (blockState.getBlock().isPossibleToRespawnInThis(blockState)) {
                 break;
             }
             pos.setY(pos.getY() - 1);
         }
         // Now find the ground
         while (pos.getY() > chunk.getMinBuildHeight()) {
-            if (!chunk.getBlockState(pos).getBlock().isPossibleToRespawnInThis()) {
+            BlockState blockState = chunk.getBlockState(pos);
+            if (!blockState.getBlock().isPossibleToRespawnInThis(blockState)) {
                 return pos.getY() + 1;
             }
             pos.setY(pos.getY() - 1);

@@ -1,6 +1,6 @@
 package xyz.immortius.chunkbychunk.client.screens;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -36,10 +36,10 @@ public class ChunkByChunkConfigScreen extends Screen {
             this.minecraft.setScreen(lastScreen);
         }).pos(2 * width / 3 + w, height - 32).size(60, 20).build();
 
-        this.addWidget(settingsList);
-        this.addWidget(cancelButton);
-        this.addWidget(saveButton);
-        this.addWidget(resetButton);
+        this.addRenderableWidget(settingsList);
+        this.addRenderableWidget(cancelButton);
+        this.addRenderableWidget(saveButton);
+        this.addRenderableWidget(resetButton);
     }
 
     @Override
@@ -55,16 +55,11 @@ public class ChunkByChunkConfigScreen extends Screen {
     }
 
     @Override
-    public void render(PoseStack stack, int mouseX, int mouseY, float delta) {
-        this.renderBackground(stack);
-        this.settingsList.render(stack, mouseX, mouseY, delta);
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
+        super.render(graphics, mouseX, mouseY, delta);
 
         int titleWidth = font.width(title);
         int titleX = (width - titleWidth) / 2;
-        font.drawShadow(stack, title, titleX, 8, 0xFFFFFF);
-        this.cancelButton.render(stack, mouseX, mouseY, delta);
-        this.saveButton.render(stack, mouseX, mouseY, delta);
-        this.resetButton.render(stack, mouseX, mouseY, delta);
-        super.render(stack, mouseX, mouseY, delta);
+        graphics.drawString(font, title, titleX, 8, 0xFFFFFF, true);
     }
 }

@@ -1,6 +1,5 @@
 package xyz.immortius.chunkbychunk.common.jei;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -12,6 +11,7 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import xyz.immortius.chunkbychunk.client.screens.WorldForgeScreen;
@@ -59,8 +59,8 @@ public class WorldForgeRecipeCategory implements IRecipeCategory<WorldForgeRecip
     }
 
     @Override
-    public void draw(WorldForgeRecipe recipe, IRecipeSlotsView recipeSlotsView, PoseStack stack, double mouseX, double mouseY) {
-        frames.get(frameTimer.getValue()).draw(stack, 30, 12, 0, 0, 0, Math.max(0, 30 - 30 * recipe.getFuelValue() / ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost()));
+    public void draw(WorldForgeRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+        frames.get(frameTimer.getValue()).draw(graphics, 30, 12, 0, 0, 0, Math.max(0, 30 - 30 * recipe.getFuelValue() / ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost()));
     }
 
     @Override

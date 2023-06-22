@@ -1,7 +1,7 @@
 package xyz.immortius.chunkbychunk.client.uielements;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.ContainerObjectSelectionList;
 import net.minecraft.client.gui.components.CycleButton;
@@ -29,6 +29,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
     public SettingListWidget(Minecraft minecraft, Screen parent, int width, int top, int bottom, int rowWidth) {
         super(minecraft, width, parent.height, top, bottom, 22);
+
         this.rowWidth = rowWidth;
         ConfigMetadata metadata = MetadataBuilder.build(ChunkByChunkConfig.class);
         ChunkByChunkConfig defaultConfig = new ChunkByChunkConfig();
@@ -93,8 +94,8 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         }
 
         @Override
-        public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
-            SettingListWidget.this.minecraft.font.drawShadow(stack, this.displayName, left + 12, top + 8, 0xFFFFFF);
+        public void render(GuiGraphics graphics, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+            graphics.drawString(SettingListWidget.this.minecraft.font, this.displayName, left + 12, top + 8, 0xFFFFFF, true);
         }
 
         @Override
@@ -134,6 +135,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         public StringEntry(Component displayName, Supplier<String> getter, Consumer<String> setter, String defaultValue) {
             super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
+            widget.setEditable(true);
             this.displayName = displayName;
             this.defaultValue = defaultValue;
             this.setter = setter;
@@ -152,29 +154,25 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         public boolean mouseClicked(double x, double y, int mouseButton) {
             if (super.mouseClicked(x, y, mouseButton)) {
                 lastFocused = widget;
+                widget.setFocused(true);
                 return true;
             }
             return false;
         }
 
         @Override
-        public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void render(GuiGraphics graphics, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
             int labelLength = SettingListWidget.this.minecraft.font.width(this.displayName);
-            SettingListWidget.this.minecraft.font.draw(stack, this.displayName, left, top + 6, 0xFFFFFF);
+            graphics.drawString(SettingListWidget.this.minecraft.font, this.displayName, left, top + 6, 0xFFFFFF, true);
             widget.setX(left + labelLength + 6);
             widget.setWidth(getRowWidth() - labelLength - 6);
             widget.setY(top);
-            widget.render(stack, mouseX, mouseY, delta);
+            widget.render(graphics, mouseX, mouseY, delta);
         }
 
         @Override
         public boolean charTyped(char p_94683_, int p_94684_) {
             return widget.charTyped(p_94683_, p_94684_);
-        }
-
-        @Override
-        public void tick() {
-            widget.tick();
         }
     }
 
@@ -206,6 +204,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         public ExtendedIntegerEntry(Component displayName, int min, int max, Supplier<Integer> getter, Consumer<Integer> setter, Integer defaultValue) {
             super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
+            widget.setEditable(true);
             this.displayName = displayName;
             this.defaultValue = defaultValue;
             this.setter = setter;
@@ -243,29 +242,25 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         public boolean mouseClicked(double x, double y, int mouseButton) {
             if (super.mouseClicked(x, y, mouseButton)) {
                 lastFocused = widget;
+                widget.setFocused(true);
                 return true;
             }
             return false;
         }
 
         @Override
-        public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void render(GuiGraphics graphics, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
             int labelLength = SettingListWidget.this.minecraft.font.width(this.displayName);
-            SettingListWidget.this.minecraft.font.draw(stack, this.displayName, left, top + 6, 0xFFFFFF);
+            graphics.drawString(SettingListWidget.this.minecraft.font, this.displayName, left, top + 6, 0xFFFFFF, true);
             widget.setX(left + labelLength + 6);
             widget.setWidth(getRowWidth() - labelLength - 6);
             widget.setY(top);
-            widget.render(stack, mouseX, mouseY, delta);
+            widget.render(graphics, mouseX, mouseY, delta);
         }
 
         @Override
         public boolean charTyped(char p_94683_, int p_94684_) {
             return widget.charTyped(p_94683_, p_94684_);
-        }
-
-        @Override
-        public void tick() {
-            widget.tick();
         }
     }
 
@@ -300,10 +295,10 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         }
 
         @Override
-        public void render(PoseStack stack, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
+        public void render(GuiGraphics graphics, int listIndex, int top, int left, int width, int height, int mouseX, int mouseY, boolean hovered, float delta) {
             widget.setX(left);
             widget.setY(top);
-            widget.render(stack, mouseX, mouseY, delta);
+            widget.render(graphics, mouseX, mouseY, delta);
         }
 
         @Override

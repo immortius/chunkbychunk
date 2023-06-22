@@ -28,23 +28,26 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.*;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntityType;
-import net.minecraft.world.level.material.Material;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.CommonEventHandler;
-import xyz.immortius.chunkbychunk.common.blockEntities.*;
+import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldForgeBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldMenderBlockEntity;
+import xyz.immortius.chunkbychunk.common.blockEntities.WorldScannerBlockEntity;
 import xyz.immortius.chunkbychunk.common.blocks.*;
-import xyz.immortius.chunkbychunk.server.commands.SpawnChunkCommand;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldScannerMenu;
-import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.server.ServerEventHandler;
+import xyz.immortius.chunkbychunk.server.commands.SpawnChunkCommand;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -57,13 +60,13 @@ public class ChunkByChunkMod implements ModInitializer {
 
     private static final Logger LOGGER = LogManager.getLogger(ChunkByChunkConstants.MOD_ID);
 
-    public static final SpawnChunkBlock SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", false, FabricBlockSettings.of(Material.STONE));
-    public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", true, FabricBlockSettings.of(Material.STONE));
-    public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.of(Material.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((state, getter, pos, arg) -> false)));
-    public static final Block WORLD_CORE_BLOCK = new Block(FabricBlockSettings.of(Material.STONE).strength(3.0F).lightLevel((state) -> 7));
-    public static final Block WORLD_FORGE_BLOCK = new WorldForgeBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 7));
-    public static final Block WORLD_SCANNER_BLOCK = new WorldScannerBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4));
-    public static final Block WORLD_MENDER_BLOCK = new WorldMenderBlock(FabricBlockSettings.of(Material.STONE).strength(3.5F).lightLevel((state) -> 4));
+    public static final SpawnChunkBlock SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", false, FabricBlockSettings.copy(Blocks.STONE));
+    public static final Block UNSTABLE_SPAWN_CHUNK_BLOCK = new SpawnChunkBlock("", true, FabricBlockSettings.copy(Blocks.STONE));
+    public static final Block BEDROCK_CHEST_BLOCK = new BedrockChestBlock(FabricBlockSettings.copy(Blocks.STONE).strength(-1, 3600000.0F).noLootTable().isValidSpawn(((state, getter, pos, arg) -> false)));
+    public static final Block WORLD_CORE_BLOCK = new Block(FabricBlockSettings.copy(Blocks.STONE).strength(3.0F).lightLevel((state) -> 7));
+    public static final Block WORLD_FORGE_BLOCK = new WorldForgeBlock(FabricBlockSettings.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 7));
+    public static final Block WORLD_SCANNER_BLOCK = new WorldScannerBlock(FabricBlockSettings.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 4));
+    public static final Block WORLD_MENDER_BLOCK = new WorldMenderBlock(FabricBlockSettings.copy(Blocks.STONE).strength(3.5F).lightLevel((state) -> 4));
 
     public static Item SPAWN_CHUNK_BLOCK_ITEM;
     public static Item UNSTABLE_SPAWN_CHUNK_BLOCK_ITEM;
@@ -126,7 +129,7 @@ public class ChunkByChunkMod implements ModInitializer {
 
         List<ItemStack> themeSpawnBlockItems = new ArrayList<>();
         for (String biomeTheme : ChunkByChunkConstants.BIOME_THEMES) {
-            Block spawnBlock = new SpawnChunkBlock(biomeTheme, false, FabricBlockSettings.of(Material.STONE));
+            Block spawnBlock = new SpawnChunkBlock(biomeTheme, false, FabricBlockSettings.copy(Blocks.STONE));
             Registry.register(BuiltInRegistries.BLOCK, createId(biomeTheme + ChunkByChunkConstants.BIOME_CHUNK_BLOCK_SUFFIX), spawnBlock);
             BlockItem item = new BlockItem(spawnBlock, new FabricItemSettings());
             Registry.register(BuiltInRegistries.ITEM, createId(biomeTheme +  ChunkByChunkConstants.BIOME_CHUNK_BLOCK_ITEM_SUFFIX), item);
