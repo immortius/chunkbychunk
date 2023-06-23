@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
+import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
@@ -19,7 +20,7 @@ import java.util.List;
 public interface CBCPlatformHelper {
     /// Blocks
 
-    Block spawnChunkBlock();
+    SpawnChunkBlock spawnChunkBlock();
 
     Block unstableSpawnChunkBlock();
 
@@ -30,10 +31,6 @@ public interface CBCPlatformHelper {
     Block worldForgeBlock();
 
     Block worldScannerBlock();
-
-    Block triggeredSpawnChunkBlock();
-
-    Block triggeredSpawnRandomChunkBlock();
 
     // Block Items
 
@@ -70,10 +67,6 @@ public interface CBCPlatformHelper {
     BlockEntityType<WorldScannerBlockEntity> worldScannerEntity();
 
     BlockEntityType<WorldMenderBlockEntity> worldMenderEntity();
-
-    BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity();
-
-    BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity();
 
     // Sound Events
 

@@ -14,7 +14,7 @@ import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
 @Mixin(Entity.class)
 public abstract class EntityChangeDimensionMixin {
 
-    @Inject(method = "findDimensionEntryPoint", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "findDimensionEntryPoint", at = @At("HEAD"), cancellable = true)
     private void changeReturnValue(CallbackInfoReturnable<PortalInfo> cir) {
         if (cir.getReturnValue() == null && ChangeDimensionHelper.getPortalInfo() != null) {
             cir.setReturnValue(ChangeDimensionHelper.getPortalInfo());

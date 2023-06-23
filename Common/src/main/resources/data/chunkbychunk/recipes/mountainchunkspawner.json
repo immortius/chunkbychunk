@@ -1,0 +1,26 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "rCd",
+    "CXC",
+    "dCr"
+  ],
+  "key" : {
+    "r" : {
+      "tag": "minecraft:stone_crafting_materials"
+    },
+    "d" : {
+      "item" : "minecraft:diamond"
+    },
+    "C" : {
+      "item" : "minecraft:copper_block"
+    },
+    "X" : {
+      "item" : "chunkbychunk:worldcore"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:mountainchunkspawner",
+    "count" : 1
+  }
+}

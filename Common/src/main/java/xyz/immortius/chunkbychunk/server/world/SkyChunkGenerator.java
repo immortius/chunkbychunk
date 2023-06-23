@@ -1,10 +1,11 @@
-package xyz.immortius.chunkbychunk.common.world;
+package xyz.immortius.chunkbychunk.server.world;
 
 import com.google.common.collect.ImmutableMap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.Lifecycle;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.Util;
 import net.minecraft.core.*;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.levelgen.blending.Blender;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
+import javax.annotation.Nullable;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -53,6 +55,11 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     private EmptyGenerationType generationType = EmptyGenerationType.Normal;
     private Block sealBlock;
+    @Nullable
+    private Block sealCoverBlock;
+    @Nullable
+    private Holder<Biome> unspawnedBiome;
+
 
     public enum EmptyGenerationType {
         Normal,
@@ -82,13 +89,14 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         this.parent = parent;
     }
 
-    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType, Block sealBlock, int initialChunks, boolean chunkSpawnerAllowed, boolean randomChunkSpawnerAllowed) {
+    public void configure(ResourceKey<Level> generationLevel, EmptyGenerationType generationType, Block sealBlock, Block sealCoverBlock, int initialChunks, boolean chunkSpawnerAllowed, boolean randomChunkSpawnerAllowed) {
         this.generationLevel = generationLevel;
         this.generationType = generationType;
         this.initialChunks = initialChunks;
         this.chunkSpawnerAllowed = chunkSpawnerAllowed;
         this.randomChunkSpawnerAllowed = randomChunkSpawnerAllowed;
         this.sealBlock = sealBlock;
+        this.sealCoverBlock = sealCoverBlock;
     }
 
     private final Map<String, ResourceKey<Level>> biomeDimensions = new HashMap<>();
@@ -117,10 +125,20 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
         return sealBlock;
     }
 
+    @Nullable
+    public Holder<Biome> getUnspawnedBiome() {
+        return unspawnedBiome;
+    }
+
+    public void setUnspawnedBiome(Holder<Biome> unspawnedBiome) {
+        this.unspawnedBiome = unspawnedBiome;
+    }
+
     public void addBiomeDimension(String name, ResourceKey<Level> level) {
         biomeDimensions.put(name, level);
     }
 
+    @Nullable
     public ResourceKey<Level> getBiomeDimension(String name) {
         return biomeDimensions.get(name);
     }
@@ -154,6 +172,11 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
                         while (blockPos.getY() > chunkAccess.getMinBuildHeight() && chunkAccess.getBlockState(blockPos).getBlock() instanceof AirBlock) {
                             blockPos.setY(blockPos.getY() - 1);
                         }
+                        if (sealCoverBlock != null) {
+                            blockPos.setY(blockPos.getY() + 1);
+                            chunkAccess.setBlockState(blockPos, sealCoverBlock.defaultBlockState(), false);
+                            blockPos.setY(blockPos.getY() - 1);
+                        }
                         while (blockPos.getY() > chunkAccess.getMinBuildHeight() + 1) {
                             chunkAccess.setBlockState(blockPos, sealBlock.defaultBlockState(), false);
                             blockPos.setY(blockPos.getY() - 1);
@@ -183,7 +206,15 @@ public class SkyChunkGenerator extends NoiseBasedChunkGenerator {
 
     @Override
     public CompletableFuture<ChunkAccess> createBiomes(Executor executor, RandomState randomState, Blender blender, StructureManager structureManager, ChunkAccess chunk) {
-        return parent.createBiomes(executor, randomState, blender, structureManager, chunk);
+        if (unspawnedBiome == null) {
+            return parent.createBiomes(executor, randomState, blender, structureManager, chunk);
+        } else {
+            return CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName("init_biomes", () -> {
+                chunk.fillBiomesFromNoise((var1, var2, var3, var4) -> unspawnedBiome,
+                        null);
+                return chunk;
+            }), Util.backgroundExecutor());
+        }
     }
 
     @Override

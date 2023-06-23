@@ -2,9 +2,10 @@ package xyz.immortius.chunkbychunk.common.data;
 
 import net.minecraft.core.MappedRegistry;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.dimension.LevelStem;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -27,10 +28,16 @@ public class SkyDimensionData {
     public SkyChunkGenerator.EmptyGenerationType generationType = SkyChunkGenerator.EmptyGenerationType.Normal;
     /** Block to seal chunks with for sealed generation */
     public String sealBlock = "minecraft:bedrock";
+    /** Block to apply to the top of the sealed chunks */
+    public String sealCoverBlock = "";
+    /** Biome for unspawned chunks */
+    public String unspawnedBiome = "";
     /** The number of chunks to be spawned initally */
     public int initialChunks = 1;
     /** Configuration for dimensions that will trigger chunk spawns in this dimension */
     public List<String> synchToDimensions = new ArrayList<>();
+
+    public String biomeThemeDimensionType;
 
     public Map<String, List<String>> biomeThemes = new LinkedHashMap<>();
 

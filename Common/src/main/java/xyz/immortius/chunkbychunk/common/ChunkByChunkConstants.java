@@ -42,6 +42,7 @@ public final class ChunkByChunkConstants {
             "savanna",
             "rocky",
             "jungle",
-            "mushroom"
+            "mushroom",
+            "mountain"
     ));
 }

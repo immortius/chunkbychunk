@@ -40,10 +40,7 @@ import xyz.immortius.chunkbychunk.common.data.ScannerData;
 import xyz.immortius.chunkbychunk.common.data.SkyDimensionData;
 import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.common.util.SpiralIterator;
-import xyz.immortius.chunkbychunk.common.world.ChunkGeneratorAccess;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SkyDimensions;
-import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.server.world.*;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.config.system.ConfigSystem;
 import xyz.immortius.chunkbychunk.interop.Services;
@@ -52,10 +49,7 @@ import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Server event handlers for events triggered server-side
@@ -118,12 +112,13 @@ public final class ServerEventHandler {
     private static void applyChunkByChunkWorldGeneration(MinecraftServer server) {
         MappedRegistry<LevelStem> dimensions = (MappedRegistry<LevelStem>) server.registryAccess().registryOrThrow(Registries.LEVEL_STEM);
         MappedRegistry<Biome> biomeRegistry = (MappedRegistry<Biome>) server.registryAccess().registryOrThrow(Registries.BIOME);
+        Registry<DimensionType> dimensionTypeRegistry = server.registryAccess().registryOrThrow(Registries.DIMENSION_TYPE);
         Registry<Block> blocks = server.registryAccess().registry(Registries.BLOCK).orElseThrow();
         ((DefrostedRegistry) dimensions).setFrozen(false);
         ((DefrostedRegistry) biomeRegistry).setFrozen(false);
 
         for (Map.Entry<ResourceLocation, SkyDimensionData> entry : SkyDimensions.getSkyDimensions().entrySet()) {
-            setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry);
+            setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry, dimensionTypeRegistry);
         }
         configureDimensionSynching(dimensions);
 
@@ -154,7 +149,7 @@ public final class ServerEventHandler {
         }
     }
 
-    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, WritableRegistry<Biome> biomeRegistry) {
+    private static void setupDimension(ResourceLocation skyDimensionId, SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, WritableRegistry<Biome> biomeRegistry, Registry<DimensionType> dimensionTypeRegistry) {
         if (!config.validate(skyDimensionId, dimensions)) {
             config.enabled = false;
         }
@@ -172,17 +167,25 @@ public final class ServerEventHandler {
             rootGenerator = level.generator();
         }
 
-        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, level, rootGenerator);
+        SkyChunkGenerator generator = setupCoreGenerationDimension(config, dimensions, blocks, biomeRegistry, level, rootGenerator);
+
+        Holder<DimensionType> themeDimensionType = level.type();
+        if (config.biomeThemeDimensionType != null && !config.biomeThemeDimensionType.isEmpty()) {
+            Optional<Holder.Reference<DimensionType>> holder = dimensionTypeRegistry.getHolder(ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(config.biomeThemeDimensionType)));
+            if (holder.isPresent()) {
+                themeDimensionType = holder.get();
+            }
+        }
 
         for (Map.Entry<String, List<String>> biomeTheme : config.biomeThemes.entrySet()) {
-            ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry);
+            ResourceKey<Level> biomeDim = setupThemeDimension(config.dimensionId, biomeTheme.getKey(), biomeTheme.getValue(), level, dimensions, rootGenerator, biomeRegistry, themeDimensionType);
             if (biomeDim != null) {
                 generator.addBiomeDimension(biomeTheme.getKey(), biomeDim);
             }
         }
     }
 
-    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, LevelStem level, ChunkGenerator rootGenerator) {
+    private static SkyChunkGenerator setupCoreGenerationDimension(SkyDimensionData config, MappedRegistry<LevelStem> dimensions, Registry<Block> blocks, Registry<Biome> biomes, LevelStem level, ChunkGenerator rootGenerator) {
         ResourceLocation genDimensionId = config.getGenDimensionId();
         ResourceKey<LevelStem> genLevelId = ResourceKey.create(Registries.LEVEL_STEM, genDimensionId);
         LevelStem generationLevel = dimensions.get(genDimensionId);
@@ -204,12 +207,16 @@ public final class ServerEventHandler {
         if (sealBlock == null) {
             sealBlock = Blocks.BEDROCK;
         }
+        Block coverBlock = blocks.get(new ResourceLocation(config.sealCoverBlock));
+        if (config.unspawnedBiome != null && !config.unspawnedBiome.isEmpty()) {
+            biomes.getHolder(ResourceKey.create(Registries.BIOME, new ResourceLocation(config.unspawnedBiome))).ifPresent(skyGenerator::setUnspawnedBiome);
+        }
 
-        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
+        skyGenerator.configure(ResourceKey.create(Registries.DIMENSION, genLevelId.location()), config.generationType, sealBlock, coverBlock, config.initialChunks, config.allowChunkSpawner, config.allowUnstableChunkSpawner);
         return skyGenerator;
     }
 
-    private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, WritableRegistry<Biome> biomeRegistry) {
+    private static ResourceKey<Level> setupThemeDimension(String dimId, String themeName, List<String> biomes, LevelStem sourceLevel, MappedRegistry<LevelStem> dimensions, ChunkGenerator rootGenerator, WritableRegistry<Biome> biomeRegistry, Holder<DimensionType> themeDimensionType) {
         ResourceLocation biomeDimId = new ResourceLocation(dimId+ "_" + themeName + "_gen");
         List<ResourceKey<Biome>> biomeKeys = biomes.stream().map(x -> ResourceKey.create(Registries.BIOME, new ResourceLocation(x))).filter(key -> {
             boolean valid = biomeRegistry.containsKey(key);
@@ -237,8 +244,13 @@ public final class ServerEventHandler {
             }).biomeSource(biomeRegistry.createRegistrationLookup());
         }
 
-        LevelStem biomeLevel = new LevelStem(sourceLevel.type(), new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
-        dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+        LevelStem biomeLevel = new LevelStem(themeDimensionType, new NoiseBasedChunkGenerator(source, ChunkGeneratorAccess.getNoiseGeneratorSettings(rootGenerator)));
+        LevelStem existingMapping = dimensions.get(levelKey);
+        if (existingMapping != null) {
+            dimensions.registerMapping(dimensions.getId(existingMapping), levelKey, biomeLevel, Lifecycle.stable());
+        } else {
+            dimensions.register(levelKey, biomeLevel, Lifecycle.stable());
+        }
         return ResourceKey.create(Registries.DIMENSION, biomeDimId);
     }
 
@@ -287,6 +299,10 @@ public final class ServerEventHandler {
      * @param registryAccess
      */
     private static BlockPos findAppropriateSpawnChunk(ServerLevel overworldLevel, ServerLevel generationLevel, RegistryAccess registryAccess) {
+        if (ChunkByChunkConfig.get().getGeneration().isSpawnChunkStrip()) {
+            return overworldLevel.getSharedSpawnPos();
+        }
+
         TagKey<Block> logsTag = BlockTags.LOGS;
         TagKey<Block> leavesTag = BlockTags.LEAVES;
         Set<Block> copper = ImmutableSet.of(Blocks.COPPER_ORE, Blocks.DEEPSLATE_COPPER_ORE, Blocks.RAW_COPPER_BLOCK);
@@ -363,26 +379,24 @@ public final class ServerEventHandler {
      * Spawns the initial chunks
      */
     private static void spawnInitialChunks(ServerLevel level, int initialChunks, BlockPos overworldSpawn, boolean spawnChest) {
+        ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(level.getServer());
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
         if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
             List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
-                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
-                    SpawnChunkHelper.spawnChunkBlocks(level, targetPos);
+                if (chunkSpawnController.request(level, "", false, targetPos.getMiddleBlockPosition(0), offset[0] == 0 && offset[1] == 0)) {
                     if (spawnChest && offset[0] == 0 && offset[1] == 0) {
                         SpawnChunkHelper.createNextSpawner(level, targetPos);
                     }
-                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
                 }
             }
         } else {
             SpiralIterator spiralIterator = new SpiralIterator(centerChunkPos.x, centerChunkPos.z);
             for (int i = 0; i < initialChunks; i++) {
                 ChunkPos targetPos = new ChunkPos(spiralIterator.getX(), spiralIterator.getY());
-                if (SpawnChunkHelper.isEmptyChunk(level, targetPos)) {
-                    level.setBlock(new BlockPos(targetPos.getMiddleBlockX(), level.getMaxBuildHeight() - 1, targetPos.getMiddleBlockZ()), Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
+                if (chunkSpawnController.request(level, "", false, targetPos.getMiddleBlockPosition(0), i == 0)) {
                     if (spawnChest && i == 0) {
                         SpawnChunkHelper.createNextSpawner(level, targetPos);
                     }
@@ -411,5 +425,12 @@ public final class ServerEventHandler {
             }
         }
         ChunkByChunkConstants.LOGGER.info("Loaded {} scanner data configs", count);
+    }
+
+    public static void onLevelTick(MinecraftServer server) {
+        ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(server);
+        if (chunkSpawnController != null) {
+            chunkSpawnController.tick();
+        }
     }
 }

@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.material.Fluid;
 import xyz.immortius.chunkbychunk.common.blockEntities.*;
+import xyz.immortius.chunkbychunk.common.blocks.SpawnChunkBlock;
 import xyz.immortius.chunkbychunk.common.menus.BedrockChestMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldForgeMenu;
 import xyz.immortius.chunkbychunk.common.menus.WorldMenderMenu;
@@ -25,7 +26,7 @@ public final class ForgePlatformHelper implements CBCPlatformHelper {
     /// Blocks
 
     @Override
-    public Block spawnChunkBlock() {
+    public SpawnChunkBlock spawnChunkBlock() {
         return ChunkByChunkMod.SPAWN_CHUNK_BLOCK.get();
     }
 
@@ -47,12 +48,6 @@ public final class ForgePlatformHelper implements CBCPlatformHelper {
 
     @Override
     public Block worldScannerBlock() { return ChunkByChunkMod.WORLD_SCANNER_BLOCK.get(); }
-
-    @Override
-    public Block triggeredSpawnChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK.get(); }
-
-    @Override
-    public Block triggeredSpawnRandomChunkBlock() { return ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK.get(); }
 
     // Block Items
     @Override
@@ -116,16 +111,6 @@ public final class ForgePlatformHelper implements CBCPlatformHelper {
     @Override
     public BlockEntityType<WorldMenderBlockEntity> worldMenderEntity() {
         return (BlockEntityType<WorldMenderBlockEntity>) ChunkByChunkMod.WORLD_MENDER_BLOCK_ENTITY.get();
-    }
-
-    @Override
-    public BlockEntityType<TriggeredSpawnChunkBlockEntity> triggeredSpawnChunkEntity() {
-        return (BlockEntityType<TriggeredSpawnChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_CHUNK_BLOCK_ENTITY.get();
-    }
-
-    @Override
-    public BlockEntityType<TriggeredSpawnRandomChunkBlockEntity> triggeredSpawnRandomChunkEntity() {
-        return (BlockEntityType<TriggeredSpawnRandomChunkBlockEntity>) ChunkByChunkMod.TRIGGERED_SPAWN_RANDOM_CHUNK_BLOCK_ENTITY.get();
     }
 
     // Sound Events

@@ -1,4 +1,4 @@
-package xyz.immortius.chunkbychunk.common.commands;
+package xyz.immortius.chunkbychunk.server.commands;
 
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -24,9 +24,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
 import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
-import xyz.immortius.chunkbychunk.common.blocks.TriggeredSpawnRandomChunkBlock;
-import xyz.immortius.chunkbychunk.common.world.SkyChunkGenerator;
-import xyz.immortius.chunkbychunk.common.world.SpawnChunkHelper;
+import xyz.immortius.chunkbychunk.server.world.ChunkSpawnController;
+import xyz.immortius.chunkbychunk.server.world.SkyChunkGenerator;
+import xyz.immortius.chunkbychunk.server.world.SpawnChunkHelper;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.concurrent.CompletableFuture;
@@ -81,14 +81,7 @@ public class SpawnChunkCommand {
             throw NON_EMPTY_CHUNK.create();
         }
 
-        if (random) {
-            ChunkPos sourceChunk = TriggeredSpawnRandomChunkBlock.getSourceChunk(pos);
-            SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceChunk);
-            level.setBlock(pos, Services.PLATFORM.triggeredSpawnRandomChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
-        } else {
-            SpawnChunkHelper.spawnChunkBlocks(level, chunkPos);
-            level.setBlock(pos, Services.PLATFORM.triggeredSpawnChunkBlock().defaultBlockState(), Block.UPDATE_NONE);
-        }
+        ChunkSpawnController.get(level.getServer()).request(level, "", random, pos);
         return 1;
     }
 
@@ -113,8 +106,7 @@ public class SpawnChunkCommand {
             if (sourceLevel == null) {
                 throw INVALID_THEME.create();
             }
-            SpawnChunkHelper.spawnChunkBlocks(level, chunkPos, sourceLevel, chunkPos);
-            level.setBlock(pos, level.getServer().registryAccess().registry(Registries.BLOCK).get().get(new ResourceLocation(ChunkByChunkConstants.MOD_ID, biome + ChunkByChunkConstants.TRIGGERED_BIOME_CHUNK_BLOCK_SUFFIX)).defaultBlockState(), Block.UPDATE_NONE);
+            ChunkSpawnController.get(level.getServer()).request(level, biome, false, pos);
             return 1;
         } else {
             throw INVALID_LEVEL.create();

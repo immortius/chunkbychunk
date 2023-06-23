@@ -111,14 +111,17 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
     public class IntegerEntry extends AbstractWidgetEntry<IntegerSlider> {
 
         private final Integer defaultValue;
+        private final Consumer<Integer> setter;
 
         public IntegerEntry(Component displayName, int min, int max, Supplier<Integer> getter, Consumer<Integer> setter, Integer defaultValue) {
             super(new IntegerSlider(0, 0, getRowWidth(), 20, displayName, min, max, getter, setter));
+            this.setter = setter;
             this.defaultValue = defaultValue;
         }
 
         @Override
         public void reset() {
+            setter.accept(defaultValue);
             widget.setValue(defaultValue);
         }
     }
@@ -127,11 +130,13 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         private final Component displayName;
         private final String defaultValue;
+        private final Consumer<String> setter;
 
         public StringEntry(Component displayName, Supplier<String> getter, Consumer<String> setter, String defaultValue) {
             super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
             this.displayName = displayName;
             this.defaultValue = defaultValue;
+            this.setter = setter;
             widget.setValue(getter.get());
             widget.setEditable(true);
             widget.setResponder(setter);
@@ -139,6 +144,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         @Override
         public void reset() {
+            setter.accept(defaultValue);
             widget.setValue(defaultValue);
         }
 
@@ -175,6 +181,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
     public class BooleanEntry extends AbstractWidgetEntry<CycleButton<Boolean>> {
 
         private final Boolean defaultValue;
+        private final Consumer<Boolean> setter;
 
         public BooleanEntry(Component displayName, Supplier<Boolean> getter, Consumer<Boolean> setter, Boolean defaultValue) {
             super(new CycleButton.Builder<Boolean>((x) -> Component.translatable((x) ? "gui.yes" : "gui.no"))
@@ -182,10 +189,12 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
                     .withInitialValue(getter.get())
                     .create(0, 0, getRowWidth(), 20, displayName, (cycleButton, value) -> setter.accept(value)));
             this.defaultValue = defaultValue;
+            this.setter = setter;
         }
 
         @Override
         public void reset() {
+            setter.accept(defaultValue);
             widget.setValue(defaultValue);
         }
     }
@@ -193,11 +202,13 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
     public class ExtendedIntegerEntry extends AbstractWidgetEntry<EditBox> {
         private final Component displayName;
         private final Integer defaultValue;
+        private final Consumer<Integer> setter;
 
         public ExtendedIntegerEntry(Component displayName, int min, int max, Supplier<Integer> getter, Consumer<Integer> setter, Integer defaultValue) {
             super(new EditBox(SettingListWidget.this.minecraft.font, 0, 0, getRowWidth(), 20, displayName));
             this.displayName = displayName;
             this.defaultValue = defaultValue;
+            this.setter = setter;
             widget.setFilter(x -> {
                 if (x.isEmpty() || "-".equals(x)) {
                     return true;
@@ -224,6 +235,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
         @Override
         public void reset() {
+            setter.accept(defaultValue);
             widget.setValue(defaultValue.toString());
         }
 
@@ -259,17 +271,21 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
     public class EnumEntry extends AbstractWidgetEntry<CycleButton<Enum<?>>> {
 
-        private Enum<?> defaultValue;
+        private final Enum<?> defaultValue;
+        private final Consumer<Enum<?>> setter;
+
         public EnumEntry(Component displayName, Class<? extends Enum<?>> type, Supplier<Enum<?>> getter, Consumer<Enum<?>> setter, Enum<?> defaultValue) {
             super(new CycleButton.Builder<Enum<?>>((x) -> Component.translatable("enumvalue.chunkbychunk." + type.getSimpleName() + "." + x.name()))
                     .withValues(type.getEnumConstants())
                     .withInitialValue(getter.get())
                     .create(0, 0, getRowWidth(), 20, displayName, (cycleButton, value) -> setter.accept(value)));
             this.defaultValue = defaultValue;
+            this.setter = setter;
         }
 
         @Override
         public void reset() {
+            setter.accept(defaultValue);
             widget.setValue(defaultValue);
         }
     }
