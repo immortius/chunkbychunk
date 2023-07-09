@@ -309,46 +309,15 @@ public final class ServerEventHandler {
 
         BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
 
-        if (ChunkByChunkConfig.get().getGameplayConfig().getStartInVillage()) {
-            Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
-            Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
-            if (structuresTag.isPresent()) {
-                HolderSet<Structure> holders = structuresTag.get();
-                Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
-                if (nearest != null) {
-                    spawnPos = nearest.getFirst();
-                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
-                }
-            } else {
-                ChunkByChunkConstants.LOGGER.warn("Could not find village spawn");
+        switch (ChunkByChunkConfig.get().getGameplayConfig().getStartRestriction()) {
+            case Village -> {
+                spawnPos = findVillage(generationLevel, registryAccess, spawnPos);
             }
-        } else if (!ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome().isEmpty()) {
-            String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
-            if (startingBiome.startsWith("#")) {
-                Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
-                if (tagSet.isPresent()) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
-                    if (location != null) {
-                        spawnPos = location.getFirst();
-                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
-                    }
-                } else {
-                    ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
-                }
-            } else {
-                Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
-                if (biome != null) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
-                    if (location != null) {
-                        spawnPos = location.getFirst();
-                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
-                    } else {
-                        ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
-                    }
-                }
+            case Biome -> {
+                String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
+                spawnPos = findBiome(overworldLevel, registryAccess, spawnPos, startingBiome);
             }
         }
-
 
         ChunkPos initialChunkPos = new ChunkPos(spawnPos);
         SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
@@ -372,6 +341,49 @@ public final class ServerEventHandler {
         }
         ServerLevelData levelData = (ServerLevelData) overworldLevel.getLevelData();
         levelData.setSpawn(spawnPos, levelData.getSpawnAngle());
+        return spawnPos;
+    }
+
+    private static BlockPos findBiome(ServerLevel overworldLevel, RegistryAccess registryAccess, BlockPos spawnPos, String startingBiome) {
+        if (startingBiome.startsWith("#")) {
+            Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
+            if (tagSet.isPresent()) {
+                Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
+                if (location != null) {
+                    spawnPos = location.getFirst();
+                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
+                }
+            } else {
+                ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+            }
+        } else {
+            Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
+            if (biome != null) {
+                Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
+                if (location != null) {
+                    spawnPos = location.getFirst();
+                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
+                } else {
+                    ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+                }
+            }
+        }
+        return spawnPos;
+    }
+
+    private static BlockPos findVillage(ServerLevel generationLevel, RegistryAccess registryAccess, BlockPos spawnPos) {
+        Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
+        Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
+        if (structuresTag.isPresent()) {
+            HolderSet<Structure> holders = structuresTag.get();
+            Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
+            if (nearest != null) {
+                spawnPos = nearest.getFirst();
+                ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
+            }
+        } else {
+            ChunkByChunkConstants.LOGGER.warn("Could not find village spawn");
+        }
         return spawnPos;
     }
 
