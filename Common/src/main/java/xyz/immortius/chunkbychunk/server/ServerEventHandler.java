@@ -395,7 +395,7 @@ public final class ServerEventHandler {
         ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(level.getServer());
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
-        if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
+        if (initialChunks > 0 && initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
             List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
