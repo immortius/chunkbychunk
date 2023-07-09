@@ -49,6 +49,7 @@ import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -83,7 +84,7 @@ public final class ServerEventHandler {
      * @param server The minecraft server that is starting
      */
     public static void onServerStarting(MinecraftServer server) {
-        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
+        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), Paths.get(ChunkByChunkConstants.DEFAULT_CONFIG_PATH).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
         if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
             ChunkByChunkConstants.LOGGER.info("Setting up sky dimensions");
             applySkyDimensionConfig(server.registryAccess());
