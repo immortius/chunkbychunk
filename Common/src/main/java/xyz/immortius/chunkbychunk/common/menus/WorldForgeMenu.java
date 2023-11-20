@@ -40,6 +40,12 @@ public class WorldForgeMenu extends BaseInventoryContainerMenu {
         return this.containerData.get(WorldForgeBlockEntity.DATA_GOAL);
     }
 
+    public int getCompletion(){
+        int i = this.getProgress();
+        int j = this.getGoal();
+        return i != 0 && j != 0 ? 30 * i / j : 0;
+    }
+
     @Override
     protected boolean quickMoveToContainer(ItemStack stack) {
         if (WorldForgeBlockEntity.isWorldForgeFuel(stack)) {
