@@ -42,7 +42,7 @@ public class WorldForgeScreen extends AbstractContainerScreen<WorldForgeMenu> {
         graphics.blit(CONTAINER_TEXTURE, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
         if (menu.getProgress() > 0)
         {
-            int completion = 30 * menu.getProgress() / menu.getGoal();
+            int completion = menu.getCompletion();
             graphics.blit(CONTAINER_TEXTURE, leftPos + 78, topPos + 37, 176, frame * 11, completion, 11);
         }
     }
