@@ -3,6 +3,7 @@
   "values" : [
     "chunkbychunk:worldcore",
     "chunkbychunk:worldforge",
-    "chunkbychunk:worldscanner"
+    "chunkbychunk:worldscanner",
+    "chunkbychunk:worldmender"
   ]
 }

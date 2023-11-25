@@ -53,24 +53,17 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     protected final ContainerData dataAccess = new ContainerData() {
         public int get(int id) {
-            switch (id) {
-                case 0:
-                    return progress;
-                case 1:
-                    return goal;
-                default:
-                    return 0;
-            }
+            return switch (id) {
+                case DATA_PROGRESS -> progress;
+                case DATA_GOAL -> goal;
+                default -> 0;
+            };
         }
 
         public void set(int id, int value) {
             switch (id) {
-                case 0:
-                    progress = value;
-                    break;
-                case 1:
-                    goal = value;
-                    break;
+                case DATA_PROGRESS -> progress = value;
+                case DATA_GOAL -> goal = value;
             }
 
         }

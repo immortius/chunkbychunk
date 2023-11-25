@@ -12,9 +12,9 @@ public class GameplayConfig {
     @Comment("Can blocks be placed outside spawned chunks")
     private boolean blockPlacementAllowedOutsideSpawnedChunks = true;
 
-    @Name("start_in_village")
-    @Comment("Should the initial spawn be in a village")
-    private boolean startInVillage = true;
+    @Name("start_restriction")
+    @Comment("What restriction to place on starting location")
+    private StartRestriction startRestriction = StartRestriction.Village;
 
     @Name("starting_biome")
     @Comment("The tag or name of the biome the starting spawn should be in (if not a village, blank for any")
@@ -32,12 +32,12 @@ public class GameplayConfig {
         this.blockPlacementAllowedOutsideSpawnedChunks = blockPlacementAllowedOutsideSpawnedChunks;
     }
 
-    public boolean getStartInVillage() {
-        return startInVillage;
+    public StartRestriction getStartRestriction() {
+        return startRestriction;
     }
 
-    public void setStartInVillage(boolean startInVillage) {
-        this.startInVillage = startInVillage;
+    public void setStartRestriction(StartRestriction startRestriction) {
+        this.startRestriction = startRestriction;
     }
 
     public String getStartingBiome() {
@@ -54,5 +54,11 @@ public class GameplayConfig {
 
     public void setChunkSpawnLeafDecayDisabled(boolean chunkSpawnLeafDecayDisabled) {
         this.chunkSpawnLeafDecayDisabled = chunkSpawnLeafDecayDisabled;
+    }
+
+    public enum StartRestriction {
+        None,
+        Village,
+        Biome
     }
 }

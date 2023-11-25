@@ -41,6 +41,39 @@ public class ConfigSystem {
     /**
      * Loads the configFile if it exists, creates it from object if it does not.
      * @param configFile The config file to load or create
+     * @param defaultFile Fallback config file to load from if the configFile doesn't exist.
+     * @param object The config object to load into or create the file from
+     */
+    public void synchConfig(Path configFile, Path defaultFile, Object object) {
+        if (!createPathTo(configFile)) {
+            return;
+        }
+
+        if (Files.exists(configFile)) {
+            try (BufferedReader reader = Files.newBufferedReader(configFile)) {
+                readInto(reader, object);
+            } catch (IOException e) {
+                LOGGER.error("Failed to read server config at '{}'", configFile, e);
+            }
+        } else if (Files.exists(defaultFile)) {
+            try (BufferedReader reader = Files.newBufferedReader(defaultFile)) {
+                readInto(reader, object);
+            } catch (IOException e) {
+                LOGGER.error("Failed to read default config at '{}'", configFile, e);
+            }
+        }
+        if (!Files.exists(configFile)) {
+            try (BufferedWriter writer = Files.newBufferedWriter(configFile)) {
+                write(writer, object);
+            } catch (IOException e) {
+                LOGGER.error("Failed to write server config at {}", configFile, e);
+            }
+        }
+    }
+
+    /**
+     * Loads the configFile if it exists, creates it from object if it does not.
+     * @param configFile The config file to load or create
      * @param object The config object to load into or create the file from
      */
     public void synchConfig(Path configFile, Object object) {

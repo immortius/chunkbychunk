@@ -49,6 +49,7 @@ import xyz.immortius.chunkbychunk.mixins.OverworldBiomeBuilderAccessor;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -83,7 +84,7 @@ public final class ServerEventHandler {
      * @param server The minecraft server that is starting
      */
     public static void onServerStarting(MinecraftServer server) {
-        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
+        configSystem.synchConfig(server.getWorldPath(LevelResource.ROOT).resolve(SERVERCONFIG).resolve(ChunkByChunkConstants.CONFIG_FILE), Paths.get(ChunkByChunkConstants.DEFAULT_CONFIG_PATH).resolve(ChunkByChunkConstants.CONFIG_FILE), ChunkByChunkConfig.get());
         if (ChunkByChunkConfig.get().getGeneration().isEnabled()) {
             ChunkByChunkConstants.LOGGER.info("Setting up sky dimensions");
             applySkyDimensionConfig(server.registryAccess());
@@ -121,9 +122,6 @@ public final class ServerEventHandler {
             setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry, dimensionTypeRegistry);
         }
         configureDimensionSynching(dimensions);
-
-        ((DefrostedRegistry) dimensions).setFrozen(true);
-        ((DefrostedRegistry) biomeRegistry).setFrozen(true);
     }
 
     private static void configureDimensionSynching(MappedRegistry<LevelStem> dimensions) {
@@ -228,7 +226,7 @@ public final class ServerEventHandler {
 
         ResourceKey<LevelStem> levelKey = ResourceKey.create(Registries.LEVEL_STEM, biomeDimId);
         BiomeSource source;
-        if (biomeKeys.size() == 0) {
+        if (biomeKeys.size() == 0 || !(rootGenerator instanceof NoiseBasedChunkGenerator)) {
             return null;
         } else if (biomeKeys.size() == 1) {
             source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
@@ -274,7 +272,7 @@ public final class ServerEventHandler {
             ChunkPos chunkSpawnPos = new ChunkPos(overworldSpawnPos);
             if (SpawnChunkHelper.isEmptyChunk(overworldLevel, chunkSpawnPos)) {
                 overworldSpawnPos = findAppropriateSpawnChunk(overworldLevel, generationLevel, server.registryAccess());
-                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos, ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest() && ChunkByChunkConfig.get().getGeneration().spawnChestInInitialChunkOnly());
+                spawnInitialChunks(overworldLevel, skyGenerator.getInitialChunks(), overworldSpawnPos, ChunkByChunkConfig.get().getGeneration().spawnNewChunkChest());
             }
         } else {
             overworldSpawnPos = overworldLevel.getSharedSpawnPos();
@@ -309,46 +307,15 @@ public final class ServerEventHandler {
 
         BlockPos spawnPos = overworldLevel.getSharedSpawnPos();
 
-        if (ChunkByChunkConfig.get().getGameplayConfig().getStartInVillage()) {
-            Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
-            Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
-            if (structuresTag.isPresent()) {
-                HolderSet<Structure> holders = structuresTag.get();
-                Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
-                if (nearest != null) {
-                    spawnPos = nearest.getFirst();
-                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
-                }
-            } else {
-                ChunkByChunkConstants.LOGGER.warn("Could not find village spawn");
+        switch (ChunkByChunkConfig.get().getGameplayConfig().getStartRestriction()) {
+            case Village -> {
+                spawnPos = findVillage(generationLevel, registryAccess, spawnPos);
             }
-        } else if (!ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome().isEmpty()) {
-            String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
-            if (startingBiome.startsWith("#")) {
-                Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
-                if (tagSet.isPresent()) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
-                    if (location != null) {
-                        spawnPos = location.getFirst();
-                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
-                    }
-                } else {
-                    ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
-                }
-            } else {
-                Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
-                if (biome != null) {
-                    Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
-                    if (location != null) {
-                        spawnPos = location.getFirst();
-                        ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
-                    } else {
-                        ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
-                    }
-                }
+            case Biome -> {
+                String startingBiome = ChunkByChunkConfig.get().getGameplayConfig().getStartingBiome();
+                spawnPos = findBiome(overworldLevel, registryAccess, spawnPos, startingBiome);
             }
         }
-
 
         ChunkPos initialChunkPos = new ChunkPos(spawnPos);
         SpiralIterator iterator = new SpiralIterator(initialChunkPos.x, initialChunkPos.z);
@@ -375,6 +342,49 @@ public final class ServerEventHandler {
         return spawnPos;
     }
 
+    private static BlockPos findBiome(ServerLevel overworldLevel, RegistryAccess registryAccess, BlockPos spawnPos, String startingBiome) {
+        if (startingBiome.startsWith("#")) {
+            Optional<HolderSet.Named<Biome>> tagSet = registryAccess.registry(Registries.BIOME).orElseThrow().getTag(TagKey.create(Registries.BIOME, new ResourceLocation(startingBiome.substring(1))));
+            if (tagSet.isPresent()) {
+                Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> tagSet.get().contains(x), spawnPos, 6400, 32, 64);
+                if (location != null) {
+                    spawnPos = location.getFirst();
+                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome of tag " + startingBiome);
+                }
+            } else {
+                ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+            }
+        } else {
+            Biome biome = registryAccess.registry(Registries.BIOME).orElseThrow().get(new ResourceLocation(startingBiome));
+            if (biome != null) {
+                Pair<BlockPos, Holder<Biome>> location = overworldLevel.findClosestBiome3d(x -> x.value().equals(biome), spawnPos, 6400, 32, 64);
+                if (location != null) {
+                    spawnPos = location.getFirst();
+                    ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest biome: " + startingBiome);
+                } else {
+                    ChunkByChunkConstants.LOGGER.warn("No biome matching '" + startingBiome + "' found");
+                }
+            }
+        }
+        return spawnPos;
+    }
+
+    private static BlockPos findVillage(ServerLevel generationLevel, RegistryAccess registryAccess, BlockPos spawnPos) {
+        Registry<Structure> structures = registryAccess.registry(Registries.STRUCTURE).orElseThrow();
+        Optional<HolderSet.Named<Structure>> structuresTag = structures.getTag(StructureTags.VILLAGE);
+        if (structuresTag.isPresent()) {
+            HolderSet<Structure> holders = structuresTag.get();
+            Pair<BlockPos, Holder<Structure>> nearest = generationLevel.getChunkSource().getGenerator().findNearestMapStructure(generationLevel, holders, spawnPos, 100, false);
+            if (nearest != null) {
+                spawnPos = nearest.getFirst();
+                ChunkByChunkConstants.LOGGER.info("Spawn shifted to nearest village");
+            }
+        } else {
+            ChunkByChunkConstants.LOGGER.warn("Could not find village spawn");
+        }
+        return spawnPos;
+    }
+
     /**
      * Spawns the initial chunks
      */
@@ -382,7 +392,7 @@ public final class ServerEventHandler {
         ChunkSpawnController chunkSpawnController = ChunkSpawnController.get(level.getServer());
         BlockPos scaledSpawn = new BlockPos(Mth.floor(overworldSpawn.getX() / level.dimensionType().coordinateScale()), overworldSpawn.getY(), Mth.floor(overworldSpawn.getZ() / level.dimensionType().coordinateScale()));
         ChunkPos centerChunkPos = new ChunkPos(scaledSpawn);
-        if (initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
+        if (initialChunks > 0 && initialChunks <= CHUNK_SPAWN_OFFSETS.size()) {
             List<int[]> chunkOffsets = CHUNK_SPAWN_OFFSETS.get(initialChunks - 1);
             for (int[] offset : chunkOffsets) {
                 ChunkPos targetPos = new ChunkPos(centerChunkPos.x + offset[0], centerChunkPos.z + offset[1]);
