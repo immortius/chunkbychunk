@@ -122,9 +122,6 @@ public final class ServerEventHandler {
             setupDimension(entry.getKey(), entry.getValue(), dimensions, blocks, biomeRegistry, dimensionTypeRegistry);
         }
         configureDimensionSynching(dimensions);
-
-        ((DefrostedRegistry) dimensions).setFrozen(true);
-        ((DefrostedRegistry) biomeRegistry).setFrozen(true);
     }
 
     private static void configureDimensionSynching(MappedRegistry<LevelStem> dimensions) {
@@ -229,7 +226,7 @@ public final class ServerEventHandler {
 
         ResourceKey<LevelStem> levelKey = ResourceKey.create(Registries.LEVEL_STEM, biomeDimId);
         BiomeSource source;
-        if (biomeKeys.size() == 0) {
+        if (biomeKeys.size() == 0 || !(rootGenerator instanceof NoiseBasedChunkGenerator)) {
             return null;
         } else if (biomeKeys.size() == 1) {
             source = new FixedBiomeSource(biomeRegistry.getHolderOrThrow(biomeKeys.get(0)));
