@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.datafix.DataFixTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -59,7 +60,7 @@ public class ChunkSpawnController extends SavedData {
     private transient CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> sourceChunkFuture;
 
     public static ChunkSpawnController get(MinecraftServer server) {
-        return server.getLevel(Level.OVERWORLD).getChunkSource().getDataStorage().computeIfAbsent((tag) -> ChunkSpawnController.load(server, tag), () -> new ChunkSpawnController(server), "chunkspawncontroller");
+        return server.getLevel(Level.OVERWORLD).getChunkSource().getDataStorage().computeIfAbsent(new Factory<>(() -> new ChunkSpawnController(server), (tag) -> ChunkSpawnController.load(server, tag), DataFixTypes.LEVEL), "chunkspawncontroller");
     }
 
     private static ChunkSpawnController load(MinecraftServer server, CompoundTag tag) {

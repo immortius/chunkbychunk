@@ -32,10 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.network.NetworkDirection;
-import net.minecraftforge.network.NetworkRegistry;
-import net.minecraftforge.network.PacketDistributor;
-import net.minecraftforge.network.simple.SimpleChannel;
+import net.minecraftforge.network.*;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
@@ -111,8 +108,8 @@ public class ChunkByChunkMod {
 
     public static final List<Supplier<ItemStack>> THEMED_SPAWN_CHUNK_ITEMS = new ArrayList<>();
 
-    private static final String PROTOCOL_VERSION = "1";
-    public static final SimpleChannel CONFIG_CHANNEL = NetworkRegistry.newSimpleChannel(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "configchannel"), () -> PROTOCOL_VERSION, PROTOCOL_VERSION::equals, PROTOCOL_VERSION::equals);
+    private static final int PROTOCOL_VERSION = 1;
+    public static final SimpleChannel CONFIG_CHANNEL = ChannelBuilder.named(new ResourceLocation(ChunkByChunkConstants.MOD_ID, "configchannel")).networkProtocolVersion(PROTOCOL_VERSION).simpleChannel();
 
     static {
         for (String biomeTheme : ChunkByChunkConstants.BIOME_THEMES) {
@@ -138,15 +135,14 @@ public class ChunkByChunkMod {
 
         MinecraftForge.EVENT_BUS.register(this);
 
-        int packetId = 1;
-        CONFIG_CHANNEL.registerMessage(packetId++, ConfigMessage.class,
-                (configMessage, friendlyByteBuf) -> friendlyByteBuf.writeBoolean(configMessage.blockPlacementAllowed),
-                friendlyByteBuf -> new ConfigMessage(friendlyByteBuf.readBoolean()),
-                (configMessage, contextSupplier) -> {
+        CONFIG_CHANNEL.messageBuilder(ConfigMessage.class, NetworkDirection.PLAY_TO_CLIENT)
+                .decoder(friendlyByteBuf -> new ConfigMessage(friendlyByteBuf.readBoolean()))
+                .encoder((configMessage, friendlyByteBuf) -> friendlyByteBuf.writeBoolean(configMessage.blockPlacementAllowed))
+                .consumerNetworkThread((configMessage, contextSupplier) -> {
+                    ChunkByChunkConstants.LOGGER.info("Received config from server");
                     ChunkByChunkConfig.get().getGameplayConfig().setBlockPlacementAllowedOutsideSpawnedChunks(configMessage.blockPlacementAllowed);
-                    contextSupplier.get().setPacketHandled(true);
-                },
-                Optional.of(NetworkDirection.PLAY_TO_CLIENT));
+                    contextSupplier.setPacketHandled(true);
+                }).add();
     }
 
     private void clientSetup(final FMLClientSetupEvent event) {
@@ -223,7 +219,7 @@ public class ChunkByChunkMod {
 
     @SubscribeEvent
     public void onServerLogin(PlayerEvent.PlayerLoggedInEvent event) {
-        CONFIG_CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer)(event.getEntity())), new ConfigMessage(ChunkByChunkConfig.get().getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks()));
+        CONFIG_CHANNEL.send(new ConfigMessage(ChunkByChunkConfig.get().getGameplayConfig().isBlockPlacementAllowedOutsideSpawnedChunks()), PacketDistributor.PLAYER.with((ServerPlayer) event.getEntity()));
     }
 
     @SubscribeEvent

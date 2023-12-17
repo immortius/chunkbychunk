@@ -36,10 +36,10 @@ public class ChunkByChunkConfigScreen extends Screen {
             this.minecraft.setScreen(lastScreen);
         }).pos(2 * width / 3 + w, height - 32).size(60, 20).build();
 
-        this.addWidget(settingsList);
-        this.addWidget(cancelButton);
-        this.addWidget(saveButton);
-        this.addWidget(resetButton);
+        this.addRenderableWidget(settingsList);
+        this.addRenderableWidget(cancelButton);
+        this.addRenderableWidget(saveButton);
+        this.addRenderableWidget(resetButton);
     }
 
     @Override
@@ -56,15 +56,10 @@ public class ChunkByChunkConfigScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float delta) {
-        this.renderBackground(graphics);
-        this.settingsList.render(graphics, mouseX, mouseY, delta);
+        super.render(graphics, mouseX, mouseY, delta);
 
         int titleWidth = font.width(title);
         int titleX = (width - titleWidth) / 2;
         graphics.drawString(font, title, titleX, 8, 0xFFFFFF, true);
-        this.cancelButton.render(graphics, mouseX, mouseY, delta);
-        this.saveButton.render(graphics, mouseX, mouseY, delta);
-        this.resetButton.render(graphics, mouseX, mouseY, delta);
-        super.render(graphics, mouseX, mouseY, delta);
     }
 }

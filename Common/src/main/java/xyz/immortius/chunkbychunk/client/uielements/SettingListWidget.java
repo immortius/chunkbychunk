@@ -29,6 +29,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
 
     public SettingListWidget(Minecraft minecraft, Screen parent, int width, int top, int bottom, int rowWidth) {
         super(minecraft, width, parent.height, top, bottom, 22);
+
         this.rowWidth = rowWidth;
         ConfigMetadata metadata = MetadataBuilder.build(ChunkByChunkConfig.class);
         ChunkByChunkConfig defaultConfig = new ChunkByChunkConfig();
@@ -173,11 +174,6 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         public boolean charTyped(char p_94683_, int p_94684_) {
             return widget.charTyped(p_94683_, p_94684_);
         }
-
-        @Override
-        public void tick() {
-            widget.tick();
-        }
     }
 
     public class BooleanEntry extends AbstractWidgetEntry<CycleButton<Boolean>> {
@@ -265,11 +261,6 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
         @Override
         public boolean charTyped(char p_94683_, int p_94684_) {
             return widget.charTyped(p_94683_, p_94684_);
-        }
-
-        @Override
-        public void tick() {
-            widget.tick();
         }
     }
 

@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
 import net.minecraft.server.level.*;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.storage.ChunkStorage;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.spongepowered.asm.mixin.Final;
@@ -31,13 +32,13 @@ public abstract class ChunkMapMixin extends ChunkStorage implements ChunkHolder.
     ServerLevel level;
 
     @Shadow
-    protected void updateChunkTracking(ServerPlayer p_183755_, ChunkPos p_183756_, MutableObject<ClientboundLevelChunkWithLightPacket> p_183757_, boolean p_183758_, boolean p_183759_) {
+    private void markChunkPendingToSend(ServerPlayer player, ChunkPos chunkPos) {
     }
 
     public void forceReloadChunk(ChunkPos chunk) {
         ChunkMap thisMap = (ChunkMap) (Object) this;
         for (ServerPlayer player : thisMap.getPlayers(chunk, false)) {
-            updateChunkTracking(player, chunk, new MutableObject<>(), false, true);
+            markChunkPendingToSend(player, chunk);
         }
     }
 
