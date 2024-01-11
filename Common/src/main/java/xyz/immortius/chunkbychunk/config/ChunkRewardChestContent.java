@@ -14,7 +14,8 @@ public enum ChunkRewardChestContent {
     UnstableChunkSpawner(Services.PLATFORM::unstableChunkSpawnBlockItem),
     WorldCore(Services.PLATFORM::worldCoreBlockItem),
     WorldCrystal(Services.PLATFORM::worldCrystalItem),
-    WorldForge(Services.PLATFORM::worldForgeBlockItem);
+    WorldForge(Services.PLATFORM::worldForgeBlockItem),
+    WorldFragment(Services.PLATFORM::worldFragmentItem);
 
     private final Supplier<Item> item;
 
