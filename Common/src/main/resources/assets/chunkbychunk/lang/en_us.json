@@ -71,6 +71,7 @@
   "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldCore" : "World Core",
   "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldCrystal" : "World Crystal",
   "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldForge" : "World Forge",
+  "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldFragment" : "World Fragment",
   "advancement.chunkbychunk.root.title" : "Chunk By Chunk",
   "advancement.chunkbychunk.root.description" : "Welcome to Chunk By Chunk, the mod where you start with a nearly empty world but can slowly grow it out one chunk at a time.",
   "advancement.chunkbychunk.chunkspawnerobtained.title" : "Every Chunk in its Place",
