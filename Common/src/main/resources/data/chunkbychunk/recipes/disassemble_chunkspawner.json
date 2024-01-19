@@ -1,0 +1,18 @@
+{
+  "type" : "minecraft:crafting_shaped",
+  "pattern": [
+    "XC"
+  ],
+  "key" : {
+    "C" : {
+      "item" : "minecraft:iron_pickaxe"
+    },
+    "X" : {
+      "tag" : "chunkbychunk:chunkspawners"
+    }
+  },
+  "result" : {
+    "item" : "chunkbychunk:worldcore",
+    "count" : 1
+  }
+}

@@ -18,7 +18,7 @@ public class GenerationConfig {
 
     @Name("synch_nether_chunk_spawn")
     @Comment("Should the nether start empty with chunks spawning in response to overworld spawns")
-    private boolean synchNether = false;
+    private boolean synchNether = true;
 
     @Name("spawn_new_chunk_chest")
     @Comment("Should chunks include a chest with materials for generating further chunks?")
@@ -26,7 +26,7 @@ public class GenerationConfig {
 
     @Name("spawn_chest_in_initial_chunk_only")
     @Comment("Should the chest spawn in the initial chunk only?")
-    private boolean spawnChestInInitialChunkOnly = true;
+    private boolean spawnChestInInitialChunkOnly = false;
 
     @Name("use_bedrock_chest")
     @Comment("Should the generated chest be a bedrock chest")
@@ -49,7 +49,7 @@ public class GenerationConfig {
     @Name("max_chest_spawn_depth")
     @Comment("The maximum depth at which the chunk spawner chest can spawn")
     @IntRange(min = -64, max = 128)
-    private int maxChestSpawnDepth = -56;
+    private int maxChestSpawnDepth = -52;
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially")

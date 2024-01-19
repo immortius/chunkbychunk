@@ -34,5 +34,10 @@
         ]
       }
     }
+  },
+  "rewards": {
+    "recipes": [
+      "chunkbychunk:disassemble_chunkspawner"
+    ]
   }
 }

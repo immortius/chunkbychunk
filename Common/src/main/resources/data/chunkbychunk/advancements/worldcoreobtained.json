@@ -22,11 +22,13 @@
     }
   },
   "rewards" : {
-    "recipes" : ["chunkbychunk:chunkspawner",
+    "recipes" : [
+      "chunkbychunk:chunkspawner",
       "chunkbychunk:disassemble_worldcore",
       "chunkbychunk:worldcore",
       "chunkbychunk:worldforge",
       "chunkbychunk:worldscanner",
+      "chunkbychunk:worldmender",
       "chunkbychunk:unstablechunkspawner",
       "chunkbychunk:badlandschunkspawner",
       "chunkbychunk:desertchunkspawner",

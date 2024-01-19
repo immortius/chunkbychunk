@@ -1,0 +1,18 @@
+{
+  "replace" : false,
+  "values" : [
+    "chunkbychunk:chunkspawner",
+    "chunkbychunk:unstablechunkspawner",
+    "chunkbychunk:badlandschunkspawner",
+    "chunkbychunk:desertchunkspawner",
+    "chunkbychunk:forestchunkspawner",
+    "chunkbychunk:junglechunkspawner",
+    "chunkbychunk:mountainchunkspawner",
+    "chunkbychunk:mushroomchunkspawner",
+    "chunkbychunk:plainschunkspawner",
+    "chunkbychunk:rockychunkspawner",
+    "chunkbychunk:savannachunkspawner",
+    "chunkbychunk:snowchunkspawner",
+    "chunkbychunk:swampchunkspawner"
+  ]
+}
