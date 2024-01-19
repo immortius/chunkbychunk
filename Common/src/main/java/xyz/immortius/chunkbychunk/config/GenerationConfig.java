@@ -34,7 +34,7 @@ public class GenerationConfig {
 
     @Name("chest_contents")
     @Comment("The type of items the bedrock chest provides")
-    private ChunkRewardChestContent chestContents = ChunkRewardChestContent.WorldForge;
+    private ChunkRewardChestContent chestContents = ChunkRewardChestContent.Random;
 
     @Name("chest_quantity")
     @Comment("The number of items the bedrock chest provides")
@@ -49,7 +49,7 @@ public class GenerationConfig {
     @Name("max_chest_spawn_depth")
     @Comment("The maximum depth at which the chunk spawner chest can spawn")
     @IntRange(min = -64, max = 128)
-    private int maxChestSpawnDepth = -60;
+    private int maxChestSpawnDepth = -56;
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially")

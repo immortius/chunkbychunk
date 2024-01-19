@@ -71,6 +71,8 @@
    "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldCore": "世界核心",
    "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldCrystal": "世界水晶",
    "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldForge": "世界锻造器",
+   "enumvalue.chunkbychunk.ChunkRewardChestContent.WorldFragment": "世界碎片",
+   "enumvalue.chunkbychunk.ChunkRewardChestContent.Random": "随机",
    "advancement.chunkbychunk.root.title": "Chunk By Chunk",
    "advancement.chunkbychunk.root.description": "欢迎来到 Chunk By Chunk，你将从一个几乎完全空置的世界开始，以每次生成一个区块的方式慢慢地扩充这个世界。",
    "advancement.chunkbychunk.chunkspawnerobtained.title": "扩展你的世界",

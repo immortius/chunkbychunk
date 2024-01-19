@@ -2,24 +2,17 @@ package xyz.immortius.chunkbychunk.server.world;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.*;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.portal.PortalInfo;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import xyz.immortius.chunkbychunk.common.util.ChangeDimensionHelper;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
+import xyz.immortius.chunkbychunk.common.util.ChunkUtil;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
 import xyz.immortius.chunkbychunk.interop.Services;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Random;
 
 /**
@@ -29,9 +22,6 @@ import java.util.Random;
  * the copy until after the copy (takes at least a tick it seems)
  */
 public final class SpawnChunkHelper {
-
-    // TODO: Switch to better random source
-    private static final Random random = new Random();
 
     private SpawnChunkHelper() {
     }
@@ -55,6 +45,8 @@ public final class SpawnChunkHelper {
      * @param chunkPos    The position of the chunk
      */
     public static void createNextSpawner(ServerLevel targetLevel, ChunkPos chunkPos) {
+        Random random = ChunkUtil.getChunkRandom(targetLevel, chunkPos);
+
         int minPos = Math.min(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());
         int maxPos = Math.max(ChunkByChunkConfig.get().getGeneration().getMinChestSpawnDepth(), ChunkByChunkConfig.get().getGeneration().getMaxChestSpawnDepth());;
         while (maxPos > minPos && (targetLevel.getBlockState(new BlockPos(chunkPos.getMiddleBlockX(), maxPos, chunkPos.getMiddleBlockZ())).getBlock() instanceof AirBlock)) {
@@ -66,15 +58,20 @@ public final class SpawnChunkHelper {
         } else {
             yPos = random.nextInt(minPos, maxPos + 1);
         }
+        int xPos = chunkPos.getMinBlockX() + random.nextInt(0, 16);
+        int zPos = chunkPos.getMinBlockZ() + random.nextInt(0, 16);
 
-        BlockPos blockPos = new BlockPos(chunkPos.getMiddleBlockX(), yPos, chunkPos.getMiddleBlockZ());
+        BlockPos blockPos = new BlockPos(xPos, yPos, zPos);
         if (ChunkByChunkConfig.get().getGeneration().useBedrockChest()) {
             targetLevel.setBlock(blockPos, Services.PLATFORM.bedrockChestBlock().defaultBlockState(), Block.UPDATE_CLIENTS);
         } else {
             targetLevel.setBlock(blockPos, Blocks.CHEST.defaultBlockState(), Block.UPDATE_CLIENTS);
         }
         if (targetLevel.getBlockEntity(blockPos) instanceof RandomizableContainerBlockEntity chestEntity) {
-            chestEntity.setItem(0, ChunkByChunkConfig.get().getGeneration().getChestContents().getItem(ChunkByChunkConfig.get().getGeneration().getChestQuantity()));
+            List<ItemStack> items = ChunkByChunkConfig.get().getGeneration().getChestContents().getItems(random, ChunkByChunkConfig.get().getGeneration().getChestQuantity());
+            for (int i = 0; i < items.size(); i++) {
+                chestEntity.setItem(i, items.get(i));
+            }
         }
     }
 
