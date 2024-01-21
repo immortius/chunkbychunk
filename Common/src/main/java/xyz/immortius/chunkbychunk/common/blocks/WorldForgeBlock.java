@@ -1,9 +1,11 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -15,8 +17,15 @@ import xyz.immortius.chunkbychunk.interop.Services;
  * World Forge block is used to convert general soil and stone blocks into world crystals and cores.
  */
 public class WorldForgeBlock extends AbstractContainerBlock {
+    public static final MapCodec<WorldForgeBlock> CODEC = simpleCodec(WorldForgeBlock::new);
+
     public WorldForgeBlock(Properties blockProperties) {
         super(blockProperties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override

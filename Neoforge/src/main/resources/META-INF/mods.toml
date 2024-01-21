@@ -1,39 +1,38 @@
 # Find more information on toml format here:  https://github.com/toml-lang/toml
 # ModLoader settings
 modLoader="javafml"
-loaderVersion="[47,)"
-license="MIT License"
+loaderVersion="${neoforge_loader_version_range}"
+license="${license}"
 #issueTrackerURL="https://change.me.to.your.issue.tracker.example.invalid/"
 # A list of mods - how many allowed here is determined by the individual mod loader
 [[mods]]
-modId="chunkbychunk"
-version="${file.jarVersion}"
-displayName="Chunk By Chunk"
+modId="${mod_id}"
+version="${version}"
+displayName="${mod_name}"
 # A URL to query for updates for this mod. See the JSON update specification https://mcforge.readthedocs.io/en/latest/gettingstarted/autoupdate/
 updateJSONURL="https://immortius.xyz/chunkbychunk/updates.json"
 displayURL="https://immortius.xyz/chunkbychunk"
 logoFile="logo.png"
 credits="Sound effects from Kenny (www.kenney.nl)"
-authors="Immortius"
-description='''
-Punch the world one chunk at a time.
-This mod starts the overworld with a single chunk, but provides the tools to expand the world one chunk at a time.
-'''
-[[dependencies.chunkbychunk]]
-    modId="forge"
-    mandatory=true
-    versionRange="[48.0.40,)"
+authors="${mod_author}"
+description='''${description}'''
+[[mixins]]
+config = "${mod_id}.mixins.json"
+[[dependencies.${mod_id}]]
+    modId="neoforge"
+    type="required"
+    versionRange="${neoforge_loader_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.chunkbychunk]]
+[[dependencies.${mod_id}]]
     modId="minecraft"
-    mandatory=true
-    versionRange="[1.20.2,1.21)"
+    type="required"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
-[[dependencies.chunkbychunk]]
+[[dependencies.${mod_id}]]
     modId="jei"
-    mandatory=false
-    versionRange="[16.0.0.26 ,17)"
+    type="optional"
+    versionRange="[${jei_version}, 18)"
     ordering="NONE"
     side="BOTH"

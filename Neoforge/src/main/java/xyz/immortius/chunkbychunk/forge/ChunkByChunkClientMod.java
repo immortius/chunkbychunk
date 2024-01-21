@@ -1,7 +1,7 @@
 package xyz.immortius.chunkbychunk.forge;
 
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.fml.ModLoadingContext;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.neoforge.client.ConfigScreenHandler;
 import xyz.immortius.chunkbychunk.client.screens.ChunkByChunkConfigScreen;
 
 public final class ChunkByChunkClientMod {
