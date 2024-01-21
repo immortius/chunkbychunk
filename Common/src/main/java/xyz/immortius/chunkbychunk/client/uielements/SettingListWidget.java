@@ -28,7 +28,7 @@ public class SettingListWidget extends ContainerObjectSelectionList<SettingListW
     private int rowWidth;
 
     public SettingListWidget(Minecraft minecraft, Screen parent, int width, int top, int bottom, int rowWidth) {
-        super(minecraft, width, parent.height, top, bottom, 22);
+        super(minecraft, width, parent.height - 64, 24, 22);
 
         this.rowWidth = rowWidth;
         ConfigMetadata metadata = MetadataBuilder.build(ChunkByChunkConfig.class);

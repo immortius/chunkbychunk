@@ -1,21 +1,19 @@
 {
   "schemaVersion": 1,
-  "id": "chunkbychunk",
+  "id": "${mod_id}",
   "version": "${version}",
-
-  "name": "Chunk By Chunk",
-  "description": "This mod starts the overworld with a single chunk, but provides the tools to expand to world one chunk at a time.",
+  "name": "${mod_name}",
+  "description": "${description}",
   "authors": [
-    "Immortius"
+    "${mod_author}"
   ],
   "contact": {
     "homepage": "https://immortius.xyz/chunkbychunk",
     "sources": "https://github.com/immortius/chunkbychunk"
   },
 
-  "license": "MIT License",
+  "license": "${license}",
   "icon": "assets/chunkbychunk/textures/block/chunkspawner-north.png",
-
   "environment": "*",
   "entrypoints": {
     "main": [
@@ -32,16 +30,16 @@
   "mixins": [
     "chunkbychunk.mixins.json"
   ],
-  "accessWidener" : "chunkbychunk.aw",
+  "accessWidener" : "chunkbychunk.accesswidener",
   "depends": {
-    "fabricloader": ">=0.14.24",
+    "fabricloader": ">=${fabric_loader_version}",
     "fabric": "*",
-    "minecraft": ">=1.20.2",
+    "minecraft": "${minecraft_version}",
     "java": ">=17"
   },
   "suggests" : {
-    "modmenu" : ">=8.0.0",
-    "jei" : ">=16.0.0.28"
+    "modmenu" : ">=${modmenu_version}",
+    "jei" : ">=${jei_version}"
   }
 }
   

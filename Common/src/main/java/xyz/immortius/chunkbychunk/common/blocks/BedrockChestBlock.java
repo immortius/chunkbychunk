@@ -1,5 +1,6 @@
 package xyz.immortius.chunkbychunk.common.blocks;
 
+import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -10,19 +11,32 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.BlockHitResult;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 import xyz.immortius.chunkbychunk.common.blockEntities.BedrockChestBlockEntity;
 import xyz.immortius.chunkbychunk.config.ChunkByChunkConfig;
+import xyz.immortius.chunkbychunk.interop.Services;
+
+import java.util.function.Supplier;
 
 /**
  * A Bedrock Chest is a chest made of Bedrock that can only be opened if the chunk above it is cleared - with
  * a little leeway, and ignoring some types of block.
  */
 public class BedrockChestBlock extends BaseEntityBlock {
+    public static final MapCodec<BedrockChestBlock> CODEC = simpleCodec(BedrockChestBlock::new);
+
     public BedrockChestBlock(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return CODEC;
     }
 
     @Override
