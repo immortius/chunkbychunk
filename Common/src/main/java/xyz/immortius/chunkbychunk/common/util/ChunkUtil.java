@@ -1,11 +1,14 @@
 package xyz.immortius.chunkbychunk.common.util;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import xyz.immortius.chunkbychunk.common.ChunkByChunkConstants;
 
+import java.util.Random;
 import java.util.Set;
 
 /**
@@ -14,6 +17,16 @@ import java.util.Set;
 public final class ChunkUtil {
     private ChunkUtil() {
 
+    }
+
+    public static Random getChunkRandom(ServerLevel targetLevel, ChunkPos chunkPos) {
+        long seed = targetLevel.getSeed() + ChunkByChunkConstants.MOD_ID.hashCode();
+        Random random = new Random(seed);
+        long xModifier = random.nextLong();
+        long yModifier = random.nextLong();
+        long chunkSeed = (long) chunkPos.x & xModifier ^ (long) chunkPos.z * yModifier ^ seed;
+        random.setSeed(chunkSeed);
+        return random;
     }
 
     /**
