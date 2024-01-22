@@ -8,6 +8,10 @@ core concept.
 
 This project requires [JDK 17](https://adoptium.net/) & uses the [MultiLoader Template](https://github.com/jaredlll08/MultiLoader-Template) provided by [jaredlll08](https://github.com/jaredlll08).
 
+## Contributing
+
+Please note that the way this project is set up currently contributions should be made against the 1.19.3 branch - these will then be pushed out to other versions.
+
 ## Credits
 
 Chunk By Chunk was developed by dividesBy0/immortius.
