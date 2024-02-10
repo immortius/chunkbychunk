@@ -12,8 +12,6 @@ import java.util.Set;
  */
 public final class ChunkByChunkConstants {
 
-
-
     private ChunkByChunkConstants() {
     }
 

@@ -3,9 +3,10 @@ package xyz.immortius.chunkbychunk.common.blockEntities;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -44,9 +45,9 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
     private static final int[] SLOTS_FOR_UP = new int[]{SLOT_INPUT};
     private static final int[] SLOTS_FOR_DOWN = new int[]{SLOT_RESULT};
 
-    private static final TagKey<Item> SOIL_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:weakworldforgefuel"));
-    private static final TagKey<Item> STONE_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:worldforgefuel"));
-    private static final TagKey<Item> STRONG_FUEL_TAG = TagKey.create(Registries.ITEM, new ResourceLocation("chunkbychunk:strongworldforgefuel"));
+    private static final TagKey<Item> SOIL_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:weakworldforgefuel"));
+    private static final TagKey<Item> STONE_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:worldforgefuel"));
+    private static final TagKey<Item> STRONG_FUEL_TAG = TagKey.create(Registry.ITEM_REGISTRY, new ResourceLocation("chunkbychunk:strongworldforgefuel"));
 
     private int progress;
     private int goal;
@@ -104,7 +105,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     @Override
     protected Component getDefaultName() {
-        return Component.translatable("container.chunkbychunk.worldforge");
+        return new TranslatableComponent("container.chunkbychunk.worldforge");
     }
 
     @Override
