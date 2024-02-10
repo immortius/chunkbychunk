@@ -83,12 +83,12 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.setShaderTexture(0, CONTAINER_TEXTURE);
-        this.blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight);
+        blit(stack, leftPos, topPos, 0, 0, this.imageWidth, this.imageHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
 
         SpiralIterator iterator = new SpiralIterator(0,0);
         for (int i = 0; i < menu.getChunksSpawned(); i++) {
             Pos blitPos = getChunkPos(iterator.getX(), iterator.getY());
-            this.blit(stack, HIGHLIGHT_INSET_X + leftPos + blitPos.x, HIGHLIGHT_INSET_Y + topPos + blitPos.y, highlightOffsetX + blitPos.x(), highlightOffsetY + blitPos.y(), 2, 2);
+            blit(stack, HIGHLIGHT_INSET_X + leftPos + blitPos.x, HIGHLIGHT_INSET_Y + topPos + blitPos.y, highlightOffsetX + blitPos.x(), highlightOffsetY + blitPos.y(), 2, 2, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
             iterator.next();
         }
     }
@@ -110,11 +110,6 @@ public class WorldMenderScreen extends AbstractContainerScreen<WorldMenderMenu> 
         }
 
         return new Pos(xOffset, yOffset);
-    }
-
-    @Override
-    public void blit(PoseStack stack, int screenX, int screenY, int texX, int texY, int pixelWidth, int pixelHeight) {
-        blit(stack, screenX, screenY, getBlitOffset(), (float) texX, (float) texY, pixelWidth, pixelHeight, MAIN_TEXTURE_DIM, MAIN_TEXTURE_DIM);
     }
 
     private record Pos(int x, int y) {

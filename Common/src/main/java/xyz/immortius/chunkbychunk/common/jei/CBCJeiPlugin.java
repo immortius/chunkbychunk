@@ -64,23 +64,14 @@ public class CBCJeiPlugin implements IModPlugin {
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.FUEL_TAGS.entrySet().stream().map(tagInfo -> {
             int inputSize = determineForgeInput(tagInfo.getValue().get());
             ItemStack output = determineForgeOutput(tagInfo.getValue().get());
-
-            return new WorldForgeRecipe(registration.getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).map(x -> {
-                if (inputSize > 1) {
-                    ItemStack copy = x.copy();
-                    copy.setCount(inputSize);
-                    return copy;
-                }
-                return x;
-            }).toList(), tagInfo.getValue().get(), output);
+            return new WorldForgeRecipe(registration.getJeiHelpers().getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).map(x -> (inputSize > 1) ? x.copyWithCount(inputSize) : x).toList(), tagInfo.getValue().get(), output);
         }).filter(r -> !r.getInputItems().isEmpty()).toList());
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.FUEL.entrySet().stream().map(fuelInfo -> {
             ItemStack output = determineForgeOutput(fuelInfo.getValue().get());
             return new WorldForgeRecipe(Collections.singletonList(fuelInfo.getKey().getDefaultInstance()), fuelInfo.getValue().get(), output);
         }).toList());
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.CRYSTAL_STEPS.entrySet().stream().map(step -> {
-            ItemStack input = step.getKey().getDefaultInstance().copy();
-            input.setCount(WorldForgeBlockEntity.GROW_CRYSTAL_AT);
+            ItemStack input = step.getKey().getDefaultInstance().copyWithCount(WorldForgeBlockEntity.GROW_CRYSTAL_AT);
             ItemStack output = step.getValue().getDefaultInstance();
             return new WorldForgeRecipe(Collections.singletonList(input), ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost(), output);
         }).toList());
@@ -95,8 +86,7 @@ public class CBCJeiPlugin implements IModPlugin {
         int count = fuelValue / ChunkByChunkConfig.get().getWorldForge().getFragmentFuelCost();
         ItemStack output = Services.PLATFORM.worldFragmentItem().getDefaultInstance();
         if (count > 1) {
-            output = output.copy();
-            output.setCount(count);
+            output = output.copyWithCount(count);
         }
         return output;
     }
