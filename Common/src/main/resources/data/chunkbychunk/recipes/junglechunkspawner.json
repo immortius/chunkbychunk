@@ -10,7 +10,7 @@
       "tag": "minecraft:saplings"
     },
     "C" : {
-      "item" : "minecraft:copper_block"
+      "item" : "minecraft:copper_ingot"
     },
     "X" : {
       "item" : "chunkbychunk:worldcore"
