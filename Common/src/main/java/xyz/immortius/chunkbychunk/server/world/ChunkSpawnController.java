@@ -4,9 +4,10 @@ import com.mojang.datafixers.util.Either;
 import io.netty.buffer.Unpooled;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -168,7 +169,7 @@ public class ChunkSpawnController extends SavedData {
             } else {
                 phase = SpawnPhase.COPY_BIOMES;
             }
-            ChunkByChunkConstants.LOGGER.info("Spawning chunk " + currentSpawnRequest.targetChunkPos + " in " + targetLevel.dimension());
+            ChunkByChunkConstants.LOGGER.info("Spawning chunk " + currentSpawnRequest.targetChunkPos.toString() + " in " + targetLevel.dimensionTypeId().toString());
             setDirty();
         }
     }
@@ -236,25 +237,24 @@ public class ChunkSpawnController extends SavedData {
         boolean biomesUpdated = false;
         for (int targetIndex = 0; targetIndex < targetChunk.getSections().length; targetIndex++) {
             int sourceIndex = (targetIndex < sourceChunk.getSections().length) ? targetIndex : sourceChunk.getSections().length - 1;
+            if (sourceChunk.getSections()[sourceIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> sourceBiomes && targetChunk.getSections()[targetIndex].getBiomes() instanceof PalettedContainer<Holder<Biome>> targetBiomes) {
+                byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
 
-            PalettedContainer<Holder<Biome>> sourceBiomes = sourceChunk.getSections()[sourceIndex].getBiomes();
-            PalettedContainer<Holder<Biome>> targetBiomes = targetChunk.getSections()[targetIndex].getBiomes();
+                FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
+                friendlyByteBuf.writerIndex(0);
+                sourceBiomes.write(friendlyByteBuf);
 
-            byte[] buffer = new byte[sourceBiomes.getSerializedSize()];
-            FriendlyByteBuf friendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(buffer));
-            friendlyByteBuf.writerIndex(0);
-            sourceBiomes.write(friendlyByteBuf);
+                byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
+                FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
+                targetFriendlyByteBuf.writerIndex(0);
+                targetBiomes.write(targetFriendlyByteBuf);
 
-            byte[] targetBuffer = new byte[targetBiomes.getSerializedSize()];
-            FriendlyByteBuf targetFriendlyByteBuf = new FriendlyByteBuf(Unpooled.wrappedBuffer(targetBuffer));
-            targetFriendlyByteBuf.writerIndex(0);
-            targetBiomes.write(targetFriendlyByteBuf);
-
-            if (!Arrays.equals(buffer, targetBuffer)) {
-                friendlyByteBuf.readerIndex(0);
-                targetBiomes.read(friendlyByteBuf);
-                targetChunk.setUnsaved(true);
-                biomesUpdated = true;
+                if (!Arrays.equals(buffer, targetBuffer)) {
+                    friendlyByteBuf.readerIndex(0);
+                    targetBiomes.read(friendlyByteBuf);
+                    targetChunk.setUnsaved(true);
+                    biomesUpdated = true;
+                }
             }
         }
         if (biomesUpdated) {
@@ -269,7 +269,7 @@ public class ChunkSpawnController extends SavedData {
                 if (synchLevel.getChunkSource().getGenerator() instanceof SkyChunkGenerator synchGenerator) {
                     double scale = DimensionType.getTeleportationScale(targetLevel.dimensionType(), synchLevel.dimensionType());
                     BlockPos pos = currentSpawnRequest.targetChunkPos().getMiddleBlockPosition(0);
-                    ChunkPos synchChunk = new ChunkPos(new BlockPos(pos.getX() * scale, 0, pos.getZ() * scale));
+                    ChunkPos synchChunk = new ChunkPos(BlockPos.containing(pos.getX() * scale, 0, pos.getZ() * scale));
                     request(synchChunk, synchLevelId, synchChunk, synchGenerator.getGenerationLevel(), false);
                 }
             }
@@ -338,8 +338,7 @@ public class ChunkSpawnController extends SavedData {
         return currentSpawnRequest != null || !requests.isEmpty();
     }
 
-    private record SpawnRequest(ChunkPos targetChunkPos, ResourceKey<Level> targetLevel, ChunkPos sourceChunkPos,
-                                ResourceKey<Level> sourceLevel, boolean immediate) {
+    private record SpawnRequest(ChunkPos targetChunkPos, ResourceKey<Level> targetLevel, ChunkPos sourceChunkPos, ResourceKey<Level> sourceLevel, boolean immediate) {
 
         public static final String TARGET_POS = "targetPos";
         public static final String TARGET_LEVEL = "targetLevel";
@@ -349,9 +348,9 @@ public class ChunkSpawnController extends SavedData {
 
         public static SpawnRequest load(CompoundTag tag) {
             ChunkPos targetPos = new ChunkPos(tag.getLong(TARGET_POS));
-            ResourceKey<Level> targetLevel = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString(TARGET_LEVEL)));
+            ResourceKey<Level> targetLevel = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString(TARGET_LEVEL)));
             ChunkPos sourcePos = new ChunkPos(tag.getLong(SOURCE_POS));
-            ResourceKey<Level> sourceLevel = ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString(SOURCE_LEVEL)));
+            ResourceKey<Level> sourceLevel = ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString(SOURCE_LEVEL)));
             boolean immediate = tag.getBoolean(IMMEDIATE);
             return new SpawnRequest(targetPos, targetLevel, sourcePos, sourceLevel, immediate);
         }

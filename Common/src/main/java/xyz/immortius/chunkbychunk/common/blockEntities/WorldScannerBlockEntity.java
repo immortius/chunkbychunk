@@ -7,7 +7,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -129,7 +128,7 @@ public class WorldScannerBlockEntity extends BaseFueledBlockEntity {
 
     @Override
     protected Component getDefaultName() {
-        return new TranslatableComponent("container.chunkbychunk.worldscanner");
+        return Component.translatable("container.chunkbychunk.worldscanner");
     }
 
     @Override

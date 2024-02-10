@@ -14,9 +14,8 @@ import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.Coordinates;
 import net.minecraft.commands.arguments.coordinates.Vec3Argument;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -34,10 +33,10 @@ import java.util.concurrent.CompletableFuture;
 
 public class SpawnChunkCommand {
 
-    private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.invalidPosition"));
-    private static final SimpleCommandExceptionType INVALID_LEVEL = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.invalidlevel"));
-    private static final SimpleCommandExceptionType INVALID_THEME = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.invalidtheme"));
-    private static final SimpleCommandExceptionType NON_EMPTY_CHUNK = new SimpleCommandExceptionType(new TranslatableComponent("commands.chunkbychunk.spawnchunk.nonemptychunk"));
+    private static final SimpleCommandExceptionType INVALID_POSITION = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.invalidPosition"));
+    private static final SimpleCommandExceptionType INVALID_LEVEL = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.invalidlevel"));
+    private static final SimpleCommandExceptionType INVALID_THEME = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.invalidtheme"));
+    private static final SimpleCommandExceptionType NON_EMPTY_CHUNK = new SimpleCommandExceptionType(Component.translatable("commands.chunkbychunk.spawnchunk.nonemptychunk"));
 
     public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
         LiteralCommandNode<CommandSourceStack> spawnChunkCommand = dispatcher.register(Commands.literal("chunkbychunk:spawnChunk")
@@ -69,7 +68,7 @@ public class SpawnChunkCommand {
 
     private static int spawnChunk(CommandSourceStack stack, ServerLevel level, Coordinates specifiedCoords, boolean random) throws CommandSyntaxException {
         Vec3 vec3 = specifiedCoords.getPosition(stack);
-        BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
+        BlockPos pos = BlockPos.containing(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
         if (!(level.getChunkSource().getGenerator() instanceof SkyChunkGenerator)) {
@@ -88,7 +87,7 @@ public class SpawnChunkCommand {
 
     private static int spawnThemedChunk(CommandSourceStack stack, ServerLevel level, String biome, Coordinates specifiedCoords) throws CommandSyntaxException {
         Vec3 vec3 = specifiedCoords.getPosition(stack);
-        BlockPos pos = new BlockPos(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
+        BlockPos pos = BlockPos.containing(vec3.x, level.getMaxBuildHeight() - 1, vec3.z);
         ChunkPos chunkPos = new ChunkPos(pos);
 
         if (level.getChunkSource().getGenerator() instanceof SkyChunkGenerator skyChunkGenerator) {
