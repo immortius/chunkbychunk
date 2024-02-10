@@ -14,7 +14,7 @@ This project requires [JDK 17](https://adoptium.net/) & uses the [MultiLoader Te
 
 ## Contributing
 
-Please note that the way this project is set up currently contributions should be made against the 1.19.3 branch - these will then be pushed out to other versions.
+Please note that the way this project is set up currently contributions should be made against the 1.18.2 branch (or master) - these will then be pushed out to other versions.
 
 ## Credits
 
