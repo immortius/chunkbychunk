@@ -14,7 +14,7 @@ public class GenerationConfig {
 
     @Name("seal_world")
     @Comment("Should empty chunks be generated as bedrock")
-    private boolean sealWorld = true;
+    private boolean sealWorld = false;
 
     @Name("synch_nether_chunk_spawn")
     @Comment("Should the nether start empty with chunks spawning in response to overworld spawns")
@@ -49,7 +49,7 @@ public class GenerationConfig {
     @Name("max_chest_spawn_depth")
     @Comment("The maximum depth at which the chunk spawner chest can spawn")
     @IntRange(min = -64, max = 128)
-    private int maxChestSpawnDepth = -52;
+    private int maxChestSpawnDepth = -53;
 
     @Name("initial_chunks")
     @Comment("The number of chunks to spawn initially")

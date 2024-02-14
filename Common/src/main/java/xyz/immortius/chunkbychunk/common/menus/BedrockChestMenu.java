@@ -22,7 +22,7 @@ public class BedrockChestMenu extends BaseInventoryContainerMenu {
 
         for(int k = 0; k < BedrockChestBlockEntity.ROWS; ++k) {
             for(int l = 0; l < BedrockChestBlockEntity.COLUMNS; ++l) {
-                this.addSlot(new Slot(container, 0, 8 + 4 * INVENTORY_SLOT_PIXELS, 18 + INVENTORY_SLOT_PIXELS));
+                this.addSlot(new Slot(container, l + k * BedrockChestBlockEntity.COLUMNS, 41 + l * (INVENTORY_SLOT_PIXELS + 8), 22 + (INVENTORY_SLOT_PIXELS + 8) * k));
             }
         }
     }

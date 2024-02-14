@@ -19,11 +19,11 @@ import xyz.immortius.chunkbychunk.interop.Services;
  */
 public class BedrockChestBlockEntity extends RandomizableContainerBlockEntity {
 
-    public static final int COLUMNS = 1;
-    public static final int ROWS = 1;
+    public static final int COLUMNS = 4;
+    public static final int ROWS = 2;
     public static final int CONTAINER_SIZE = COLUMNS * ROWS;
 
-    private NonNullList<ItemStack> items = NonNullList.withSize(1, ItemStack.EMPTY);
+    private NonNullList<ItemStack> items = NonNullList.withSize(8, ItemStack.EMPTY);
 
     public BedrockChestBlockEntity(BlockPos pos, BlockState state) {
         super(Services.PLATFORM.bedrockChestEntity(), pos, state);
