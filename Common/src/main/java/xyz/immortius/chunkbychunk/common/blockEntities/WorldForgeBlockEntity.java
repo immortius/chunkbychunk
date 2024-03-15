@@ -6,7 +6,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Inventory;
@@ -105,7 +104,7 @@ public class WorldForgeBlockEntity extends BaseFueledBlockEntity {
 
     @Override
     protected Component getDefaultName() {
-        return new TranslatableComponent("container.chunkbychunk.worldforge");
+        return Component.translatable("container.chunkbychunk.worldforge");
     }
 
     @Override

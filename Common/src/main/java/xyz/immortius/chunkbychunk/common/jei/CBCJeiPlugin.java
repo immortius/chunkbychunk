@@ -64,8 +64,7 @@ public class CBCJeiPlugin implements IModPlugin {
         registration.addRecipes(WORLD_FORGE, WorldForgeBlockEntity.FUEL_TAGS.entrySet().stream().map(tagInfo -> {
             int inputSize = determineForgeInput(tagInfo.getValue().get());
             ItemStack output = determineForgeOutput(tagInfo.getValue().get());
-
-            return new WorldForgeRecipe(registration.getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).map(x -> {
+            return new WorldForgeRecipe(registration.getJeiHelpers().getIngredientManager().getAllItemStacks().stream().filter(item -> item.is(tagInfo.getKey())).map(x -> {
                 if (inputSize > 1) {
                     ItemStack copy = x.copy();
                     copy.setCount(inputSize);
